@@ -8,21 +8,27 @@ import { Loader2, Plus, Trash2 } from "lucide-react";
 import { useNotification } from "./Notification";
 import { apiClient, ProductFormData } from "@/lib/api-client";
 
+
+
 export default function AdminProductForm() {
   const [loading, setLoading] = useState(false);
   const { showNotification } = useNotification();
 
+ 
+
   const {
+    watch,
     register,
     control,
     handleSubmit,
     setValue,
+    getValues ,
     formState: { errors },
   } = useForm<ProductFormData>({
     defaultValues: {
       name: "",
       description: "",
-      imageUrl: "",
+      imageUrl: [],
       variants: [
         {
           type: "",
@@ -38,9 +44,10 @@ export default function AdminProductForm() {
   });
 
   const handleUploadSuccess = (response: IKUploadResponse) => {
-    setValue("imageUrl", response.filePath);
+    const currentImages = getValues("imageUrl") || []; // Ensure it's an array
+    setValue("imageUrl", [...currentImages, response.filePath]); 
     showNotification("Image uploaded successfully!", "success");
-  };
+};
 
   const onSubmit = async (data: ProductFormData) => {
     setLoading(true);
@@ -51,7 +58,7 @@ export default function AdminProductForm() {
       // Reset form after successful submission
       setValue("name", "");
       setValue("description", "");
-      setValue("imageUrl", "");
+      setValue("imageUrl", []);
       setValue("variants", [
         {
           type: "",
@@ -101,6 +108,14 @@ export default function AdminProductForm() {
       <div className="form-control">
         <label className="label">Product Image</label>
         <FileUpload onSuccess={handleUploadSuccess} />
+        {watch("imageUrl")?.length > 0 && (
+        <div className="grid grid-cols-3 gap-2 mt-2">
+          {watch("imageUrl").map((url, index) => (
+            <img key={index} src={url} alt="Uploaded" className="w-20 h-20 object-cover" />
+          ))}
+        </div>
+        )}
+
       </div>
 
       <div className="form-control">

@@ -30,6 +30,7 @@ export default function FileUpload({onSuccess}: {onSuccess: (response: IKUploadR
             onError={onError} 
             onSuccess={handleSuccess}
             onUploadStart={handleStartUpload} 
+            multiple
             validateFile={(file: File) => {
                 const validTypes = ["image/jpeg", "image/png", "image/webp"];
                 if (!validTypes.includes(file.type)) {
