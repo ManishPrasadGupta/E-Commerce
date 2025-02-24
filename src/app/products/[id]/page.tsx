@@ -26,6 +26,17 @@ export default function ProductPage() {
   const { data: session } = useSession();
   const images = Array.isArray(product?.imageUrl) ? product.imageUrl : [product?.imageUrl];
 
+  const [activeIndex, setActiveIndex] = useState(0);
+
+  const nextSlide = () => {
+    setActiveIndex((prev) => (prev + 1) % images.length);
+  };
+
+  const prevSlide = () => {
+    setActiveIndex((prev) => (prev - 1 + images.length) % images.length);
+  };
+
+
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -131,29 +142,25 @@ export default function ProductPage() {
           
           {/* Carousel Wrapper */}
           <div className="relative h-[500px] overflow-hidden rounded-lg">
-            {images.map((img, index) => (
-              <div
-                key={index}
-                className={`${index === 0 ? "block" : "hidden"} duration-700 ease-in-out`}
-                data-carousel-item
-                style={{
-                  height:"auto",
-                  width:"auto"
-                }}
-              >
-                <IKImage
-                  urlEndpoint={process.env.NEXT_PUBLIC_URL_ENDPOINT}
-                  path={img}
-                  alt={product?.name}
-                  height="500"
-                  width="500"
-                  className="absolute block w-full h-full object-cover"
-                  loading="eager"
-                  
-                />
-              </div>
-            ))}
+          {images.map((img, index) => (
+            <div
+              key={index}
+              className={`${index === activeIndex ? "block" : "hidden"} duration-700 ease-in-out`}
+              data-carousel-item
+            >
+              <IKImage
+                urlEndpoint={process.env.NEXT_PUBLIC_URL_ENDPOINT}
+                path={img}
+                alt={product?.name}
+                height="500"
+                width="500"
+                className="absolute block w-full h-full object-cover"
+                loading="eager"
+              />
+            </div>
+          ))}
           </div>
+
           
           {/* Slider Indicators */}
           <div className="absolute z-30 flex -translate-x-1/2 bottom-5 left-1/2 space-x-3">
@@ -170,6 +177,7 @@ export default function ProductPage() {
           
           {/* Slider Controls */}
           <button
+          onClick={prevSlide}
             type="button"
             className="absolute top-0 start-0 z-30 flex items-center justify-center h-full px-4 cursor-pointer group focus:outline-none"
             data-carousel-prev
@@ -193,6 +201,7 @@ export default function ProductPage() {
             </span>
           </button>
           <button
+          onClick={nextSlide}
             type="button"
             className="absolute top-0 end-0 z-30 flex items-center justify-center h-full px-4 cursor-pointer group focus:outline-none"
             data-carousel-next
