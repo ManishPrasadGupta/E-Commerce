@@ -22,7 +22,8 @@ export default function TopProducts() {
           return;
         }
         setProducts(fetchedProducts);
-      } catch (err) {
+      } catch (error) {
+        console.error("Error fetching top products:", error);
         setError("Failed to fetch top products.Check Your Internet");
       } finally {
         setLoading(false);

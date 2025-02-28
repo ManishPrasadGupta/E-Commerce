@@ -7,6 +7,7 @@ import { IKUploadResponse } from "imagekitio-next/dist/types/components/IKUpload
 import { Loader2, Plus, Trash2 } from "lucide-react";
 import { useNotification } from "./Notification";
 import { apiClient, ProductFormData } from "@/lib/api-client";
+import Image from "next/image";
 
 
 
@@ -111,7 +112,7 @@ export default function AdminProductForm() {
         {watch("imageUrl")?.length > 0 && (
         <div className="grid grid-cols-3 gap-2 mt-2">
           {watch("imageUrl").map((url, index) => (
-            <img key={index} src={url} alt="Uploaded" className="w-20 h-20 object-cover" />
+            <Image key={index} src={url} alt="Uploaded" className="w-20 h-20 object-cover"/>
           ))}
         </div>
         )}

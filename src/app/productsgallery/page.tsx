@@ -4,13 +4,6 @@ import React, { useEffect, useState } from "react";
 import { IProduct } from "@/models/Product.model";
 import { apiClient } from "@/lib/api-client";
 
-import HeroSection from "@/components/HeroScetion/HeroSection";
-import AboutUs from "@/components/AboutUs/AboutUs";
-import Blogs from "@/components/Blogs/Blogs";
-import WhyChooseUs from "@/components/WhyChooseUs/WhyChooseUs";
-import Footer from "@/components/Footer/Footer";
-import TopProducts from "@/components/TopProducts/TopProducts";
-import Gadgets from "@/components/Gadgets/Gadgets";
 import ProductsGallery from "@/components/ProductsGallery";
 
 

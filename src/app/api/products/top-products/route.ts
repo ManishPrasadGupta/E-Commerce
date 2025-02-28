@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from "next/server";
+import {  NextResponse } from "next/server";
 import Product from "@/models/Product.model";
 import { dbConnect } from "@/lib/db";
 

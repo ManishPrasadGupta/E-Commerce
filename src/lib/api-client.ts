@@ -11,7 +11,7 @@ export interface CreateOrderData {
 
 type FetchOptions = {
   method?: "GET" | "POST" | "PUT" | "DELETE";
-  body?: any;
+  body?: unknown,
   headers?: Record<string, string>;
 };
 
@@ -60,7 +60,7 @@ class ApiClient {
   async createProduct(productData: ProductFormData) {
     return this.fetch<IProduct>("/products", {
       method: "POST",
-      body: productData,
+      body: productData as unknown,
     });
   }
 

@@ -9,8 +9,11 @@ interface PopulatedUser {
   interface PopulatedProduct {
     _id: mongoose.Types.ObjectId;
     name: string;
-    imageUrl: string;
+    description: string;  
+    imageUrl: string[];
+    variants: ColorVariant[]; 
   }
+  
   
   export interface IOrder {
     _id?: mongoose.Types.ObjectId;

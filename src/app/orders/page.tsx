@@ -6,6 +6,7 @@ import { IOrder } from "@/models/Order.model";
 import { Loader2, Download } from "lucide-react";
 import { IKImage } from "imagekitio-next";
 import { apiClient } from "@/lib/api-client";
+import { IProduct } from "@/models/Product.model";
 
 export default function OrdersPage() {
   const [orders, setOrders] = useState<IOrder[]>([]);
@@ -42,7 +43,7 @@ export default function OrdersPage() {
         {orders.map((order) => {
           
 
-          const product = order.productId as any;
+          const product = order.productId as IProduct;
 
           return (
             <div
@@ -57,7 +58,7 @@ export default function OrdersPage() {
                   >
                     <IKImage
                       urlEndpoint={process.env.NEXT_PUBLIC_URL_ENDPOINT}
-                      path={product.imageUrl}
+                      path={Array.isArray(product.imageUrl) ? product.imageUrl[0] : product.imageUrl}
                       alt={`Order ${order._id?.toString().slice(-6)}`}
                       className="w-full h-full object-cover"
                       loading="lazy"

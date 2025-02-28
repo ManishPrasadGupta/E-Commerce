@@ -3,7 +3,6 @@
 import React, { useEffect, useState } from "react";
 import { IProduct } from "@/models/Product.model";
 import { apiClient } from "@/lib/api-client";
-import ProductsGallery from "@/components/ProductsGallery";
 import HeroSection from "@/components/HeroScetion/HeroSection";
 import AboutUs from "@/components/AboutUs/AboutUs";
 import Blogs from "@/components/Blogs/Blogs";
