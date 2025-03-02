@@ -41,10 +41,8 @@ export default function OrdersPage() {
       <h1 className="text-3xl font-bold mb-8">My Orders</h1>
       <div className="space-y-6">
         {orders.map((order) => {
-          
-
           const product = order.productId as IProduct;
-
+          
           return (
             <div
               key={order._id?.toString()}

@@ -28,7 +28,7 @@ class ApiClient {
       ...headers,
     };
 
-    const response = await fetch(`/api${endpoint}`, {
+    const response = await fetch(`/api/${endpoint}`, {
       method,
       headers: defaultHeaders,
       body: body ? JSON.stringify(body) : undefined,
@@ -37,7 +37,6 @@ class ApiClient {
     if (!response.ok) {
       throw new Error(await response.text());
     }
-
     return response.json();
   }
 

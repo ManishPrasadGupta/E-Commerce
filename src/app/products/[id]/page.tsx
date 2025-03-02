@@ -118,20 +118,22 @@ export default function ProductPage() {
     }
   };
 
-  if (loading)
+  if (loading) {
     return (
       <div className="min-h-[70vh] flex justify-center items-center">
         <Loader2 className="w-12 h-12 animate-spin text-primary" />
       </div>
     );
+  }
 
-  if (error || !product)
+  if (error || !product) {
     return (
       <div className="alert alert-error max-w-md mx-auto my-8">
         <AlertCircle className="w-6 h-6" />
         <span>{error || "Product not found"}</span>
       </div>
     );
+  }
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -224,9 +226,8 @@ export default function ProductPage() {
               <span className="sr-only">Next</span>
             </span>
           </button>
-    </div>  
-
-
+        </div>  
+        
         {/* Product Details Section */}
         <div className="space-y-6">
           <div>
