@@ -96,7 +96,7 @@ export default function ProductPage() {
         key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
         amount,
         currency: "INR",
-        name: "Shiwam Electronics",
+        name: "Electronics",
         description: `${product?.name} - ${variant?.type} Version`,
         order_id: orderId,
         handler: function () {

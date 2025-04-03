@@ -13,37 +13,7 @@ import Gadgets from "@/components/Gadgets/Gadgets";
 
 
 export default function Home() {
-  // const [products, setProducts] = useState<IProduct[]>([]);
-
-  // useEffect(() => {
-  //   const fetchProducts = async () => {
-  //     try {
-  //       const data: IProduct[] = await apiClient.getProducts(); // Expect an array
-  //       // console.log("Fetched products:", data);
-
-  //       if (Array.isArray(data)) {
-  //         setProducts(data); // Now accessing `products` key inside object
-  //       } else {
-  //         console.error("Fetched data does not contain products array:", data);
-  //       }
-  //     } catch (error) {
-  //       console.error("Error fetching products:", error);
-  //     }
-  //   };
-  
-  //   fetchProducts();
-  // }, []); 
-  
-  // {products.length > 0 && (
-  //   <div className="flex flex-wrap justify-center gap-4 p-4">
-  //     {products.map((product) => (
-  //       <div key={product._id?.toString()} className="border p-4 rounded-lg shadow-md">
-  //         <h2 className="font-semibold">{product.name}</h2>
-  //       </div>
-  //     ))}
-  //   </div>
-  // )}
-
+ 
 
   return (
     <main>

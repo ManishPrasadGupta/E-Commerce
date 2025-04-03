@@ -4,6 +4,8 @@ import { Types } from "mongoose";
 
 export type ProductFormData = Omit<IProduct, "_id">;
 
+
+
 export interface CreateOrderData {
   productId: Types.ObjectId | string;
   variant: ColorVariant;
@@ -15,7 +17,7 @@ type FetchOptions = {
   headers?: Record<string, string>;
 };
 
-// in tyhe below T means Template which means anything can come up here also do some reseaerch on this.
+// in the below T means Template which means anything can come up here also do some research on this.
 class ApiClient {
   private async fetch<T>(
     endpoint: string,
@@ -28,6 +30,8 @@ class ApiClient {
       ...headers,
     };
 
+    
+
     const response = await fetch(`/api/${endpoint}`, {
       method,
       headers: defaultHeaders,
@@ -38,7 +42,7 @@ class ApiClient {
       throw new Error(await response.text());
     }
     return response.json();
-  }
+  }        
 
 
   async getProducts() {
@@ -59,7 +63,7 @@ class ApiClient {
   async createProduct(productData: ProductFormData) {
     return this.fetch<IProduct>("/products", {
       method: "POST",
-      body: productData as unknown,
+      body: productData
     });
   }
 

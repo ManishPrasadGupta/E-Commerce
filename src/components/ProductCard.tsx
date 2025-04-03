@@ -61,8 +61,6 @@ export default function ProductCard({ product }: { product: IProduct }) {
 </figure>
 
 
-     
-
 
       <div className="card-body p-4">
         <Link
