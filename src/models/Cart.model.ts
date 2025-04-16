@@ -3,7 +3,7 @@ import { ColorVariant } from "./Product.model";
 
 // Cart Item Interface
 export interface ICartItem {
-  ProductId: string;
+  productId: string;
   name: string;
   quantity: number;
   variant: ColorVariant;
@@ -69,7 +69,7 @@ cartSchema.methods.getTotal = function () {
 
 // Method to find an item by ID
 cartSchema.methods.findItemById = function (itemId: string) {
-  return this.items.find((item: ICartItem) => item.ProductId === itemId);
+  return this.items.find((item: ICartItem) => item.productId === itemId);
 };
 
 // Create the Cart model

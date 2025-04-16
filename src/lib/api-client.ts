@@ -103,6 +103,15 @@ async addToCart(item: {
   });
 }
 
+  async fetchCart() {
+    const res = await fetch("/api/cart", { method: "GET" });
+    // console.log("Response status:", res.status); 
+    if (!res.ok) throw new Error("Failed to fetch cart");
+    const data = await res.json();
+    // console.log("Fetched cart data:", data);
+    return data || [];
+  } 
+
 
 
 
@@ -113,11 +122,19 @@ async addToCart(item: {
 //   });
 // }
 
-async deleteCartItem(itemId: string) {
-  return this.fetch<void>(`/cart/${itemId}`, {
+async deleteCartItem(productId: string) {
+  const res = await fetch("/api/cart", {
     method: "DELETE",
+    body: JSON.stringify({ productId }),
+    headers: {
+      "Content-Type": "application/json"
+    }
   });
+
+  if (!res.ok) throw new Error(await res.text());
+  return true;
 }
+
 
 async clearCart() {
   return this.fetch<void>("/cart/clear", {

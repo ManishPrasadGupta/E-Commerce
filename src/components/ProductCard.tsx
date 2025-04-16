@@ -5,18 +5,19 @@ import { Eye } from "lucide-react";
 import { useState } from "react";
 import { apiClient } from "@/lib/api-client";
 
-export type CartItem = {
-  id: string;
-    name: string;
-    quantity: number;
-    variant: ColorVariant;
-};
+// export type CartItem = {
+//   id: string;
+//     name: string;
+//     quantity: number;
+//     variant: ColorVariant;
+// };
 
 
 export default function ProductCard({ product }: { product: IProduct }) {
   // console.log("Rendering Product:", product); 
 
    const [loading, setLoading] = useState(false);
+  //  const [cartItems, setCartItems] = useState<CartItem[]>([]);
 
 
 
@@ -43,7 +44,6 @@ export default function ProductCard({ product }: { product: IProduct }) {
 
     const images = Array.isArray(product?.imageUrl) ? product.imageUrl : [product?.imageUrl];
 
-   
 
     const updateCart = async () => {
       if (!product?._id || !product.variants?.[0]) {
@@ -71,8 +71,6 @@ export default function ProductCard({ product }: { product: IProduct }) {
       }
     };
     
-  
-
  
   return (
     <div className="card bg-base-100 shadow hover:shadow-lg transition-all duration-300 w-80 h-full">
@@ -137,7 +135,6 @@ export default function ProductCard({ product }: { product: IProduct }) {
             <button
             onClick={updateCart}
             className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
-            disabled={loading}
             >
             Add to Cart
             </button>

@@ -1,10 +1,11 @@
 'use client';
 
 import CartSlideOver from "@/components/Cart/CartSlideOver";
+import { apiClient } from "@/lib/api-client";
 import { useEffect, useState } from "react";
 
 export type CartItem = {
-  id: string
+  productId: string
   name: string
   quantity: number
   variant: {
@@ -19,12 +20,13 @@ export default function CartPage() {
   const [loading, setLoading] = useState(false);
   const [isCartOpen, setIsCartOpen] = useState(true);
 
-  const fetchCart = async () => {
+
+  const loadCart = async () => {
     setLoading(true);
     try {
-      const res = await fetch("/api/cart", { method: "GET" });
-      const data = await res.json();
-      console.log("Cart data:", data);
+      const data = await apiClient.fetchCart();
+      // console.log("Cart data:", data);
+
       setCartItems(data || []);
     } catch (err) {
       console.error("Error fetching cart", err);
@@ -34,32 +36,24 @@ export default function CartPage() {
   };
 
   
-  const deleteItem = async (itemId: string) => {
+  const deleteItem = async (productId: string) => {
     setLoading(true);
     try {
-        const res = await fetch("/api/cart", {
-            method: "DELETE",
-            body: JSON.stringify({ itemId }),
-            headers: {
-                "Content-Type": "application/json"
-            }
-        });
 
-        if(res.ok){
-            setCartItems((prev) => prev.filter(item => item.id !== itemId));
-            alert("Item removed from cart!");
-        } else {
-            alert("Failed to remove item from cart.");
-        }
+    await apiClient.deleteCartItem(productId);
+    setCartItems((prev) => prev.filter((item) => item.productId !== productId));
+    alert("Item removed from cart!");
+        
     } catch (err) {
         console.error("Error removing item from cart", err);
+        alert("Failed to remove item from cart.");
     } finally {
         setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchCart();
+    loadCart();
   }, []);
 
   return (
@@ -69,7 +63,7 @@ export default function CartPage() {
       <div className="flex space-x-4">
         
         <button
-          onClick={fetchCart}
+          onClick={loadCart}
           className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
         >
           Fetch Cart
@@ -88,7 +82,7 @@ export default function CartPage() {
       <div className="space-y-4">
           {Array.isArray(cartItems) && cartItems.map((item) => (
           <div
-            key={item.id ||  `${item.name}-${item.variant.type}`}
+            key={item.productId ||  `${item.name}-${item.variant.type}`}
             className="border p-4 rounded shadow-sm flex justify-between"
           >
             <div>
@@ -102,7 +96,7 @@ export default function CartPage() {
             <div>
               <p>₹ {item.variant.price}</p>
               <button
-                onClick={() => deleteItem(item.id)}
+                onClick={() => deleteItem(item.productId)}
                 className="text-red-600 text-sm hover:underline mt-2"
               >
                 Remove

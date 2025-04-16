@@ -48,17 +48,9 @@ export async function POST(req: Request) {
       }
     
       return NextResponse.json({ message: "Cart updated" });
-    } catch (error: unknown) {
-      console.error("Error in /api/cart:", error);
-
-      let errorMessage = "Server Error";
-
-      if (error instanceof Error) {
-        errorMessage = error.message;
-      }
-
-
-      return NextResponse.json({ message: "Server Error", error: errorMessage }, { status: 500 });
+    } catch (error:any) {
+      console.error("❌ Error in /api/cart:", error);
+      return NextResponse.json({ message: "Server Error", error: error.message }, { status: 500 });
     }
   }
 
@@ -72,9 +64,9 @@ export async function DELETE(req: Request) {
       return new Response("Unauthorized", { status: 401 });
     }
 
-    const { itemId } = await req.json(); 
-
-    if(!itemId) {
+    const { productId } = await req.json(); 
+   
+    if(!productId ) {
       return NextResponse.json({ message: "Item ID is required" }, { status: 400 });
     }
     await dbConnect();
@@ -85,7 +77,8 @@ export async function DELETE(req: Request) {
     }
 
  // remove item from cart
-    cart.items = cart.items.filter((item) => item.ProductId !== itemId);
+    cart.items = cart.items.filter(
+      (item) => item.productId !== productId);
     await cart.save(); 
 
 
