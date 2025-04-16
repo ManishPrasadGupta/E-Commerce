@@ -59,8 +59,11 @@ export default function CartSlideOver({ open, setOpen }: { open: boolean; setOpe
                     <p>₹{subtotal.toFixed(2)}</p>
                   </div>
                   <div className="mt-6">
-                    <a href="#" className="flex items-center justify-center rounded-md bg-indigo-600 px-6 py-3 text-base font-medium text-white hover:bg-indigo-700">
+                    <a href="#" className="flex items-center justify-center rounded-md bg-indigo-600 my-3 px-6 py-3 text-base font-medium text-white hover:bg-indigo-700">
                       Checkout
+                    </a>
+                    <a href="/cart" className="flex items-center justify-center rounded-md bg-indigo-600 px-6 py-3 text-base font-medium text-white hover:bg-indigo-700">
+                      View All
                     </a>
                   </div>
                   <div className="mt-6 text-center text-sm text-gray-500">
