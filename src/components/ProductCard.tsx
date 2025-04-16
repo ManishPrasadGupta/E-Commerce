@@ -1,11 +1,24 @@
 import { IKImage } from "imagekitio-next";
 import Link from "next/link";
-import { IProduct } from "@/models/Product.model";
+import { ColorVariant, IProduct } from "@/models/Product.model";
 import { Eye } from "lucide-react";
+import { useState } from "react";
+import { apiClient } from "@/lib/api-client";
+
+export type CartItem = {
+  id: string;
+    name: string;
+    quantity: number;
+    variant: ColorVariant;
+};
 
 
 export default function ProductCard({ product }: { product: IProduct }) {
   // console.log("Rendering Product:", product); 
+
+   const [loading, setLoading] = useState(false);
+
+
 
   if (!product || !product.variants || product.variants?.length === 0) {
     return <div>Product is not available</div>;
@@ -29,6 +42,37 @@ export default function ProductCard({ product }: { product: IProduct }) {
     : "N/A";
 
     const images = Array.isArray(product?.imageUrl) ? product.imageUrl : [product?.imageUrl];
+
+   
+
+    const updateCart = async () => {
+      if (!product?._id || !product.variants?.[0]) {
+        alert("Product data is incomplete.");
+        return;
+      }
+      setLoading(true);
+      try {
+        const item = {
+          productId: product._id?.toString(),
+          name: product.name,
+          quantity: 1,
+          variant: product.variants?.[0], // assuming you're picking the first variant
+        };
+
+        console.log("Item to add to cart:", item); // Log the item being added
+    
+        await apiClient.addToCart(item);
+        alert("Added to cart!");
+      } catch (err) {
+        console.error("Error adding to cart", err);
+        alert("Failed to add to cart.");
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+  
+
  
   return (
     <div className="card bg-base-100 shadow hover:shadow-lg transition-all duration-300 w-80 h-full">
@@ -81,14 +125,24 @@ export default function ProductCard({ product }: { product: IProduct }) {
               {productVariants.length} variants available
             </span>
           </div>
+          <div className="flex gap-14">
+            <Link
+              href={`/products/${product._id}`}
+              className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+            >
+              <Eye className="w-4 h-4" />
+              Buy Now
+            </Link>
+  
+            <button
+            onClick={updateCart}
+            className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+            disabled={loading}
+            >
+            Add to Cart
+            </button>
+          </div>
 
-          <Link
-            href={`/products/${product._id}`}
-            className="btn btn-primary btn-sm gap-2"
-          >
-            <Eye className="w-4 h-4" />
-            View Option/Buy Now
-          </Link>
         </div>
       </div>
     </div>

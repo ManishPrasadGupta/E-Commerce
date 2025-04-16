@@ -5,11 +5,14 @@ import { useSession, signOut } from "next-auth/react";
 import { Home, Menu } from "lucide-react";
 import { useState } from "react";
 import { useNotification } from "./Notification";
+import CartSlideOver from "./Cart/CartSlideOver";
 
 export default function Header() {
   const { data: session } = useSession();
   const { showNotification } = useNotification();
   const [menuOpen, setMenuOpen] = useState(false); // Added state for toggling the menu
+
+  const [isCartOpen, setIsCartOpen] = useState(false);
 
   const handleSignOut = async () => {
     try {
@@ -79,10 +82,22 @@ export default function Header() {
                   Login
                 </Link>
               </li>
+              
             )}
+            <li>
+            <button
+              onClick={() => setIsCartOpen(true)}
+              className="bg-gray-800 text-white px-4 py-2 rounded hover:bg-gray-700"
+            > 
+              View Cart
+            </button>
+            </li>
+            <CartSlideOver open={isCartOpen} setOpen={setIsCartOpen} />
           </ul>
         </div>
       </div>
+      
+          
     </div>
   );
 }

@@ -5,6 +5,7 @@ import Script from "next/script";
 import Providers from "@/components/Providers";
 import { NotificationProvider } from "@/components/Notification";
 import Header from "@/components/Header";
+import { CartProvider } from "@/context/CartContext";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -38,12 +39,14 @@ export default function RootLayout({
         />
   
         <Providers>
-          <NotificationProvider>
-            <main>
-              <Header />
-              {children}
-            </main>
-          </NotificationProvider>       
+          <CartProvider>
+            <NotificationProvider>
+              <main>
+                <Header />
+                {children}
+              </main>
+            </NotificationProvider>       
+          </CartProvider>
         </Providers>
       </body>
     </html>

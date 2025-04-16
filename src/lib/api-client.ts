@@ -1,9 +1,9 @@
+import { ICartItem } from "@/models/Cart.model";
 import { IOrder } from "@/models/Order.model";
 import { IProduct, ColorVariant } from "@/models/Product.model";
 import { Types } from "mongoose";
 
 export type ProductFormData = Omit<IProduct, "_id">;
-
 
 
 export interface CreateOrderData {
@@ -19,6 +19,7 @@ type FetchOptions = {
 
 // in the below T means Template which means anything can come up here also do some research on this.
 class ApiClient {
+
   private async fetch<T>(
     endpoint: string,
     options: FetchOptions = {}
@@ -29,8 +30,6 @@ class ApiClient {
       "Content-Type": "application/json",
       ...headers,
     };
-
-    
 
     const response = await fetch(`/api/${endpoint}`, {
       method,
@@ -44,7 +43,7 @@ class ApiClient {
     return response.json();
   }        
 
-
+//Products
   async getProducts() {
     const response = await this.fetch<{ products: IProduct[] }>("/products"); // Expect an object with `products` key
     return response.products; // Extract and return only the array
@@ -67,6 +66,9 @@ class ApiClient {
     });
   }
 
+
+
+//orders
   async getUserOrders() {
     return this.fetch<IOrder[]>("/orders/user");
   }
@@ -82,6 +84,56 @@ class ApiClient {
       body: sanitizedOrderData,
     });
   }
+
+
+//Cart
+async getCartItems() {
+  return this.fetch<ICartItem[]>("/cart");
 }
+
+async addToCart(item: {
+  productId: string;
+  name: string;
+  quantity: number;
+  variant: ColorVariant;
+}) {
+  return this.fetch<ICartItem>("/cart", {
+    method: "POST",
+    body: { items: [item] },
+  });
+}
+
+
+
+
+// async updateCartItem(itemId: string, update: { quantity: number }) {
+//   return this.fetch<ICartItem>(`/cart/${itemId}`, {
+//     method: "PUT",
+//     body: update,
+//   });
+// }
+
+async deleteCartItem(itemId: string) {
+  return this.fetch<void>(`/cart/${itemId}`, {
+    method: "DELETE",
+  });
+}
+
+async clearCart() {
+  return this.fetch<void>("/cart/clear", {
+    method: "DELETE",
+  });
+}
+
+
+
+
+
+
+
+
+}
+
+
 
 export const apiClient = new ApiClient();

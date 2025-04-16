@@ -9,21 +9,25 @@ import {
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { Loader2, AlertCircle, Image as ImageIcon } from "lucide-react";
+
 import { useNotification } from "@/components/Notification";
 import { useSession } from "next-auth/react";
 import { apiClient } from "@/lib/api-client";
 
 export default function ProductPage() {
   const params = useParams();
+  const router = useRouter();
+  const { data: session } = useSession();
+  const { showNotification } = useNotification();
+
   const [product, setProduct] = useState<IProduct | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [selectedVariant, setSelectedVariant] = useState<ColorVariant | null>(
-    null
-  );
-  const { showNotification } = useNotification();
-  const router = useRouter();
-  const { data: session } = useSession();
+  const [selectedVariant, setSelectedVariant] = useState<ColorVariant | null>(null);
+
+
+
+
   const images = Array.isArray(product?.imageUrl) ? product.imageUrl : [product?.imageUrl];
 
   const [activeIndex, setActiveIndex] = useState(0);
@@ -48,8 +52,9 @@ export default function ProductPage() {
       setLoading(false);
       return;
     }
-    const fetchProduct = async () => {
 
+
+    const fetchProduct = async () => {
       try {
         console.log("Fetching product with id:", id);
         const data = await apiClient.getProduct(id.toString());
@@ -82,11 +87,12 @@ export default function ProductPage() {
     }
 
     try {
-      console.log("Creating order for:", product?._id, "Variant:", variant);
+      // console.log("Creating order for:", product?._id, "Variant:", variant);
       const { orderId, amount } = await apiClient.createOrder({
         productId: product?._id,
         variant: variant,
       });
+
       if (!process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID) {
         showNotification("Razorpay key is missing", "error");
         return;
@@ -111,9 +117,9 @@ export default function ProductPage() {
         },
       };
 
+
       const rzp = new window.Razorpay(options);
       rzp.open();
-
     } catch (error) {
       console.error(error);
       showNotification(
@@ -123,6 +129,7 @@ export default function ProductPage() {
     }
   };
 
+  
   if (loading) {
     return (
       <div className="min-h-[70vh] flex justify-center items-center">
