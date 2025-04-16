@@ -1,6 +1,6 @@
 import { IKImage } from "imagekitio-next";
 import Link from "next/link";
-import { ColorVariant, IProduct } from "@/models/Product.model";
+import { IProduct } from "@/models/Product.model";
 import { Eye } from "lucide-react";
 import { useState } from "react";
 import { apiClient } from "@/lib/api-client";
@@ -17,7 +17,7 @@ export default function ProductCard({ product }: { product: IProduct }) {
   // console.log("Rendering Product:", product); 
 
    const [loading, setLoading] = useState(false);
-  //  const [cartItems, setCartItems] = useState<CartItem[]>([]);
+
 
 
 
@@ -135,11 +135,11 @@ export default function ProductCard({ product }: { product: IProduct }) {
             <button
             onClick={updateCart}
             className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+            disabled={loading}
             >
             Add to Cart
             </button>
           </div>
-
         </div>
       </div>
     </div>

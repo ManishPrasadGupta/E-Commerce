@@ -48,9 +48,15 @@ export async function POST(req: Request) {
       }
     
       return NextResponse.json({ message: "Cart updated" });
-    } catch (error:any) {
-      console.error("❌ Error in /api/cart:", error);
-      return NextResponse.json({ message: "Server Error", error: error.message }, { status: 500 });
+    } catch (error: unknown) {
+      console.error("Error in /api/cart:", error);
+    
+      let errorMessage = "Server Error";
+    
+      if (error instanceof Error) {
+        errorMessage = error.message;
+      }
+      return NextResponse.json({ message: errorMessage }, { status: 500 });
     }
   }
 
