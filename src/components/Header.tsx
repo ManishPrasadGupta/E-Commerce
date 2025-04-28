@@ -6,6 +6,7 @@ import { Home, Menu } from "lucide-react";
 import { useState } from "react";
 import { useNotification } from "./Notification";
 import CartSlideOver from "./Cart/CartSlideOver";
+import { XMarkIcon } from "@heroicons/react/24/outline";
 
 export default function Header() {
   const { data: session } = useSession();
@@ -33,10 +34,9 @@ export default function Header() {
           onClick={() => showNotification("Welcome to ImageKit Shop", "info")}
         >
           <Home className="w-5 h-5" />
-          Shiwam Electronics
+          Electronics
         </Link>
         
-        {/* Added hamburger menu button for mobile and desktop */}
         <button
           className="btn btn-ghost btn-circle lg:hidden"
           onClick={() => setMenuOpen(!menuOpen)}
@@ -46,6 +46,16 @@ export default function Header() {
 
         {/* Dropdown menu with toggle functionality */}
         <div className={`bg-white absolute top-16 right-4 bg-base-100 shadow-lg rounded-box w-64 p-2 transition-all ${menuOpen ? "block" : "hidden"} lg:flex lg:relative lg:top-0 lg:right-0 lg:w-auto lg:p-0 lg:shadow-none lg:bg-transparent`}>
+
+        <button
+            className="absolute top-2 right-2 lg:hidden"
+            onClick={() => setMenuOpen(false)}
+            aria-label="Close menu"
+          >
+            <XMarkIcon className="w-6 h-6 text-gray-700" />
+        </button>
+
+
           <ul className="flex flex-col lg:flex-row lg:items-center gap-2">
             <li>
               <Link href="/" className="px-4 py-2 hover:bg-base-200 block w-full">Home</Link>
@@ -96,8 +106,6 @@ export default function Header() {
           </ul>
         </div>
       </div>
-      
-          
     </div>
   );
 }

@@ -1,14 +1,14 @@
 import { useCart } from "@/context/CartContext";
 import { Dialog, DialogBackdrop, DialogPanel, DialogTitle } from "@headlessui/react";
 import { XMarkIcon } from "@heroicons/react/24/outline";
+import Link from "next/link";
 
 export default function CartSlideOver({ open, setOpen }: { open: boolean; setOpen: (val: boolean) => void }) {
-  const { cartItems } = useCart();
-
+  const { cartItems, deleteItem } = useCart();
   const subtotal = cartItems.reduce((total, item) => total + item.variant.price * item.quantity, 0);
 
   return (
-    <Dialog open={open} onClose={setOpen} className="relative z-10">
+    <Dialog open={open} onClose={setOpen} className="relative z-50">
       <DialogBackdrop className="fixed inset-0 bg-gray-500/75 transition-opacity duration-500 ease-in-out data-closed:opacity-0" />
       <div className="fixed inset-0 overflow-hidden">
         <div className="absolute inset-0 overflow-hidden">
@@ -26,7 +26,7 @@ export default function CartSlideOver({ open, setOpen }: { open: boolean; setOpe
                   <div className="mt-8">
                     <ul className="-my-6 divide-y divide-gray-200">
                       {cartItems.map((item) => (
-                        <li key={item.id} className="flex py-6">
+                        <li key={item.productId} className="flex py-6">
                           {/* <div className="h-24 w-24 flex-shrink-0 overflow-hidden rounded-md border border-gray-200">
                             <img
                               src={item.image || "https://via.placeholder.com/100"}
@@ -38,13 +38,17 @@ export default function CartSlideOver({ open, setOpen }: { open: boolean; setOpe
                             <div>
                               <div className="flex justify-between text-base font-medium text-gray-900">
                                 <h3>{item.name}</h3>
-                              <p className="mt-1 text-sm text-gray-500">Color: {item.variant.price}</p>
-                                {/* <p className="ml-4">₹{item.price}</p> */}
+                              <p className="mt-1 text-sm text-gray-500">Color: {item.variant.type}</p>
+                                <p className="ml-4">₹{item.variant.price}</p>
+                                
                               </div>
                               <p className="mt-1 text-sm text-gray-500">Color: {item.variant.type}</p>
                             </div>
                             <div className="flex flex-1 items-end justify-between text-sm">
                               <p className="text-gray-500">Qty {item.quantity}</p>
+                              <button className="text-red-500 text-xs" onClick={() => deleteItem(item.productId)}>
+                                Remove
+                              </button>
                             </div>
                           </div>
                         </li>
@@ -69,9 +73,11 @@ export default function CartSlideOver({ open, setOpen }: { open: boolean; setOpe
                   <div className="mt-6 text-center text-sm text-gray-500">
                     <p>
                       or{" "}
-                      <button onClick={() => setOpen(false)} className="font-medium text-indigo-600 hover:text-indigo-500">
+                      <Link href={"/productsgallery"} passHref>
+                      <button  className="font-medium text-indigo-600 hover:text-indigo-500">
                         Continue Shopping &rarr;
                       </button>
+                      </Link>
                     </p>
                   </div>
                 </div>
