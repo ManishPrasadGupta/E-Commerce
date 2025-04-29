@@ -5,14 +5,17 @@ import { IProduct } from "@/models/Product.model";
 import { apiClient } from "@/lib/api-client";
 
 import ProductsGallery from "@/components/ProductsGallery";
+import { useSearch } from "@/context/SearchContext/SearchContext";
 
 export default function ProductsGalleryPage() {
   const [products, setProducts] = useState<IProduct[]>([]);
+  const { query} = useSearch(); 
+
 
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const data: IProduct[] = await apiClient.getProducts(); // Expect an array
+        const data: IProduct[] = await apiClient.getProducts(); // Expecting an array
         // console.log("Fetched products:", data);
   
         if (Array.isArray(data)) {
@@ -24,13 +27,18 @@ export default function ProductsGalleryPage() {
         console.error("Error fetching products:", error);
       }
     };
-  
     fetchProducts();
   }, []); 
-  
+
+
+  const filteredProducts = products.filter(product =>
+    product.name.toLowerCase().includes(query.toLowerCase()) ||
+    product.description?.toLowerCase().includes(query.toLowerCase())
+  );
+
   return (
     <main>
-      <ProductsGallery products={products} />
+      <ProductsGallery products={filteredProducts} />
     </main>
   );
 }

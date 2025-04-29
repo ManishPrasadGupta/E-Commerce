@@ -3,16 +3,19 @@
 import Link from "next/link";
 import { useSession, signOut } from "next-auth/react";
 import { Home, Menu } from "lucide-react";
-import { useState } from "react";
+import { FormEvent, useState } from "react";
 import { useNotification } from "./Notification";
 import CartSlideOver from "./Cart/CartSlideOver";
 import { XMarkIcon } from "@heroicons/react/24/outline";
+import { useSearch } from "@/context/SearchContext/SearchContext";
+import { usePathname, useRouter } from "next/navigation";
+import { PlaceholdersAndVanishInput } from "./ui/placeholders-and-vanish-input";
 
 export default function Header() {
+  
   const { data: session } = useSession();
   const { showNotification } = useNotification();
-  const [menuOpen, setMenuOpen] = useState(false); // Added state for toggling the menu
-
+  const [menuOpen, setMenuOpen] = useState(false); 
   const [isCartOpen, setIsCartOpen] = useState(false);
 
   const handleSignOut = async () => {
@@ -24,6 +27,22 @@ export default function Header() {
     }
   };
 
+  const { setQuery } = useSearch();
+  const router = useRouter();
+  const pathname = usePathname();
+
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setQuery(e.target.value);
+  };
+
+  const handleSearchSubmit = (e: FormEvent) => {
+    e.preventDefault();
+    if (pathname !== "/productsgallery") {
+      router.push("/productsgallery");
+    }
+    
+  };
+
   return (
     <div className="bg-slate-200 navbar bg-base-300 sticky top-0 z-40">
       <div className="mx-auto w-full flex items-center justify-between p-4">
@@ -31,12 +50,26 @@ export default function Header() {
           href="/"
           className="flex items-center btn btn-ghost text-3xl gap-2 normal-case font-bold"
           prefetch={true}
-          onClick={() => showNotification("Welcome to ImageKit Shop", "info")}
+          onClick={() => showNotification("Welcome to Electronics", "info")}
         >
           <Home className="w-5 h-5" />
-          Electronics
+            Electronics
         </Link>
         
+        <div className="w-full max-w-xs">
+    <PlaceholdersAndVanishInput
+      placeholders={[
+        "Search products...",
+        "Try 'iPhone'",
+        "Try 'Headphones'",
+        "Try 'EarPods'",
+      ]}
+      onChange={handleSearchChange}
+      onSubmit={handleSearchSubmit}
+    />
+  </div>
+
+
         <button
           className="btn btn-ghost btn-circle lg:hidden"
           onClick={() => setMenuOpen(!menuOpen)}
@@ -54,14 +87,21 @@ export default function Header() {
           >
             <XMarkIcon className="w-6 h-6 text-gray-700" />
         </button>
-
-
           <ul className="flex flex-col lg:flex-row lg:items-center gap-2">
             <li>
               <Link href="/" className="px-4 py-2 hover:bg-base-200 block w-full">Home</Link>
             </li>
             <li>
-              <Link href="/productsgallery" className="px-4 py-2 hover:bg-base-200 block w-full">All Products</Link>
+              <Link 
+                href="/productsgallery" 
+                className="px-4 py-2 hover:bg-base-200 block w-full"
+                onClick={e => {
+                  e.preventDefault();
+                  window.location.href = "/productsgallery";
+                }}
+              >
+                All Products
+              </Link>
             </li>
             {session?.user?.role === "admin" && (
               <li>

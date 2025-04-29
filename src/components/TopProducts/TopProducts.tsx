@@ -13,6 +13,7 @@ export default function TopProducts() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+
   useEffect(() => {
     const fetchTopProducts = async () => {
       try {
@@ -36,6 +37,7 @@ export default function TopProducts() {
   if (loading) return <p>Loading...</p>;
   if (error) return <p className=" flex justify-center text-red-500">{error}</p>;
 
+  
   return (
     <div>
       <div className="flex justify-center items-center min-h-screen">

@@ -1,8 +1,6 @@
 "use client";
 
 import React from "react";
-// import { IProduct } from "@/models/Product.model";
-// import { apiClient } from "@/lib/api-client";
 import HeroSection from "@/components/HeroScetion/HeroSection";
 import AboutUs from "@/components/AboutUs/AboutUs";
 import Blogs from "@/components/Blogs/Blogs";
@@ -13,8 +11,6 @@ import Gadgets from "@/components/Gadgets/Gadgets";
 
 
 export default function Home() {
- 
-
   return (
     <main>
       <HeroSection />
