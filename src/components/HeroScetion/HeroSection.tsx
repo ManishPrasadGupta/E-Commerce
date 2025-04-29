@@ -3,9 +3,12 @@ import React from 'react'
 import { motion } from "framer-motion";
 import { ImagesSlider } from "../ui/images-slider";
 import Link from 'next/link';
+import { TypewriterEffectSmooth } from '../ui/typewriter-effect';
+import { words } from '../HeroScetion/TypewriterWords';
 
 
 function HeroSection() {
+  
     const images = [
         "https://blog.matthewgove.com/wp-content/uploads/2021/08/apple-hero-image.jpg",
         "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQqdFWaLFXTKE-KGKzZnNynBJFQQi3Ve0Brrw&s",
@@ -28,9 +31,10 @@ function HeroSection() {
             }}
             className="z-50 flex flex-col justify-center items-center"
           >
-            <motion.p className="font-bold text-xl md:text-6xl text-center bg-clip-text text-transparent bg-gradient-to-b from-neutral-50 to-neutral-400 py-4">
-              The hero section slideshow <br /> nobody asked for
-            </motion.p>
+          <motion.p className="font-bold text-lg md:text-5xl text-center bg-clip-text text-transparent bg-gradient-to-b from-neutral-50 to-neutral-400 py-4">
+            <span className="block mb-2 text-white animate-fadeInUp delay-150">Discover Your Next Favorite Product</span>
+          </motion.p>
+          <TypewriterEffectSmooth words={words} />
             <Link href="/productsgallery" passHref>
               <button className="px-4 py-2 backdrop-blur-sm border bg-emerald-300/10 border-emerald-500/20 text-white mx-auto text-center rounded-full relative mt-4"
               >

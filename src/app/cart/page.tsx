@@ -2,6 +2,8 @@
 
 
 import { useCart } from "@/context/CartContext";
+import { apiClient } from "@/lib/api-client";
+import { useEffect, useState } from "react";
 
 export type CartItem = {
   productId: string
