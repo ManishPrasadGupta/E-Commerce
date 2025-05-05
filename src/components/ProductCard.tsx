@@ -5,12 +5,6 @@ import { Eye } from "lucide-react";
 import { useState } from "react";
 import { apiClient } from "@/lib/api-client";
 
-// export type CartItem = {
-//   id: string;
-//     name: string;
-//     quantity: number;
-//     variant: ColorVariant;
-// };
 
 
 export default function ProductCard({ product }: { product: IProduct }) {
@@ -90,7 +84,7 @@ export default function ProductCard({ product }: { product: IProduct }) {
               width: "300",
               cropMode: "extract",
               focus: "center",
-              quality: "100",
+              quality: 100,
             },
           ]}
           className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"

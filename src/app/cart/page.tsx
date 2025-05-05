@@ -14,15 +14,10 @@ export type CartItem = {
 }
 
 export default function CartPage() {
-  // const [cartItems, setCartItems] = useState<CartItem[]>([]);
+
 
   const { cartItems, loading, loadCart, deleteItem } = useCart();
   
-
-
-  
-
-
   return (
     <div className="p-6 space-y-6">
       <h1 className="text-2xl font-bold">🛒 Cart Items</h1>
@@ -40,12 +35,11 @@ export default function CartPage() {
       <div className="space-y-4">
           {Array.isArray(cartItems) && cartItems.map((item) => (
           <div
-            key={item.productId ||  `${item.name}-${item.variant.type}`}
+            key={item.productId || `${item.name}-${item.variant.type}`}
             className="border p-4 rounded shadow-sm flex justify-between"
           >
             <div>
               <p><strong>{item.name}</strong></p>
-              {/* <p>Color: {item.color}</p> */}
   
               <p>Color: {item.variant.type}</p>
 

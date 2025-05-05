@@ -13,6 +13,7 @@ const NotificationContext = createContext<NotificationContextType | undefined>(
 );
 
 export function NotificationProvider({ children }: { children: ReactNode }) {
+  // console.log("NotificationProvider is active");
   const [notification, setNotification] = useState<{
     message: string;
     type: NotificationType;

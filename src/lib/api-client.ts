@@ -2,8 +2,16 @@ import { ICartItem } from "@/models/Cart.model";
 import { IOrder } from "@/models/Order.model";
 import { IProduct, ColorVariant } from "@/models/Product.model";
 import { Types } from "mongoose";
+import { IAddress } from "@/models/User.model";
+
 
 export type ProductFormData = Omit<IProduct, "_id">;
+
+
+export interface UpdateAddressData {
+  userId: string;
+  address: Omit<IAddress, "_id">;
+}
 
 
 export interface CreateOrderData {
@@ -87,70 +95,96 @@ class ApiClient {
 
 
 //Cart
-async getCartItems() {
-  return this.fetch<ICartItem[]>("/cart");
-}
+  async getCartItems() {
+    return this.fetch<ICartItem[]>("/cart");
+  }
 
-async addToCart(item: {
-  productId: string;
-  name: string;
-  quantity: number;
-  variant: ColorVariant;
-}) {
-  return this.fetch<ICartItem>("/cart", {
-    method: "POST",
-    body: { items: [item] },
-  });
-}
+  async addToCart(item: {
+    productId: string;
+    name: string;
+    quantity: number;
+    variant: ColorVariant;
+  }) {
+    return this.fetch<ICartItem>("/cart", {
+      method: "POST",
+      body: { items: [item] },
+    });
+  }
 
-  async fetchCart() {
-    const res = await fetch("/api/cart", { method: "GET" });
-    // console.log("Response status:", res.status); 
-    if (!res.ok) throw new Error("Failed to fetch cart");
+    async fetchCart() {
+      const res = await fetch("/api/cart", { method: "GET" });
+      // console.log("Response status:", res.status); 
+      if (!res.ok) throw new Error("Failed to fetch cart");
+      const data = await res.json();
+      // console.log("Fetched cart data:", data);
+      return data || [];
+    } 
+
+
+  // async updateCartItem(itemId: string, update: { quantity: number }) {
+  //   return this.fetch<ICartItem>(`/cart/${itemId}`, {
+  //     method: "PUT",
+  //     body: update,
+  //   });
+  // }
+
+  async deleteCartItem(productId: string) {
+    const res = await fetch("/api/cart", {
+      method: "DELETE",
+      body: JSON.stringify({ productId }),
+      headers: {
+        "Content-Type": "application/json"
+      }
+    });
+
+    if (!res.ok) throw new Error(await res.text());
+    return true;
+  }
+
+
+  async clearCart() {
+    return this.fetch<void>("/cart/clear", {
+      method: "DELETE",
+    });
+  }
+
+
+
+  //address
+  async saveAddress(address: IAddress) {
+    const res = await fetch("/api/address", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ address }),
+    });
+    if (!res.ok) throw new Error(await res.text());
+    return await res.json();
+  }
+
+  async getAddresses() {
+    const res = await fetch(`/api/address`, { method: "GET" });
+    if (!res.ok) throw new Error(await res.text());
     const data = await res.json();
-    // console.log("Fetched cart data:", data);
-    return data || [];
-  } 
+    return data;
+  }
 
+  async updateAddress(address: IAddress) {
+    const res = await fetch(`/api/address/${address._id}`, {
+      method: "PUT",
+      headers: {"content-type": "application/json"},
+      body: JSON.stringify({address})
+    });
+    if(!res.ok) throw new Error(await res.text());
+    return res.json();
+  }
 
-
-
-// async updateCartItem(itemId: string, update: { quantity: number }) {
-//   return this.fetch<ICartItem>(`/cart/${itemId}`, {
-//     method: "PUT",
-//     body: update,
-//   });
-// }
-
-async deleteCartItem(productId: string) {
-  const res = await fetch("/api/cart", {
-    method: "DELETE",
-    body: JSON.stringify({ productId }),
-    headers: {
-      "Content-Type": "application/json"
-    }
-  });
-
-  if (!res.ok) throw new Error(await res.text());
-  return true;
+  async deleteAddress(address: IAddress) {
+    const res = await fetch(`/api/address/${address._id}`, {
+      method: "DELETE",
+    });
+    if (!res.ok) throw new Error(await res.text());
+    return res.json();
+  }
 }
-
-
-async clearCart() {
-  return this.fetch<void>("/cart/clear", {
-    method: "DELETE",
-  });
-}
-
-
-
-
-
-
-
-
-}
-
-
 
 export const apiClient = new ApiClient();

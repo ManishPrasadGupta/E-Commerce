@@ -9,16 +9,11 @@ import {
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { Loader2, AlertCircle, Image as ImageIcon } from "lucide-react";
-
-import { useNotification } from "@/components/Notification";
-import { useSession } from "next-auth/react";
 import { apiClient } from "@/lib/api-client";
 
 export default function ProductPage() {
   const params = useParams();
   const router = useRouter();
-  const { data: session } = useSession();
-  const { showNotification } = useNotification();
 
   const [product, setProduct] = useState<IProduct | null>(null);
   const [loading, setLoading] = useState(true);
@@ -40,9 +35,11 @@ export default function ProductPage() {
     setActiveIndex((prev) => (prev - 1 + images.length) % images.length);
   };
 
+  const handleBuyNow = (variant: ColorVariant) => {
+    router.push(`/checkout?productId=${product?._id}&variantType=${variant.type}`);
+  };
+
   const urlEndpoint = process.env.NEXT_PUBLIC_URL_ENDPOINT || "";
-
-
 
 
   useEffect(() => {
@@ -74,60 +71,6 @@ export default function ProductPage() {
   // console.log("Fetched product state:", product);
 
 
-  const handlePurchase = async (variant: ColorVariant) => {
-    if (!session) {
-      showNotification("Please login to make a purchase", "error");
-      router.push("/login");
-      return;
-    }
-
-    if (!product?._id) {
-      showNotification("Invalid product", "error");
-      return;
-    }
-
-    try {
-      // console.log("Creating order for:", product?._id, "Variant:", variant);
-      const { orderId, amount } = await apiClient.createOrder({
-        productId: product?._id,
-        variant: variant,
-      });
-
-      if (!process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID) {
-        showNotification("Razorpay key is missing", "error");
-        return;
-      }
-
-      const options = {
-        key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
-        amount,
-        currency: "INR",
-        name: "Electronics",
-        description: `${product?.name} - ${variant?.type} Version`,
-        order_id: orderId,
-        handler: function () {
-          showNotification("Payment successful!", "success");
-          router.push("/orders");
-        },
-        prefill: {
-          email: session.user.email,
-        },
-        theme: {
-          color: "#3399cc",
-        },
-      };
-
-
-      const rzp = new window.Razorpay(options);
-      rzp.open();
-    } catch (error) {
-      console.error(error);
-      showNotification(
-        error instanceof Error ? error.message : "Payment failed",
-        "error"
-      );
-    }
-  };
 
   
   if (loading) {
@@ -283,7 +226,7 @@ export default function ProductPage() {
                         className="btn btn-primary bg-blue-600 btn-sm rounded p-2 hover:bg-blue-400"
                         onClick={(e) => {
                           e.stopPropagation();
-                          handlePurchase(variant);
+                          handleBuyNow(variant);
                         }}
                       >
                         Buy Now

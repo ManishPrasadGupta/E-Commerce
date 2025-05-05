@@ -48,6 +48,7 @@ export default function AdminProductForm() {
     showNotification("Image uploaded successfully!", "success");
 };
 
+
   const onSubmit = async (data: ProductFormData) => {
     setLoading(true);
     try {

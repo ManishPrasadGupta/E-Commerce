@@ -3,7 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import Script from "next/script";
 import Providers from "@/components/Providers";
-import { NotificationProvider } from "@/components/Notification";
+import  { NotificationProvider } from "@/components/Notification";
 import Header from "@/components/Header";
 import { CartProvider } from "@/context/CartContext";
 import { SearchProvider } from "@/context/SearchContext/SearchContext";

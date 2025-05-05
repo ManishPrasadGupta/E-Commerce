@@ -4,13 +4,14 @@ import { AnimatePresence, motion } from "motion/react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { cn } from "@/lib/utils";
 
-
 type PixelData = {
   x: number;
   y: number;
   r: number;
   color: string;
 };
+
+
 
 export function PlaceholdersAndVanishInput({
   placeholders,
@@ -24,7 +25,7 @@ export function PlaceholdersAndVanishInput({
   const [currentPlaceholder, setCurrentPlaceholder] = useState(0);
 
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
-
+  
   const startAnimation = useCallback(() => {
     intervalRef.current = setInterval(() => {
       setCurrentPlaceholder((prev) => (prev + 1) % placeholders.length);
@@ -41,6 +42,7 @@ export function PlaceholdersAndVanishInput({
     }
   }, [startAnimation]);
 
+  
   useEffect(() => {
     startAnimation();
     document.addEventListener("visibilitychange", handleVisibilityChange);
@@ -51,7 +53,7 @@ export function PlaceholdersAndVanishInput({
       }
       document.removeEventListener("visibilitychange", handleVisibilityChange);
     };
-  },  [placeholders, startAnimation, handleVisibilityChange]);
+  }, [placeholders, handleVisibilityChange, startAnimation]);
 
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const newDataRef = useRef<PixelData[]>([]);
@@ -78,8 +80,7 @@ export function PlaceholdersAndVanishInput({
 
     const imageData = ctx.getImageData(0, 0, 800, 800);
     const pixelData = imageData.data;
-
-    const newData: { x: number; y: number; color: [number, number, number, number]; }[] = [];
+    const newData: PixelData[] = [];
 
     for (let t = 0; t < 800; t++) {
       const i = 4 * t * 800;
@@ -93,12 +94,8 @@ export function PlaceholdersAndVanishInput({
           newData.push({
             x: n,
             y: t,
-            color: [
-              pixelData[e],
-              pixelData[e + 1],
-              pixelData[e + 2],
-              pixelData[e + 3],
-            ],
+            r: pixelData[e],
+            color: `rgba(${pixelData[e]}, ${pixelData[e + 1]}, ${pixelData[e + 2]}, ${pixelData[e + 3] / 255})`,
           });
         }
       }
@@ -184,7 +181,7 @@ export function PlaceholdersAndVanishInput({
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     vanishAndSubmit();
-    onSubmit(e);
+    if(onSubmit) onSubmit(e);
   };
   return (
     <form
@@ -205,7 +202,7 @@ export function PlaceholdersAndVanishInput({
         onChange={(e) => {
           if (!animating) {
             setValue(e.target.value);
-            onChange(e);
+            if(onChange) onChange(e);
           }
         }}
         onKeyDown={handleKeyDown}
@@ -259,27 +256,27 @@ export function PlaceholdersAndVanishInput({
         <AnimatePresence mode="wait">
           {!value && (
             <motion.p
-            initial={{
-              y: 5,
-              opacity: 0,
-            }}
-            key={`current-placeholder-${currentPlaceholder}`}
-            animate={{
-              y: 0,
-              opacity: 1,
-            }}
-            exit={{
-              y: -15,
-              opacity: 0,
-            }}
-            transition={{
-              duration: 0.3,
-              ease: "linear",
-            }}
-            className="dark:text-zinc-500 text-sm sm:text-base font-normal text-neutral-500 pl-4 sm:pl-12 text-left w-[calc(100%-2rem)] truncate"
-          >
-            {placeholders[currentPlaceholder]}
-          </motion.p>
+              initial={{
+                y: 5,
+                opacity: 0,
+              }}
+              key={`current-placeholder-${currentPlaceholder}`}
+              animate={{
+                y: 0,
+                opacity: 1,
+              }}
+              exit={{
+                y: -15,
+                opacity: 0,
+              }}
+              transition={{
+                duration: 0.3,
+                ease: "linear",
+              }}
+              className="dark:text-zinc-500 text-sm sm:text-base font-normal text-neutral-500 pl-4 sm:pl-12 text-left w-[calc(100%-2rem)] truncate"
+            >
+              {placeholders[currentPlaceholder]}
+            </motion.p>
           )}
         </AnimatePresence>
       </div>
