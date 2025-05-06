@@ -43,7 +43,6 @@ function HeroSection() {
               </button>
             </Link>
           </motion.div>
-          
          </ImagesSlider>
          
       );
