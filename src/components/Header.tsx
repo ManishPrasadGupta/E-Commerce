@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useSession, signOut } from "next-auth/react";
-import { Home, Menu } from "lucide-react";
+import { Menu } from "lucide-react";
 import { FormEvent, useState } from "react";
 import { useNotification } from "./Notification";
 import CartSlideOver from "./Cart/CartSlideOver";
