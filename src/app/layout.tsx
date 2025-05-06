@@ -4,7 +4,7 @@ import "./globals.css";
 import Script from "next/script";
 import Providers from "@/components/Providers";
 import  { NotificationProvider } from "@/components/Notification";
-import Header from "@/components/Header";
+import Header from "@/components/Navbar/Header";
 import { CartProvider } from "@/context/CartContext";
 import { SearchProvider } from "@/context/SearchContext/SearchContext";
 

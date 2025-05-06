@@ -4,7 +4,7 @@ import React, { useEffect, useState } from "react";
 import { IProduct } from "@/models/Product.model";
 import { apiClient } from "@/lib/api-client";
 
-import ProductsGallery from "@/components/ProductsGallery";
+import ProductsGallery from "@/components/Products/ProductsGallery";
 import { useSearch } from "@/context/SearchContext/SearchContext";
 
 export default function ProductsGalleryPage() {

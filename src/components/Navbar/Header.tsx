@@ -4,12 +4,12 @@ import Link from "next/link";
 import { useSession, signOut } from "next-auth/react";
 import { Menu } from "lucide-react";
 import { FormEvent, useState } from "react";
-import { useNotification } from "./Notification";
-import CartSlideOver from "./Cart/CartSlideOver";
+import { useNotification } from "../Notification";
+import CartSlideOver from "../Cart/CartSlideOver";
 import { XMarkIcon } from "@heroicons/react/24/outline";
 import { useSearch } from "@/context/SearchContext/SearchContext";
 import { usePathname, useRouter } from "next/navigation";
-import { PlaceholdersAndVanishInput } from "./ui/placeholders-and-vanish-input";
+import { PlaceholdersAndVanishInput } from "../ui/placeholders-and-vanish-input";
 
 export default function Header() {
   
