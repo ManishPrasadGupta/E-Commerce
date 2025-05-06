@@ -42,11 +42,16 @@ export async function POST(request: NextRequest) {
       !body.imageUrl ||
       !body.variants ||
       body.variants.length === 0
-    ) {
+      ) {
       return NextResponse.json(
         { error: "Missing required fields" },
         { status: 400 }
       );
+    } else {
+      body.imageUrl = body.imageUrl.map(url => {
+        // Extract only the filename (everything after the last slash)
+        return url.split('/').pop() || url;
+      });
     }
 
     // Validate variants

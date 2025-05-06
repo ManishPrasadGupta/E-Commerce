@@ -42,9 +42,22 @@ export default function AdminProductForm() {
     name: "variants",
   });
 
+  const getFullImageUrl = (filename: string) => {
+    // If it's already a full URL, return as is
+    if (filename.startsWith('http')) return filename;
+    
+    // Otherwise, reconstruct the full URL for display
+    return `https://ik.imagekit.io/manish0201/${filename}`;
+};
+
   const handleUploadSuccess = (response: IKUploadResponse) => {
     const currentImages = getValues("imageUrl") || []; // Ensure it's an array
-    setValue("imageUrl", [...currentImages, response.url]); 
+    
+    
+    const filename = response.url.split('/').pop() || '';
+    
+    
+    setValue("imageUrl", [...currentImages, filename]); 
     showNotification("Image uploaded successfully!", "success");
 };
 
@@ -109,19 +122,20 @@ export default function AdminProductForm() {
         <label className="label">Product Image</label>
         <FileUpload onSuccess={handleUploadSuccess} />
         {watch("imageUrl")?.length > 0 && (
-          <div className="grid grid-cols-3 gap-2 mt-2">
-            {watch("imageUrl").map((url, index) => (
-              <Image 
+        <div className="grid grid-cols-3 gap-2 mt-2">
+          {watch("imageUrl").map((url, index) => (
+            <Image 
               key={index} 
-              src={url} 
+              src={getFullImageUrl(url)} 
               alt="Uploaded" 
               width={80} 
               height={80} 
               priority
-              className="w-20 h-20 object-cover"/>
-            ))}
-          </div>
-        )}
+              className="w-20 h-20 object-cover"
+            />
+          ))}
+        </div>
+      )}
 
       </div>
 
