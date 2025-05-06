@@ -1,5 +1,5 @@
 import { IProduct } from "@/models/Product.model";
-import ProductCard from "./ProductCard";
+import ProductCard from "./productCard/ProductCard";
 
 
 interface ProductsGalleryProps {
