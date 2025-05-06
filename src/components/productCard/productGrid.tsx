@@ -9,12 +9,12 @@ export default function ProductGrid({
     className?: string 
   }) {
     return (
-        <div className="flex justify-center w-full">
-        <div className={`grid grid-cols-2 sm:grid-cols md:grid-cols lg:grid-cols xl:grid-cols gap-2 sm:gap-4 p-2 sm:p-4 ${className} ${products.length < 5 ? "justify-items-center" : ""}`}>
-          {products.map((product) => (
-            <ProductCard key={product._id?.toString() || "default-key"} product={product} />
-          ))}
-        </div>
+      <div className={`flex flex-wrap justify-center gap-2 sm:gap-4 p-2 sm:p-4 ${className}`}>
+        {products.map((product) => (
+          <div className="w-1/6" key={product._id?.toString() || "default-key"}>
+            <ProductCard product={product} />
+          </div>
+        ))}
       </div>
     );
   }

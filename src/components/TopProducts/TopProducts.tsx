@@ -3,7 +3,6 @@
 import { useEffect, useState } from "react";
 import { apiClient } from "@/lib/api-client";
 import { IProduct } from "@/models/Product.model";
-import ProductCard from "../productCard/ProductCard";
 import Link from "next/link";
 import { SeparatorHorizontal } from "lucide-react";
 import ProductGrid from "../productCard/productGrid";
