@@ -25,8 +25,10 @@ export default function Gadgets() {
     },
   ];
   return (
-    <div className="relative overflow-hidden w-full h-full py-20">
-  
+    <div className="py-10">
+      <h1 className="text-center text-4xl md:text-5xl font-extrabold pt-8 pb-6 text-gray-800 tracking-tight">
+        Gadgets
+      </h1>
       <Carousel slides={slideData} />
     </div>
   );

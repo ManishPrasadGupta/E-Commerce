@@ -46,28 +46,30 @@ export default function Header() {
   return (
     <div className="bg-slate-200 navbar bg-base-300 sticky top-0 z-40">
       <div className="mx-auto w-full flex items-center justify-between p-4">
-        <Link
-          href="/"
-          className="flex items-center btn btn-ghost text-3xl gap-2 normal-case font-bold"
-          prefetch={true}
-          onClick={() => showNotification("Welcome to Electronics", "info")}
-        >
-          <Home className="w-5 h-5" />
-            Electronics
-        </Link>
+      <Link
+        href="/"
+        className="flex items-center btn btn-ghost text-3xl gap-2 normal-case font-bold"
+        prefetch={true}
+        onClick={() => showNotification("Welcome to Electronics", "info")}
+      >
+        <Home className="w-5 h-5" />
+        <span className="hidden md:inline italic font-serif tracking-wide text-blue-700 drop-shadow">
+          Electronics
+        </span>
+      </Link>
         
         <div className="w-full max-w-xs">
-    <PlaceholdersAndVanishInput
-      placeholders={[
-        "Search products...",
-        "Try 'iPhone'",
-        "Try 'Headphones'",
-        "Try 'EarPods'",
-      ]}
-      onChange={handleSearchChange}
-      onSubmit={handleSearchSubmit}
-    />
-  </div>
+          <PlaceholdersAndVanishInput
+            placeholders={[
+              "Search products...",
+              "Try 'iPhone'",
+              "Try 'Headphones'",
+              "Try 'EarPods'",
+            ]}
+            onChange={handleSearchChange}
+            onSubmit={handleSearchSubmit}
+          />
+        </div>
 
 
         <button

@@ -15,9 +15,7 @@ export default function Home() {
     <main>
       <HeroSection />
       <AboutUs />
-      <h1 className="flex flex-wrap justify-center font-bold text-4xl m-6">Our Top Products</h1>
       <TopProducts />
-      <h1 className="flex flex-wrap justify-center font-bold text-4xl m-6">Gadgets</h1>
       <Gadgets />
       <Blogs />
       <WhyChooseUs />
