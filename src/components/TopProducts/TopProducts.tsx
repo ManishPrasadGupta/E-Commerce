@@ -46,12 +46,17 @@ export default function TopProducts() {
       
       <div className="w-full flex justify-center">
             <div
-              className={`
-                grid gap-32 p-4 max-w-6xl
-                grid-cols-2
-                sm:grid-cols-2
-                md:grid-cols-3
-              `}
+                className={`
+                  grid p-4 max-w-6xl
+                  grid-cols-2
+                  sm:grid-cols-2
+                  md:grid-cols-3
+                  gap-4
+                  sm:gap-6
+                  md:gap-8
+                  lg:gap-12
+                  xl:gap-16
+                `}
             >
               {products.map((product) => (
                 <ProductCard
