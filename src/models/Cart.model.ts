@@ -7,9 +7,9 @@ export interface ICartItem {
   name: string;
   quantity: number;
   variant: ColorVariant;
+  href?: string;
   // imageSrc?: string;
   // imageAlt?: string;
-  // href?: string;
 }
 
 // Full Cart Interface
@@ -38,9 +38,9 @@ const cartItemSchema = new mongoose.Schema(
     name: { type: String, required: true },
     quantity: { type: Number, required: true, min: 1 },
     variant: { type: variantSchema, required: true },
+    href: { type: String },
     // imageSrc: { type: String },
     // imageAlt: { type: String },
-    // href: { type: String },
   },
   { _id: false }
 );

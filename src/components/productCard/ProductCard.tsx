@@ -38,6 +38,7 @@ export default function ProductCard({ product }: { product: IProduct }) {
         name: product.name,
         quantity: 1,
         variant: product.variants?.[0],
+        href: `/products/${product?._id}`,
       };
       await apiClient.addToCart(item);
       alert("Added to cart!");

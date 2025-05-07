@@ -1,10 +1,12 @@
+"use client";
+
 import { useCart } from "@/context/CartContext";
 import { Dialog, DialogBackdrop, DialogPanel, DialogTitle } from "@headlessui/react";
 import { XMarkIcon } from "@heroicons/react/24/outline";
 import Link from "next/link";
 
 export default function CartSlideOver({ open, setOpen }: { open: boolean; setOpen: (val: boolean) => void }) {
-  const { cartItems, deleteItem } = useCart();
+  const { cartItems, deleteItem, updateItemQuantity } = useCart();
   const subtotal = cartItems.reduce((total, item) => total + item.variant.price * item.quantity, 0);
 
   return (
@@ -26,7 +28,7 @@ export default function CartSlideOver({ open, setOpen }: { open: boolean; setOpe
                   <div className="mt-8">
                     <ul className="-my-6 divide-y divide-gray-200">
                       {cartItems.map((item) => (
-                        <li key={item.productId} className="flex py-6">
+                        <li key={item.productId + item.variant.type} className="flex py-6">
                           {/* <div className="h-24 w-24 flex-shrink-0 overflow-hidden rounded-md border border-gray-200">
                             <img
                               src={item.image || "https://via.placeholder.com/100"}
@@ -38,15 +40,35 @@ export default function CartSlideOver({ open, setOpen }: { open: boolean; setOpe
                             <div>
                               <div className="flex justify-between text-base font-medium text-gray-900">
                                 <h3>{item.name}</h3>
-                              <p className="mt-1 text-sm text-gray-500">Color: {item.variant.type}</p>
-                                <p className="ml-4">₹{item.variant.price}</p>
-                                
+                                <p className="ml-4">
+                                  ₹{item.variant.price} x {item.quantity} = <b>₹{item.variant.price * item.quantity}</b>
+                                </p>
                               </div>
                               <p className="mt-1 text-sm text-gray-500">Color: {item.variant.type}</p>
                             </div>
                             <div className="flex flex-1 items-end justify-between text-sm">
-                              <p className="text-gray-500">Qty {item.quantity}</p>
-                              <button className="text-red-500 text-xs" onClick={() => deleteItem(item.productId)}>
+                              <div className="flex items-center space-x-2">
+                                <button
+                                  onClick={() =>
+                                    item.quantity > 1 &&
+                                    updateItemQuantity(item.productId, item.variant.type, item.quantity - 1)
+                                  }
+                                  className="px-2 py-1 bg-gray-200 rounded"
+                                  disabled={item.quantity === 1}
+                                >
+                                  -
+                                </button>
+                                <span className="px-2">{item.quantity}</span>
+                                <button
+                                  onClick={() =>
+                                    updateItemQuantity(item.productId, item.variant.type, item.quantity + 1)
+                                  }
+                                  className="px-2 py-1 bg-gray-200 rounded"
+                                >
+                                  +
+                                </button>
+                              </div>
+                              <button className="text-red-500 text-xs" onClick={() => deleteItem(item.productId, item.variant.type)}>
                                 Remove
                               </button>
                             </div>
@@ -74,9 +96,9 @@ export default function CartSlideOver({ open, setOpen }: { open: boolean; setOpe
                     <p>
                       or{" "}
                       <Link href={"/productsgallery"} passHref>
-                      <button  className="font-medium text-indigo-600 hover:text-indigo-500">
-                        Continue Shopping &rarr;
-                      </button>
+                        <button className="font-medium text-indigo-600 hover:text-indigo-500">
+                          Continue Shopping &rarr;
+                        </button>
                       </Link>
                     </p>
                   </div>

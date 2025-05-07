@@ -1,23 +1,10 @@
-'use client';
-
+"use client";
 
 import { useCart } from "@/context/CartContext";
 
-export type CartItem = {
-  productId: string
-  name: string
-  quantity: number
-  variant: {
-    type: string
-    price: number
-  }
-}
-
 export default function CartPage() {
+  const { cartItems, loading, loadCart, deleteItem, updateItemQuantity } = useCart();
 
-
-  const { cartItems, loading, loadCart, deleteItem } = useCart();
-  
   return (
     <div className="p-6 space-y-6">
       <h1 className="text-2xl font-bold">🛒 Cart Items</h1>
@@ -33,22 +20,45 @@ export default function CartPage() {
       {loading && <p>Loading...</p>}
 
       <div className="space-y-4">
-          {Array.isArray(cartItems) && cartItems.map((item) => (
+        {Array.isArray(cartItems) && cartItems.map((item) => (
           <div
-            key={item.productId || `${item.name}-${item.variant.type}`}
+            key={item.productId + item.variant.type}
             className="border p-4 rounded shadow-sm flex justify-between"
           >
             <div>
-              <p><strong>{item.name}</strong></p>
-  
+              <a
+                href={item.href || `/products/${item.productId}`}
+                className="font-bold text-blue-600 hover:underline"
+              >
+                {item.name}
+              </a>
               <p>Color: {item.variant.type}</p>
-
-              <p>Quantity: {item.quantity}</p>
+              <div className="flex items-center space-x-2">
+                <button
+                  onClick={() =>
+                    item.quantity > 1 &&
+                    updateItemQuantity(item.productId, item.variant.type, item.quantity - 1)
+                  }
+                  className="px-2 py-1 bg-gray-200 rounded"
+                  disabled={item.quantity === 1}
+                >
+                  -
+                </button>
+                <span>{item.quantity}</span>
+                <button
+                  onClick={() =>
+                    updateItemQuantity(item.productId, item.variant.type, item.quantity + 1)
+                  }
+                  className="px-2 py-1 bg-gray-200 rounded"
+                >
+                  +
+                </button>
+              </div>
             </div>
             <div>
-              <p>₹ {item.variant.price}</p>
+              <p>₹ {item.variant.price * item.quantity}</p>
               <button
-                onClick={() => deleteItem(item.productId)}
+                onClick={() => deleteItem(item.productId, item.variant.type)}
                 className="text-red-600 text-sm hover:underline mt-2"
               >
                 Remove

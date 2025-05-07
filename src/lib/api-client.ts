@@ -104,6 +104,7 @@ class ApiClient {
     name: string;
     quantity: number;
     variant: ColorVariant;
+    href?: string;
   }) {
     return this.fetch<ICartItem>("/cart", {
       method: "POST",
@@ -111,32 +112,30 @@ class ApiClient {
     });
   }
 
-    async fetchCart() {
-      const res = await fetch("/api/cart", { method: "GET" });
-      // console.log("Response status:", res.status); 
-      if (!res.ok) throw new Error("Failed to fetch cart");
-      const data = await res.json();
-      // console.log("Fetched cart data:", data);
-      return data || [];
-    } 
+  async fetchCart() {
+    const res = await fetch("/api/cart", { method: "GET" });
+    if (!res.ok) throw new Error("Failed to fetch cart");
+    const data = await res.json();
+    return data || [];
+  } 
 
 
-  // async updateCartItem(itemId: string, update: { quantity: number }) {
-  //   return this.fetch<ICartItem>(`/cart/${itemId}`, {
-  //     method: "PUT",
-  //     body: update,
-  //   });
-  // }
+  async updateCartItemQuantity(productId: string, variantType: string, quantity: number) {
+    const res = await fetch("/api/cart", {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ productId, variantType, quantity }),
+    });
+    if (!res.ok) throw new Error(await res.text());
+    return await res.json();
+  }
 
-  async deleteCartItem(productId: string) {
+  async deleteCartItem(productId: string, variantType: string) {
     const res = await fetch("/api/cart", {
       method: "DELETE",
-      body: JSON.stringify({ productId }),
-      headers: {
-        "Content-Type": "application/json"
-      }
+      body: JSON.stringify({ productId, variantType }),
+      headers: { "Content-Type": "application/json" }
     });
-
     if (!res.ok) throw new Error(await res.text());
     return true;
   }

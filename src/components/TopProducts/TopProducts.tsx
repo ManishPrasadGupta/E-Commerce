@@ -5,7 +5,7 @@ import { apiClient } from "@/lib/api-client";
 import { IProduct } from "@/models/Product.model";
 import Link from "next/link";
 import { SeparatorHorizontal } from "lucide-react";
-import ProductGrid from "../productCard/productGrid";
+import ProductCard from "../productCard/ProductCard";
 
 
 export default function TopProducts() {
@@ -43,16 +43,24 @@ export default function TopProducts() {
       <h1 className="text-center font-extrabold text-4xl md:text-5xl mb-8 text-gray-800 tracking-tight">
         Our Top Products
       </h1>
-      {/* <div className="flex justify-center">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
-          {products.map((product) => (
-            <ProductCard key={product._id?.toString()} product={product} />
-          ))}
-        </div>
-      </div> */}
-      <main className="container mx-auto px-4">
-        <ProductGrid products={products} />
-      </main>
+      
+      <div className="w-full flex justify-center">
+            <div
+              className={`
+                grid gap-32 p-4 max-w-6xl
+                grid-cols-2
+                sm:grid-cols-2
+                md:grid-cols-3
+              `}
+            >
+              {products.map((product) => (
+                <ProductCard
+                  key={product._id?.toString() || "default-key"}
+                  product={product}
+                />
+              ))}
+            </div>
+          </div>
       <div className="flex justify-center mt-10">
         <Link
           href="/productsgallery"
