@@ -9,12 +9,14 @@ export default function ProductCard({ product }: { product: IProduct }) {
   const [loading, setLoading] = useState(false);
 
   if (!product || !product.variants || product.variants?.length === 0) {
-    return <div>Product is not available</div>;
+    return (
+      <div className="flex items-center justify-center min-h-[200px] bg-gray-50 rounded-xl text-gray-500">
+        Product is not available
+      </div>
+    );
   }
 
-  // Provide a default value if variants are missing
   const productVariants = product.variants ?? [];
-
   const lowestPrice =
     productVariants.length > 0
       ? productVariants.reduce(
@@ -22,7 +24,6 @@ export default function ProductCard({ product }: { product: IProduct }) {
           productVariants[0]?.price ?? "N/A"
         )
       : "N/A";
-
   const images = Array.isArray(product?.imageUrl) ? product.imageUrl : [product?.imageUrl];
 
   const updateCart = async () => {
@@ -38,9 +39,6 @@ export default function ProductCard({ product }: { product: IProduct }) {
         quantity: 1,
         variant: product.variants?.[0],
       };
-
-      console.log("Item to add to cart:", item);
-  
       await apiClient.addToCart(item);
       alert("Added to cart!");
     } catch (err) {
@@ -50,75 +48,78 @@ export default function ProductCard({ product }: { product: IProduct }) {
       setLoading(false);
     }
   };
-  
+
   return (
-    <div className="bg-white rounded-xl shadow-md hover:shadow-lg transition-all duration-300 overflow-hidden w-full h-full">
-      {/* Image container with responsive height */}
-      <figure className="relative h-40 sm:h-48">
-        <Link href={`/products/${product._id}`} className="block h-full w-full">
-          <div className="h-full w-full relative overflow-hidden">
-            {images.map((img, index) => (
-              <IKImage
-                key={index}
-                path={img}
-                alt={product?.name}
-                height="400"
-                width="400"
-                transformation={[
-                  {
-                    height: "400",
-                    width: "400",
-                    cropMode: "extract",
-                    focus: "center",
-                    quality: 85,
-                  },
-                ]}
-                className="absolute inset-0 w-full h-full object-cover hover:scale-105 transition-transform duration-500"
-                loading="eager"
-              />
-            ))}
-          </div>
-          <div className="absolute inset-0 bg-black/0 hover:bg-black/10 transition-colors duration-300" />
+    <div 
+    className="group bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-transform duration-300 overflow-hidden flex flex-col h-[430px] w-full max-w-xs mx-auto border border-gray-100 hover:scale-105">
+      <figure className="relative w-full h-72 bg-gray-100 flex items-center justify-center overflow-hidden">
+        <Link href={`/products/${product._id}`} className="block w-full h-full">
+          <IKImage
+            path={images[0]}
+            alt={product?.name}
+            height="500"
+            width="500"
+            transformation={[
+              {
+                height: "500",
+                width: "500",
+                cropMode: "extract",
+                focus: "center",
+                quality: 85,
+              },
+            ]}
+            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+            loading="lazy"
+          />
         </Link>
       </figure>
 
-      {/* Content with better spacing for small screens */}
-      <div className="p-3 sm:p-4">
+      <div className="flex flex-col flex-1 p-3 gap-1">
         <Link
           href={`/products/${product?._id}`}
-          className="hover:opacity-80 transition-opacity"
+          className="block hover:underline"
+          aria-label={`View details for ${product?.name}`}
         >
-          <h2 className="font-semibold text-sm sm:text-base line-clamp-2 mb-1">{product?.name}</h2>
+          <h2 className="font-bold text-base truncate mb-0.5 text-gray-900">
+            {product?.name}
+          </h2>
         </Link>
-
-        <p className="text-xs sm:text-sm text-gray-600 line-clamp-2 mb-2">
+        <p className="text-xs text-gray-600 truncate mb-1">
           {product?.description}
         </p>
 
-        {/* Price and variant info */}
-        <div className="mb-3">
-          <span className="text-base sm:text-lg font-bold">₹{lowestPrice}</span>
-          <div className="text-xs text-gray-500 mt-0.5">
+        <div className="flex items-center justify-between mt-auto mb-1">
+          <span className="text-base font-bold bg-blue-100 text-blue-700 px-2 py-1 rounded">
+            ₹{lowestPrice}
+          </span>
+          <span className="text-xs text-gray-400 whitespace-nowrap ml-2">
             {productVariants.length} variants
-          </div>
+          </span>
         </div>
 
-        {/* Responsive buttons */}
-        <div className="grid grid-cols-2 gap-2">
+        <div className="flex gap-2">
           <Link
             href={`/products/${product._id}`}
-            className="bg-blue-600 text-white py-1.5 sm:py-2 px-2 sm:px-3 rounded text-center hover:bg-blue-700 transition-colors flex items-center justify-center text-xs sm:text-sm"
+            className="flex-1 bg-blue-600 text-white font-semibold rounded-lg px-0 py-2 shadow hover:bg-blue-700 transition text-xs flex items-center justify-center gap-2 focus:outline-none focus:ring-2 focus:ring-blue-300"
+            aria-label={`Buy ${product?.name} now`}
           >
-            <Eye className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
-            <span>Buy</span>
+            <Eye className="w-4 h-4" />
+            <span>Buy Now</span>
           </Link>
-          
           <button
             onClick={updateCart}
-            className="bg-blue-600 text-white py-1.5 sm:py-2 px-2 sm:px-3 rounded text-center hover:bg-blue-700 transition-colors disabled:opacity-70 disabled:cursor-not-allowed text-xs sm:text-sm"
+            className={`flex-1 border border-blue-600 text-blue-700 font-semibold rounded-lg px-0 py-2 shadow hover:bg-blue-50 transition text-xs flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-blue-300`}
             disabled={loading}
+            aria-label={`Add ${product?.name} to cart`}
+            type="button"
           >
-            {loading ? "Adding..." : "Add"}
+            {loading ? (
+              <svg className="animate-spin h-4 w-4 mr-1 text-blue-700" viewBox="0 0 24 24">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4l3-3-3-3v4a8 8 0 018 8z"></path>
+              </svg>
+            ) : null}
+            <span>{loading ? "Adding..." : "Add To Cart"}</span>
           </button>
         </div>
       </div>
