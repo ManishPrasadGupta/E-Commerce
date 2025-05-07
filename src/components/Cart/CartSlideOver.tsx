@@ -39,7 +39,12 @@ export default function CartSlideOver({ open, setOpen }: { open: boolean; setOpe
                           <div className="ml-4 flex flex-1 flex-col">
                             <div>
                               <div className="flex justify-between text-base font-medium text-gray-900">
-                                <h3>{item.name}</h3>
+                              <a
+                                href={item.href || `/products/${item.productId}`}
+                                className="font-bold text-blue-600 hover:underline"
+                              >
+                                {item.name}
+                              </a>
                                 <p className="ml-4">
                                   ₹{item.variant.price} x {item.quantity} = <b>₹{item.variant.price * item.quantity}</b>
                                 </p>
