@@ -20,13 +20,37 @@ type CartContextType = {
   loadCart: () => Promise<void>;
   deleteItem: (productId: string, variantType: string) => Promise<void>;
   updateItemQuantity: (productId: string, variantType: string, quantity: number) => Promise<void>;
+  addItem: (productId: string, variantType: string, quantity: number,  name: string, price: number, href?: string) => Promise<void>;
 };
 
-const CartContext = createContext<CartContextType | undefined>(undefined)
+const CartContext = createContext<CartContextType | undefined>(undefined);
+
+
 
 export const CartProvider = ({ children }: { children: React.ReactNode }) => {
   const [cartItems, setCartItems] = useState<CartItem[]>([])
   const [loading, setLoading] = useState(false)
+
+  const addItem = async (productId: string, variantType: string, quantity: number, name: string, price: number, href?: string) => {
+    setLoading(true);
+    try {
+      await apiClient.addToCart({
+        productId,
+        name,
+        quantity,
+        variant: { type: variantType, price },
+        href,
+      });
+      await loadCart();
+      alert("Item added to cart!");
+    } catch (err) {
+      console.error("Error adding item to cart", err);
+      alert("Failed to add item to cart.");
+    } finally {
+      setLoading(false);
+    }
+  };
+  
 
   const loadCart = async () => {
       setLoading(true);
@@ -85,7 +109,7 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
 
 
   return (
-    <CartContext.Provider value={{ cartItems, loading, loadCart, deleteItem, updateItemQuantity }}>
+    <CartContext.Provider value={{ cartItems, loading, loadCart, deleteItem, updateItemQuantity, addItem }}>
       {children}
     </CartContext.Provider>
   );

@@ -13,24 +13,26 @@ export async function POST(req: Request) {
       return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
 
+    // Accept { items: [item] }
     const { items } = await req.json();
-    if (!items || items.length === 0) {
+    if (!items || !Array.isArray(items) || items.length === 0) {
       return NextResponse.json({ message: "No items to add to the cart" }, { status: 400 });
     }
     const item = items[0];
-    await dbConnect();
+    // Validate all required fields
+    if (!item.productId || !item.name || !item.variant?.type || typeof item.variant.price !== "number" || typeof item.quantity !== "number" || item.quantity < 1) {
+      return NextResponse.json({ message: "Invalid item data" }, { status: 400 });
+    }
 
+    await dbConnect();
     const userId = new mongoose.Types.ObjectId(session.user._id);
     const existing = await Cart.findOne({ userId });
 
     if (existing) {
-      // Check for same productId and variant.type
       const foundIndex = existing.items.findIndex(
         (i) =>
           i.productId === item.productId &&
-          i.variant &&
-          item.variant &&
-          i.variant.type === item.variant.type
+          i.variant?.type === item.variant.type
       );
       if (foundIndex !== -1) {
         existing.items[foundIndex].quantity += item.quantity;
@@ -39,7 +41,10 @@ export async function POST(req: Request) {
       }
       await existing.save();
     } else {
-      await Cart.create({ userId: session.user._id, items: [item] });
+      await Cart.create({
+        userId: session.user._id,
+        items: [item]
+      });
     }
 
     return NextResponse.json({ message: "Cart updated" });

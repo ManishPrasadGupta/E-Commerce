@@ -103,14 +103,15 @@ class ApiClient {
     productId: string;
     name: string;
     quantity: number;
-    variant: ColorVariant;
+    variant: ColorVariant; // includes type and price!
     href?: string;
   }) {
     return this.fetch<ICartItem>("/cart", {
       method: "POST",
-      body: { items: [item] },
+      body: { items: [item] }, // always send { items: [item] }
     });
   }
+  
 
   async fetchCart() {
     const res = await fetch("/api/cart", { method: "GET" });

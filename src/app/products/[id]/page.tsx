@@ -10,17 +10,17 @@ import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { Loader2, AlertCircle, Image as ImageIcon } from "lucide-react";
 import { apiClient } from "@/lib/api-client";
+import { useCart } from "@/context/CartContext";
 
 export default function ProductPage() {
   const params = useParams();
   const router = useRouter();
+  const { addItem } = useCart();
 
   const [product, setProduct] = useState<IProduct | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [selectedVariant, setSelectedVariant] = useState<ColorVariant | null>(null);
-
-
 
 
   const images = Array.isArray(product?.imageUrl) ? product.imageUrl : [product?.imageUrl];
@@ -230,6 +230,18 @@ export default function ProductPage() {
                         }}
                       >
                         Buy Now
+                      </button>
+                      <button
+                        className="btn btn-secondary bg-green-600 btn-sm rounded p-2 hover:bg-green-400"
+                        onClick={async (e) => {
+                          e.stopPropagation();
+                          if (!product._id) return; 
+                         
+                          const productId = typeof product._id === "string" ? product._id : product._id.toString();
+                          await addItem(productId, variant.type, 1, product.name, variant.price, `/products/${productId}`);
+                        }}
+                      >
+                        Add to Cart
                       </button>
                     </div>
                   </div>
