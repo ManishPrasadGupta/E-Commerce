@@ -36,9 +36,17 @@ export default function ProductPage() {
 
   const handleBuyNow = async () => {
     if (!product?._id || !selectedVariant) return;
-    router.push(
-      `/checkout?productId=${product?._id}&variantType=${selectedVariant.type}`
+  
+    localStorage.setItem(
+      "buyNowProduct",
+      JSON.stringify({
+        productId: typeof product._id === "string" ? product._id : product._id.toString(),
+        variant: selectedVariant,
+        quantity: 1,
+      })
     );
+  
+    router.push("/checkout");
   };
 
   const handleAddToCart = async () => {
@@ -255,7 +263,7 @@ export default function ProductPage() {
               >
                 Add to Cart
               </button>
-              <button
+              <button       
                 className="bg-blue-600 text-white font-bold py-2 px-6 rounded-lg shadow hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-300 transition disabled:opacity-60"
                 onClick={handleBuyNow}
                 disabled={!selectedVariant}

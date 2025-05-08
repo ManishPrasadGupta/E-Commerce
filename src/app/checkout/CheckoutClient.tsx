@@ -2,13 +2,14 @@
 
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { apiClient } from "@/lib/api-client";
+import { apiClient, CreateOrderData } from "@/lib/api-client";
 import { useSession } from "next-auth/react";
 import { useNotification } from "@/components/Notification";
 import { Loader2, RefreshCcw, Plus, Edit, Trash2 } from "lucide-react";
 import AddressForm from "@/components/Address/addressForm";
 import { IAddress } from "@/models/User.model";
 import { useCart } from "@/context/CartContext";
+import { ColorVariant } from "@/models/Product.model";
 
 type RazorpayOptions = {
   key: string;
@@ -44,6 +45,11 @@ export default function CheckoutPage() {
   const [fetchingAddress, setFetchingAddress] = useState(true);
   const [selectedAddressId, setSelectedAddressId] = useState<string | undefined>();
   const [editingAddress, setEditingAddress] = useState<IAddress | null>(null);
+  const [buyNowProduct, setBuyNowProduct] = useState<{
+    productId: string;
+    variant: ColorVariant;
+    quantity: number;
+  } | null>(null);
 
   const subtotal = cartItems.reduce((sum, item) => sum + item.variant.price * item.quantity, 0);
 
@@ -83,6 +89,14 @@ export default function CheckoutPage() {
     }
   }, [status, router]);
 
+  useEffect(() => {
+    const data = localStorage.getItem("buyNowProduct");
+    if (data) {
+      setBuyNowProduct(JSON.parse(data));
+      localStorage.removeItem("buyNowProduct"); // optional: clear after use
+    }
+  }, []);
+
   const handleAddressSuccess = async () => {
     try {
       const res = await apiClient.getAddresses();
@@ -101,7 +115,9 @@ export default function CheckoutPage() {
       showNotification("Please enter your address", "error");
       return;
     }
-    if (!cartItems.length) {
+
+
+    if (!cartItems.length && !buyNowProduct) {
       showNotification("Cart is empty", "error");
       return;
     }
@@ -113,11 +129,26 @@ export default function CheckoutPage() {
         setPlacingOrder(false);
         return;
       }
-      const payload = {
-        items: cartItems,
-        address: selectedAddress,
-        paymentMethod,
-      };
+
+
+      
+
+      let payload: CreateOrderData;
+      if (buyNowProduct) {
+        payload = {
+          productId: buyNowProduct.productId,
+          variant: buyNowProduct.variant,
+          address: selectedAddress,
+          paymentMethod,
+        };
+      } else {
+        payload = {
+          items: cartItems,
+          address: selectedAddress,
+          paymentMethod,
+        };
+      }
+  
       const { orderId, amount } = await apiClient.createOrder(payload);
 
       // Razorpay payment
@@ -174,6 +205,13 @@ export default function CheckoutPage() {
     );
   }
 
+
+  
+
+// ##########################################(Return)#########################################################
+
+
+
   return (
     <div className="container mx-auto px-4 py-8 max-w-xl">
       {/* Checkout Title */}
@@ -210,22 +248,33 @@ export default function CheckoutPage() {
         </div>
         {addresses.length > 0 ? (
           <fieldset className="space-y-3">
-            <legend className="sr-only">Select Shipping Address</legend>
-            {addresses.map((address) => (
-              <div
+          <legend className="sr-only">Select Shipping Address</legend>
+          {addresses.map((address) => {
+            const isSelected = selectedAddressId === address._id?.toString();
+            return (
+              <label
                 key={address._id?.toString()}
-                className={`p-3 rounded border flex flex-col sm:flex-row items-start sm:items-center gap-2
-                  ${selectedAddressId === address._id?.toString() ? 'border-blue-600 bg-blue-50' : 'border-gray-300'}
+                htmlFor={`address-${address._id}`}
+                tabIndex={0}
+                className={`p-3 rounded border flex flex-col sm:flex-row items-start sm:items-center gap-2 cursor-pointer transition
+                  ${isSelected ? 'border-blue-600 bg-blue-50' : 'border-gray-300 hover:border-blue-400'}
                 `}
+                onClick={() => setSelectedAddressId(address._id?.toString())}
+                onKeyDown={e => {
+                  if (e.key === "Enter" || e.key === " ") setSelectedAddressId(address._id?.toString());
+                }}
+                aria-pressed={isSelected}
               >
                 <input
+                  id={`address-${address._id}`}
                   type="radio"
                   name="shippingAddress"
                   value={address._id?.toString()}
-                  checked={selectedAddressId === address._id?.toString()}
+                  checked={isSelected}
                   onChange={() => setSelectedAddressId(address._id?.toString())}
                   className="accent-blue-600 mt-1"
                   aria-label={`Select address for ${address.firstName} ${address.lastName}`}
+                  tabIndex={-1} // So tab goes to label, not input
                 />
                 <div className="flex-1 text-sm">
                   <div className="font-medium">{address.firstName} {address.lastName}</div>
@@ -238,6 +287,7 @@ export default function CheckoutPage() {
                     className="flex items-center gap-1 px-2 py-1 text-xs bg-yellow-100 hover:bg-yellow-200 text-yellow-700 rounded"
                     onClick={e => {
                       e.preventDefault();
+                      e.stopPropagation(); 
                       setEditingAddress(address);
                       setOpen(true);
                     }}
@@ -250,6 +300,7 @@ export default function CheckoutPage() {
                     className="flex items-center gap-1 px-2 py-1 text-xs bg-red-100 hover:bg-red-200 text-red-700 rounded"
                     onClick={async e => {
                       e.preventDefault();
+                      e.stopPropagation(); // Prevents selecting address when deleting
                       if (window.confirm("Are you sure you want to delete this address?")) {
                         try {
                           await apiClient.deleteAddress(address);
@@ -266,9 +317,10 @@ export default function CheckoutPage() {
                     Delete
                   </button>
                 </div>
-              </div>
-            ))}
-          </fieldset>
+              </label>
+            );
+          })}
+        </fieldset>
         ) : (
           <div className="text-gray-500 italic mt-2">No addresses saved yet. Please add one.</div>
         )}
@@ -326,19 +378,37 @@ export default function CheckoutPage() {
       <section className="mb-8">
         <h2 className="font-semibold text-lg mb-2">Order Summary</h2>
         <div className="bg-base-200 rounded p-4 space-y-2">
-          {cartItems.map((item) => (
-            <div className="flex justify-between items-center" key={item.productId + item.variant.type}>
+          {buyNowProduct ? (
+            <div className="flex justify-between items-center">
               <div>
-                <span className="font-medium">{item.name}</span>
-                <span className="text-sm text-neutral-500 ml-1">({item.variant.type})</span>
-                <span className="text-xs text-gray-400 ml-2">x {item.quantity}</span>
+                <span className="font-medium">Product</span>
+                <span className="text-sm text-neutral-500 ml-1">({buyNowProduct.variant.type})</span>
+                <span className="text-xs text-gray-400 ml-2">x {buyNowProduct.quantity}</span>
               </div>
-              <span className="font-bold text-md">₹{item.variant.price * item.quantity}</span>
+              <span className="font-bold text-md">
+                ₹{buyNowProduct.variant.price * buyNowProduct.quantity}
+              </span>
             </div>
-          ))}
+          ) : (
+            cartItems.map((item) => (
+              <div className="flex justify-between items-center" key={item.productId + item.variant.type}>
+                <div>
+                  <span className="font-medium">{item.name}</span>
+                  <span className="text-sm text-neutral-500 ml-1">({item.variant.type})</span>
+                  <span className="text-xs text-gray-400 ml-2">x {item.quantity}</span>
+                </div>
+                <span className="font-bold text-md">₹{item.variant.price * item.quantity}</span>
+              </div>
+            ))
+          )}
           <div className="flex justify-between items-center pt-2 border-t font-bold text-xl text-blue-700 mt-2">
             <span>Total</span>
-            <span>₹{subtotal}</span>
+            <span>
+              ₹
+              {buyNowProduct
+                ? buyNowProduct.variant.price * buyNowProduct.quantity
+                : subtotal}
+            </span>
           </div>
         </div>
       </section>

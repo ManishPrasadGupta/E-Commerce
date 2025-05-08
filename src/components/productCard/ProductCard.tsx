@@ -1,3 +1,5 @@
+
+
 import { IKImage } from "imagekitio-next";
 import Link from "next/link";
 import { IProduct } from "@/models/Product.model";
@@ -16,6 +18,8 @@ export default function ProductCard({ product }: { product: IProduct }) {
     );
   }
 
+
+
   const productVariants = product.variants ?? [];
   const lowestPrice =
     productVariants.length > 0
@@ -24,7 +28,12 @@ export default function ProductCard({ product }: { product: IProduct }) {
           productVariants[0]?.price ?? "N/A"
         )
       : "N/A";
+
+
+
   const images = Array.isArray(product?.imageUrl) ? product.imageUrl : [product?.imageUrl];
+
+
 
   const updateCart = async () => {
     if (!product?._id || !product.variants?.[0]) {
@@ -49,6 +58,9 @@ export default function ProductCard({ product }: { product: IProduct }) {
       setLoading(false);
     }
   };
+
+
+
 
   return (
     <div 
