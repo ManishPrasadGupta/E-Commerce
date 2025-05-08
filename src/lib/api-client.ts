@@ -14,10 +14,18 @@ export interface UpdateAddressData {
 }
 
 
-export interface CreateOrderData {
-  productId: Types.ObjectId | string;
-  variant: ColorVariant;
-}
+export type CreateOrderData =
+  | {
+      productId: Types.ObjectId | string;
+      variant: ColorVariant;
+      address: IAddress;
+      paymentMethod: string;
+    }
+  | {
+      items: ICartItem[];
+      address: IAddress;
+      paymentMethod: string;
+  };
 
 type FetchOptions = {
   method?: "GET" | "POST" | "PUT" | "DELETE";
@@ -82,11 +90,18 @@ class ApiClient {
   }
 
   async createOrder(orderData: CreateOrderData) {
-    const sanitizedOrderData = {
-      ...orderData,
-      productId: orderData.productId.toString(),
-    };
-
+    
+    let sanitizedOrderData: CreateOrderData;
+    if ("productId" in orderData && orderData.productId) {
+      sanitizedOrderData = {
+        ...orderData,
+        productId: orderData.productId.toString(),
+      };
+    } else {
+      // It's the cart-based type, no sanitization needed
+      sanitizedOrderData = orderData;
+    }
+  
     return this.fetch<{ orderId: string; amount: number }>("/orders", {
       method: "POST",
       body: sanitizedOrderData,

@@ -90,9 +90,11 @@ export default function CartSlideOver({ open, setOpen }: { open: boolean; setOpe
                     <p>₹{subtotal.toFixed(2)}</p>
                   </div>
                   <div className="mt-6">
-                    <a href="#" className="flex items-center justify-center rounded-md bg-indigo-600 my-3 px-6 py-3 text-base font-medium text-white hover:bg-indigo-700">
+                  <Link href="/checkout" passHref>
+                    <button className="flex w-full items-center justify-center rounded-md bg-indigo-600 my-3 px-6 py-3 text-base font-medium text-white hover:bg-indigo-700">
                       Checkout
-                    </a>
+                    </button>
+                  </Link>
                     <a href="/cart" className="flex items-center justify-center rounded-md bg-indigo-600 px-6 py-3 text-base font-medium text-white hover:bg-indigo-700">
                       View All
                     </a>

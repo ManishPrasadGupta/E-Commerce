@@ -21,11 +21,10 @@ type CartContextType = {
   deleteItem: (productId: string, variantType: string) => Promise<void>;
   updateItemQuantity: (productId: string, variantType: string, quantity: number) => Promise<void>;
   addItem: (productId: string, variantType: string, quantity: number,  name: string, price: number, href?: string) => Promise<void>;
+  clearCart: () => Promise<void>;
 };
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
-
-
 
 export const CartProvider = ({ children }: { children: React.ReactNode }) => {
   const [cartItems, setCartItems] = useState<CartItem[]>([])
@@ -50,55 +49,62 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
       setLoading(false);
     }
   };
-  
 
   const loadCart = async () => {
-      setLoading(true);
-      try {
-        const data = await apiClient.fetchCart();
-        // console.log("Cart data:", data);
-  
-        setCartItems(data || []);
-      } catch (err) {
-        console.error("Error fetching cart", err);
-      } finally {
-        setLoading(false);
-      }
-    };
+    setLoading(true);
+    try {
+      const data = await apiClient.fetchCart();
+      setCartItems(data || []);
+    } catch (err) {
+      console.error("Error fetching cart", err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-    const updateItemQuantity = async (productId: string, variantType: string, quantity: number) => {
-      setLoading(true);
-      try {
-        await apiClient.updateCartItemQuantity(productId, variantType, quantity);
-        setCartItems((prev) =>
-          prev.map((item) =>
-            item.productId === productId && item.variant.type === variantType
-              ? { ...item, quantity }
-              : item
-          )
-        );
-      } catch (err) {
-        console.error("Error updating cart item quantity", err);
-        alert("Failed to update item quantity.");
-      } finally {
-        setLoading(false);
-      }
-    };
-
+  const updateItemQuantity = async (productId: string, variantType: string, quantity: number) => {
+    setLoading(true);
+    try {
+      await apiClient.updateCartItemQuantity(productId, variantType, quantity);
+      setCartItems((prev) =>
+        prev.map((item) =>
+          item.productId === productId && item.variant.type === variantType
+            ? { ...item, quantity }
+            : item
+        )
+      );
+    } catch (err) {
+      console.error("Error updating cart item quantity", err);
+      alert("Failed to update item quantity.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const deleteItem = async (productId: string, variantType: string) => {
     setLoading(true);
     try {
-
-    await apiClient.deleteCartItem(productId, variantType);
-    setCartItems((prev) => prev.filter((item) => item.productId !== productId));
-    alert("Item removed from cart!");
-        
+      await apiClient.deleteCartItem(productId, variantType);
+      setCartItems((prev) => prev.filter((item) => !(item.productId === productId && item.variant.type === variantType)));
+      alert("Item removed from cart!");
     } catch (err) {
-        console.error("Error removing item from cart", err);
-        alert("Failed to remove item from cart.");
+      console.error("Error removing item from cart", err);
+      alert("Failed to remove item from cart.");
     } finally {
-        setLoading(false);
+      setLoading(false);
+    }
+  };
+
+  const clearCart = async () => {
+    setLoading(true);
+    try {
+      await apiClient.clearCart(); 
+      setCartItems([]);
+    } catch (err) {
+      console.error("Error clearing cart", err);
+      alert("Failed to clear cart.");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -106,15 +112,12 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
     loadCart();
   }, []);
 
-
-
   return (
-    <CartContext.Provider value={{ cartItems, loading, loadCart, deleteItem, updateItemQuantity, addItem }}>
+    <CartContext.Provider value={{ cartItems, loading, loadCart, deleteItem, updateItemQuantity, addItem, clearCart }}>
       {children}
     </CartContext.Provider>
   );
 };
-
 
 export const useCart = (): CartContextType => {
   const context = useContext(CartContext);
