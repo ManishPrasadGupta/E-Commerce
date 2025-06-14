@@ -59,6 +59,8 @@ class ApiClient {
     return response.json();
   }        
 
+
+
 //Products
   async getProducts() {
     const response = await this.fetch<{ products: IProduct[] }>("/products"); // Expect an object with `products` key
@@ -127,7 +129,6 @@ class ApiClient {
     });
   }
   
-
   async fetchCart() {
     const res = await fetch("/api/cart", { method: "GET" });
     if (!res.ok) throw new Error("Failed to fetch cart");
@@ -201,5 +202,33 @@ class ApiClient {
     return res.json();
   }
 }
+
+
+// GridAds
+export async function getAds() {
+  const res = await fetch("/api/grid-ads",  { method: "GET" });
+  if(!res.ok) throw new Error("Failed to fetch grid ads");
+  return res.json();
+}
+
+export async function createAds(ad: {
+  title: string;
+  description: string;
+  thumbnail: string;
+}) {
+  const res = await fetch("/api/grid-ads", {
+    method: "POST",
+    headers: { "content-type": "applcation/json" },
+    body: JSON.stringify(ad),
+  })
+
+  if(!res.ok) {
+    const data = await res.json();
+    throw new Error(data.error || "Failed to create ad");
+  }
+  return await res.json();
+}
+
+
 
 export const apiClient = new ApiClient();

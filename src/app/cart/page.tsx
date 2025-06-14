@@ -1,9 +1,11 @@
 "use client";
 
 import { useCart } from "@/context/CartContext";
+import Link from "next/link";
 
 export default function CartPage() {
   const { cartItems, loading, loadCart, deleteItem, updateItemQuantity } = useCart();
+   const subtotal = cartItems.reduce((total, item) => total + item.variant.price * item.quantity, 0);
 
   return (
     <div className="p-6 space-y-6">
@@ -13,17 +15,17 @@ export default function CartPage() {
           onClick={loadCart}
           className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
         >
-          Fetch Cart
+          Fetch Items
         </button>
       </div>
 
       {loading && <p>Loading...</p>}
 
-      <div className="space-y-4">
+      <div className="space-y-4 ">
         {Array.isArray(cartItems) && cartItems.map((item) => (
           <div
             key={item.productId + item.variant.type}
-            className="border p-4 rounded shadow-sm flex justify-between"
+            className="border p-4 rounded shadow-sm flex justify-between border-zinc-600"
           >
             <div>
               <a
@@ -67,6 +69,15 @@ export default function CartPage() {
           </div>
         ))}
       </div>
+      <div className="flex justify-between text-base font-medium text-gray-900">
+                    <p>Subtotal</p>
+                    <p>₹{subtotal.toFixed(2)}</p>
+                  </div>
+      <Link href="/checkout" passHref>
+        <button className="flex w-full items-center justify-center rounded-md bg-indigo-600 my-3 px-6 py-3 text-base font-medium text-white hover:bg-indigo-700">
+          Checkout
+        </button>
+      </Link>
     </div>
   );
 }

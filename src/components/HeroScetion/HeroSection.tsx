@@ -7,6 +7,7 @@ import { TypewriterEffectSmooth } from '../ui/typewriter-effect';
 import { words } from '../HeroScetion/TypewriterWords';
 
 
+
 function HeroSection() {
   
     const images = [
@@ -35,12 +36,15 @@ function HeroSection() {
             <span className="block mb-2 text-white animate-fadeInUp delay-150">Discover Your Next Favorite Product</span>
           </motion.p>
           <TypewriterEffectSmooth words={words} />
-            <Link href="/productsgallery" passHref>
-              <button className="px-4 py-2 backdrop-blur-sm border bg-emerald-300/10 border-emerald-500/20 text-white mx-auto text-center rounded-full relative mt-4"
-              >
-                <span>Start Shopping →</span>
-                <div className="absolute inset-x-0 h-px -bottom-px bg-gradient-to-r w-3/4 mx-auto from-transparent via-emerald-500 to-transparent" />
-              </button>
+            <Link href="/productsgallery" passHref className="animated-button">
+              <span className="circle"></span>
+              <span className="text">Start Shopping</span>
+              <svg className="arr-1" viewBox="0 0 19 19">
+                <path d="M13.29 9.29l-4.88-4.88a1 1 0 0 0-1.41 1.41L10.17 9H3a1 1 0 1 0 0 2h7.17l-3.17 3.17a1 1 0 1 0 1.41 1.41l4.88-4.88a1 1 0 0 0 0-1.41z"></path>
+              </svg>
+              <svg className="arr-2" viewBox="0 0 19 19">
+                <path d="M13.29 9.29l-4.88-4.88a1 1 0 0 0-1.41 1.41L10.17 9H3a1 1 0 1 0 0 2h7.17l-3.17 3.17a1 1 0 1 0 1.41 1.41l4.88-4.88a1 1 0 0 0 0-1.41z"></path>
+              </svg>
             </Link>
           </motion.div>
          </ImagesSlider>

@@ -50,7 +50,7 @@ export default function Header() {
         href="/"
         className="flex items-center btn btn-ghost text-3xl gap-2 normal-case font-bold"
         prefetch={true}
-        onClick={() => showNotification("Welcome to Electronics", "info")}
+        onClick={() => showNotification("Welcome to Electech", "info")}
       >
         <div className="flex items-center justify-center w-12 h-12 rounded-full dark:bg-violet-600">
 					<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="currentColor" className="flex-shrink-0 w-5 h-5 rounded-full dark:text-gray-50">
@@ -58,7 +58,7 @@ export default function Header() {
 					</svg>
 				</div>
         <span className="hidden md:inline italic font-serif tracking-wide text-blue-700 drop-shadow">
-          Electronics
+          Electech
         </span>
       </Link>
         

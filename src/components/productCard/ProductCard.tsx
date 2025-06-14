@@ -64,7 +64,7 @@ export default function ProductCard({ product }: { product: IProduct }) {
 
   return (
     <div 
-    className="group bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-transform duration-300 overflow-hidden flex flex-col h-[430px] w-full max-w-xs mx-auto border border-gray-100 hover:scale-105">
+    className="group bg-slate-200 rounded-2xl shadow-lg hover:shadow-2xl transition-transform duration-300 overflow-hidden flex flex-col h-[430px] w-full max-w-xs mx-auto border border-zinc-600 hover:scale-105">
       <figure className="relative w-full h-72 bg-gray-100 flex items-center justify-center overflow-hidden">
         <Link href={`/products/${product._id}`} className="block w-full h-full">
           <IKImage

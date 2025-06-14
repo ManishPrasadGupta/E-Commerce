@@ -89,7 +89,7 @@ export default function AdminProductForm() {
       onSubmit={handleSubmit(onSubmit)}
       className="max-w-2xl mx-auto bg-slate-400 rounded-xl shadow-lg p-8 space-y-8"
     >
-      <h2 className="text-2xl font-bold text-blue-900 mb-2">Add New Product</h2>
+      <h2 className="flex text-2xl font-bold text-blue-900 mb-2">Add New Product</h2>
       {/* Product Name */}
       <div>
         <label className="block text-sm font-semibold mb-1">Product Name</label>

@@ -6,6 +6,7 @@ import { IProduct } from "@/models/Product.model";
 import Link from "next/link";
 import { SeparatorHorizontal } from "lucide-react";
 import ProductCard from "../productCard/ProductCard";
+import "../../../public/TopProductsCSS/animated-button.css"
 
 
 export default function TopProducts() {
@@ -66,15 +67,21 @@ export default function TopProducts() {
               ))}
             </div>
           </div>
-      <div className="flex justify-center mt-10">
-        <Link
-          href="/productsgallery"
-          className="inline-flex items-center px-6 py-3 rounded-md bg-gray-700 text-white font-semibold hover:bg-gray-500 transition-colors shadow-md"
-          target="_blank"
-        >
-          <span>View More</span>
-        </Link>
-      </div>
+     <div className="flex justify-center mt-10">
+      <Link
+        href="/productsgallery"
+        className="animated-button"
+      >
+        <span className="circle"></span>
+        <span className="text">View More</span>
+        <svg className="arr-1" viewBox="0 0 19 19">
+          <path d="M13.29 9.29l-4.88-4.88a1 1 0 0 0-1.41 1.41L10.17 9H3a1 1 0 1 0 0 2h7.17l-3.17 3.17a1 1 0 1 0 1.41 1.41l4.88-4.88a1 1 0 0 0 0-1.41z"></path>
+        </svg>
+        <svg className="arr-2" viewBox="0 0 19 19">
+          <path d="M13.29 9.29l-4.88-4.88a1 1 0 0 0-1.41 1.41L10.17 9H3a1 1 0 1 0 0 2h7.17l-3.17 3.17a1 1 0 1 0 1.41 1.41l4.88-4.88a1 1 0 0 0 0-1.41z"></path>
+        </svg>
+      </Link>
+    </div>
       <SeparatorHorizontal className="bg-gray-200 h-[2px] w-3/4 my-8 mx-auto" />
     </div>
 

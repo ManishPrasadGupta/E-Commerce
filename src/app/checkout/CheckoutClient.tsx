@@ -130,9 +130,6 @@ export default function CheckoutPage() {
         return;
       }
 
-
-      
-
       let payload: CreateOrderData;
       if (buyNowProduct) {
         payload = {
