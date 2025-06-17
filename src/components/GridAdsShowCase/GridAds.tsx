@@ -17,12 +17,15 @@ type AdResponse = {
 };
 
 const Skeleton = ({ title, description }: { title: string; description: string }) => (
-  <div>
-    <p className="font-bold md:text-4xl text-xl text-white">{title}</p>
-    <p className="font-normal text-base my-4 max-w-lg text-neutral-200">{description}</p>
+  <div className="flex flex-col w-full h-full">
+    <p className="font-bold text-xl md:text-2xl lg:text-3xl xl:text-4xl text-white break-words">
+      {title}
+    </p>
+    <p className="font-normal text-base my-4 text-neutral-200 break-words">
+      {description}
+    </p>
   </div>
 );
-
 export default function LayoutGridDemo() {
   const [cards, setCards] = useState<Card[]>([]);
   const [loading, setLoading] = useState(true);
@@ -32,7 +35,6 @@ export default function LayoutGridDemo() {
     async function fetchAds() {
       try {
         const data = await getAds();
-        // `data.gridAds` is the array returned from your backend
         const formatted = data.gridAds.map((ad: AdResponse, idx: number) => ({
           id: ad._id || idx,
           content: (

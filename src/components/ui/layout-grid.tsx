@@ -69,7 +69,7 @@ export const LayoutGrid = ({ cards }: { cards: Card[] }) => {
           >
             {cards.map((card) => (
               <div
-                className="w-full flex-shrink-0 flex flex-col items-center p-6"
+               className="w-full max-w-sm flex-shrink-0 flex flex-col items-center p-6 mx-auto"
                 key={card.id}
               >
                 <Image
@@ -80,11 +80,7 @@ export const LayoutGrid = ({ cards }: { cards: Card[] }) => {
                   height={192}
                   priority
                 />
-                {/* <img
-                  src={card.thumbnail}
-                  alt="thumbnail"
-                  className="w-full h-48 object-cover rounded-xl mb-4"
-                /> */}
+
                 <div className="text-center text-black">{card.content}</div>
               </div>
             ))}
@@ -124,7 +120,7 @@ export const LayoutGrid = ({ cards }: { cards: Card[] }) => {
   return (
     <div className="w-full h-full p-10 grid grid-cols-1 md:grid-cols-3 max-w-7xl mx-auto gap-4 relative">
       {cards.map((card, i) => (
-        <div key={i} className="flip-container">
+        <div key={i} className="flip-container max-w-sm w-full mx-auto">
           <div
             className={cn(
               "flip-card",
@@ -133,7 +129,7 @@ export const LayoutGrid = ({ cards }: { cards: Card[] }) => {
             onClick={() => handleCardClick(i)}
           >
             {/* Front */}
-            <div className="flip-front bg-pink rounded-xl h-full w-full flex flex-col justify-center items-center ">
+            <div className="flip-front bg-pink rounded-xl h-full w-full flex flex-col justify-center items-center">
               <ImageComponent card={card} />
             </div>
             {/* Back */}
@@ -192,7 +188,7 @@ const SelectedCard = ({ selected }: { selected: Card | null }) => {
           duration: 0.3,
           ease: "easeInOut",
         }}
-        className="relative px-8 pb-4 z-[70]"
+        className="relative px-8 pb-4 z-[70] h-full overflow-auto"
       >
         {selected?.content}
       </motion.div>
