@@ -1,5 +1,6 @@
 'use client'
 
+import { useToast } from '@/hooks/use-toast';
 import { apiClient } from '@/lib/api-client';
 import { useSession } from 'next-auth/react';
 import { createContext, useContext, useEffect, useState } from 'react'
@@ -31,9 +32,10 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
   const [cartItems, setCartItems] = useState<CartItem[]>([])
   const [loading, setLoading] = useState(false)
   const { status } = useSession();
-    const isLoggedIn = status === "authenticated";
+  const isLoggedIn = status === "authenticated";
+  const { toast } = useToast();
 
-      useEffect(() => {
+  useEffect(() => {
     if (isLoggedIn) {
       loadCart();
     }
@@ -99,11 +101,17 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
           ];
         }
       });
-
-      alert("Item added to cart!");
+      toast({
+        title: "Item added to cart",
+        description: `${name} has been added to your cart.`,
+      });
     } catch (err) {
       console.error("Error adding item to cart", err);
-      alert("Failed to add item to cart.");
+      // alert("Failed to add item to cart.");
+      toast({
+        title: "Error",
+        description: "Failed to add item to cart.",
+      });
     } finally {
       setLoading(false);
     }
@@ -122,7 +130,11 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
       );
     } catch (err) {
       console.error("Error updating cart item quantity", err);
-      alert("Failed to update item quantity.");
+      // alert("Failed to update item quantity.");
+      toast({
+        title: "Error",
+        description: "Failed to update item quantity.",
+      });
     } finally {
       setLoading(false);
     }
@@ -133,10 +145,19 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
     try {
       await apiClient.deleteCartItem(productId, variantType);
       setCartItems((prev) => prev.filter((item) => !(item.productId === productId && item.variant.type === variantType)));
-      alert("Item removed from cart!");
+      // alert("Item removed from cart!");
+      toast({
+        title: "Item removed",
+        description: "The item has been removed from your cart.",
+      });
+
     } catch (err) {
       console.error("Error removing item from cart", err);
-      alert("Failed to remove item from cart.");
+      // alert("Failed to remove item from cart.");
+      toast({
+        title: "Error",
+        description: "Failed to remove item from cart.",
+      });
     } finally {
       setLoading(false);
     }
@@ -149,7 +170,11 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
       setCartItems([]);
     } catch (err) {
       console.error("Error clearing cart", err);
-      alert("Failed to clear cart.");
+      // alert("Failed to clear cart.");
+      toast({
+        title: "Error",
+        description: "Failed to clear cart.",
+      });
     } finally {
       setLoading(false);
     }
