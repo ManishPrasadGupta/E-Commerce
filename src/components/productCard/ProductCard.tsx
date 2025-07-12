@@ -116,6 +116,12 @@ export default function ProductCard({ product }: { product: IProduct }) {
             href={`/products/${product._id}`}
             className="flex-1 bg-blue-600 text-white font-semibold rounded-lg px-0 py-2 shadow hover:bg-blue-700 transition text-xs flex items-center justify-center gap-2 focus:outline-none focus:ring-2 focus:ring-blue-300"
             aria-label={`Buy ${product?.name} now`}
+            onClick={() =>
+              toast({
+                title: "Login Required",
+                description: "You need to log in to access this page.",
+              })
+            }
           >
             <Eye className="w-4 h-4" />
             <span>Buy Now</span>

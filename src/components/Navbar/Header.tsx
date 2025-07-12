@@ -4,7 +4,6 @@ import Link from "next/link";
 import { useSession, signOut } from "next-auth/react";
 import { Menu, ShoppingCart } from "lucide-react";
 import { FormEvent, useEffect, useState } from "react";
-// import { useNotification } from "../Notification";
 import CartSlideOver from "../Cart/CartSlideOver";
 import { XMarkIcon } from "@heroicons/react/24/outline";
 import { useSearch } from "@/context/SearchContext/SearchContext";
@@ -14,7 +13,6 @@ import { toast } from "@/hooks/use-toast";
 
 export default function Header() {
   const { data: session } = useSession();
-  // const { showNotification } = useNotification();
   const [menuOpen, setMenuOpen] = useState(false);
   const [isCartOpen, setIsCartOpen] = useState(false);
 
@@ -166,12 +164,7 @@ export default function Header() {
                   className={`px-4 py-2 hover:bg-base-200 rounded transition-all duration-150 ${
                     isActive("/login") ? "border-b-2 border-blue-700 font-semibold" : ""
                   }`}
-                  onClick={() => 
-                    toast({
-                      title: "Login Required",
-                      description: "You need to log in to access this page.",
-                    })
-                  }
+
                 >
                   Login
                 </Link>
