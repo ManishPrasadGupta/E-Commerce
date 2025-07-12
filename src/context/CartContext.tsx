@@ -1,6 +1,7 @@
 'use client'
 
 import { apiClient } from '@/lib/api-client';
+import { useSession } from 'next-auth/react';
 import { createContext, useContext, useEffect, useState } from 'react'
 
 export type CartItem = {
@@ -29,8 +30,38 @@ const CartContext = createContext<CartContextType | undefined>(undefined);
 export const CartProvider = ({ children }: { children: React.ReactNode }) => {
   const [cartItems, setCartItems] = useState<CartItem[]>([])
   const [loading, setLoading] = useState(false)
+  const { status } = useSession();
+    const isLoggedIn = status === "authenticated";
 
-  const addItem = async (productId: string, variantType: string, quantity: number, name: string, price: number, href?: string) => {
+      useEffect(() => {
+    if (isLoggedIn) {
+      loadCart();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isLoggedIn]);
+
+
+
+  const loadCart = async () => {
+    setLoading(true);
+    try {
+      const data = await apiClient.fetchCart();
+      setCartItems(data || []);
+    } catch (err) {
+      console.error("Error fetching cart", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const addItem = async (
+    productId: string,
+    variantType: string,
+    quantity: number,
+    name: string,
+    price: number,
+    href?: string
+  ) => {
     setLoading(true);
     try {
       await apiClient.addToCart({
@@ -40,23 +71,39 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
         variant: { type: variantType, price },
         href,
       });
-      await loadCart();
+
+      // Check if item already exists in cart
+      setCartItems((prev) => {
+        const idx = prev.findIndex(
+          (item) => item.productId === productId && item.variant.type === variantType
+        );
+        if (idx !== -1) {
+          // Item exists, update quantity
+          const updated = [...prev];
+          updated[idx] = {
+            ...updated[idx],
+            quantity: updated[idx].quantity + quantity,
+          };
+          return updated;
+        } else {
+          // New item
+          return [
+            ...prev,
+            {
+              productId,
+              name,
+              quantity,
+              variant: { type: variantType, price },
+              href,
+            },
+          ];
+        }
+      });
+
       alert("Item added to cart!");
     } catch (err) {
       console.error("Error adding item to cart", err);
       alert("Failed to add item to cart.");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const loadCart = async () => {
-    setLoading(true);
-    try {
-      const data = await apiClient.fetchCart();
-      setCartItems(data || []);
-    } catch (err) {
-      console.error("Error fetching cart", err);
     } finally {
       setLoading(false);
     }
@@ -107,10 +154,6 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
       setLoading(false);
     }
   };
-
-  useEffect(() => {
-    loadCart();
-  }, []);
 
   return (
     <CartContext.Provider value={{ cartItems, loading, loadCart, deleteItem, updateItemQuantity, addItem, clearCart }}>

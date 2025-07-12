@@ -1,14 +1,11 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import Script from "next/script";
 import Providers from "@/components/Providers";
-// import  { NotificationProvider } from "@/components/Notification";
 import Header from "@/components/Navbar/Header";
-import { CartProvider } from "@/context/CartContext";
-import { SearchProvider } from "@/context/SearchContext/SearchContext";
 import ChatbotWidgets from "@/components/ChatBot/ChatbotWidgets";
 import { Toaster } from "@/components/ui/toaster";
+import AppProviders from "@/components/AppProvider";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -32,19 +29,15 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
+      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
         <Providers>
-          <SearchProvider>
-            <CartProvider>
-                <main>
-                  <Header />
-                  {children}
-                </main>
-              <Toaster />
-            </CartProvider>
-          </SearchProvider>
+          <AppProviders >
+            <main>
+              <Header />
+              {children}
+            </main>
+            <Toaster />
+          </AppProviders>
         </Providers>
         {/* <ChatbotWidgets /> */}
       </body>

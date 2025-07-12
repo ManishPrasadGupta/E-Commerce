@@ -1,7 +1,7 @@
 "use client";
 
-import { signIn } from "next-auth/react";
-import { useState } from "react";
+import { signIn, useSession } from "next-auth/react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useToast } from "@/hooks/use-toast";
@@ -11,6 +11,23 @@ export default function Login() {
   const [password, setPassword] = useState("");
   const router = useRouter();
   const { toast } = useToast();
+  const { status } = useSession(); // <-- Add this
+
+  // Redirect if already authenticated
+  useEffect(() => {
+    if (status === "authenticated") {
+      router.replace("/"); // or "/dashboard" if you prefer
+    }
+  }, [status, router]);
+
+  // Optionally show a loading indicator while checking session
+  if (status === "loading") {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-blue-100 px-4">
+        <div className="text-xl text-gray-600 font-semibold">Loading...</div>
+      </div>
+    );
+  }
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -28,7 +45,7 @@ export default function Login() {
       toast({
         description: "Login successful!",
       });
-      router.push("/");
+       window.location.replace("/");
     }
   };
 
@@ -37,7 +54,6 @@ export default function Login() {
       <div className="w-full max-w-md bg-white shadow-xl rounded-2xl p-8 sm:p-10">
         <div className="flex flex-col items-center mb-6">
           <div className="bg-blue-500 rounded-full p-3 mb-2 shadow">
-
             <span className="text-white text-3xl">🔐</span>
           </div>
           <h1 className="text-3xl font-extrabold text-gray-800 mb-1 text-center">Welcome Back</h1>

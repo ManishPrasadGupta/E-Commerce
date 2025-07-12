@@ -7,6 +7,8 @@ export default function CartPage() {
   const { cartItems, loading, loadCart, deleteItem, updateItemQuantity } = useCart();
   const subtotal = cartItems.reduce((total, item) => total + item.variant.price * item.quantity, 0);
 
+   
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-blue-100 py-10 px-2 flex justify-center">
       <div className="w-full max-w-2xl bg-white rounded-2xl shadow-xl p-6 md:p-10 space-y-7">
