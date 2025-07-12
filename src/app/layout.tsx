@@ -3,10 +3,12 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import Script from "next/script";
 import Providers from "@/components/Providers";
-import  { NotificationProvider } from "@/components/Notification";
+// import  { NotificationProvider } from "@/components/Notification";
 import Header from "@/components/Navbar/Header";
 import { CartProvider } from "@/context/CartContext";
 import { SearchProvider } from "@/context/SearchContext/SearchContext";
+import ChatbotWidgets from "@/components/ChatBot/ChatbotWidgets";
+import { Toaster } from "@/components/ui/toaster";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -33,22 +35,18 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <Script
-        src="https:/checkout.razorpay.com/v1/checkout.js"
-        strategy="lazyOnload"
-        />
         <Providers>
           <SearchProvider>
             <CartProvider>
-              <NotificationProvider>
                 <main>
                   <Header />
                   {children}
                 </main>
-              </NotificationProvider>       
+              <Toaster />
             </CartProvider>
           </SearchProvider>
         </Providers>
+        {/* <ChatbotWidgets /> */}
       </body>
     </html>
   );

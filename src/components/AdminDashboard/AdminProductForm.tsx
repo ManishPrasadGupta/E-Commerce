@@ -6,12 +6,12 @@ import { IKUploadResponse } from "imagekitio-next/dist/types/components/IKUpload
 import { Loader2, Plus, Trash2 } from "lucide-react";
 import { apiClient, ProductFormData } from "@/lib/api-client";
 import Image from "next/image";
-import { useNotification } from "../Notification";
 import FileUpload from "../FileUpload";
+import { useToast } from "@/hooks/use-toast";
 
 export default function AdminProductForm() {
   const [loading, setLoading] = useState(false);
-  const { showNotification } = useNotification();
+  const { toast } = useToast();
 
   const {
     watch,
@@ -49,7 +49,10 @@ export default function AdminProductForm() {
     const currentImages = getValues("imageUrl") || [];
     const filename = response.url.split("/").pop() || "";
     setValue("imageUrl", [...currentImages, filename]);
-    showNotification("Image uploaded successfully!", "success");
+    toast({
+      title: "Success",
+      description: "Image uploaded successfully!",
+    });
   };
 
   const handleRemoveImage = (idx: number) => {
@@ -64,7 +67,10 @@ export default function AdminProductForm() {
     setLoading(true);
     try {
       await apiClient.createProduct(data);
-      showNotification("Product created successfully!", "success");
+      toast({
+        title: "Success",
+        description: "Product created successfully!",
+      });
       setValue("name", "");
       setValue("description", "");
       setValue("imageUrl", []);
@@ -75,10 +81,10 @@ export default function AdminProductForm() {
         },
       ]);
     } catch (error) {
-      showNotification(
-        error instanceof Error ? error.message : "Failed to create product",
-        "error"
-      );
+      toast({
+        title: "Error",
+        description: error instanceof Error ? error.message : "Failed to create product",
+      });
     } finally {
       setLoading(false);
     }
@@ -87,51 +93,55 @@ export default function AdminProductForm() {
   return (
     <form
       onSubmit={handleSubmit(onSubmit)}
-      className="max-w-2xl mx-auto bg-slate-400 rounded-xl shadow-lg p-8 space-y-8"
+      className="max-w-2xl mx-auto bg-slate-300 rounded-2xl shadow-2xl px-4 py-8 md:p-10 space-y-8 mt-6"
     >
-      <h2 className="flex text-2xl font-bold text-blue-900 mb-2">Add New Product</h2>
+      <h2 className="text-3xl font-extrabold text-gray-800 mb-2 text-center">
+        Add New Product
+      </h2>
       {/* Product Name */}
       <div>
-        <label className="block text-sm font-semibold mb-1">Product Name</label>
+        <label className="block text-base font-semibold mb-2 text-gray-700">Product Name</label>
         <input
           type="text"
-          className={`input input-bordered w-full bg-white text-black border placeholder-gray-400 ${errors.name ? "input-error" : ""}`}
+          className={`w-full rounded-lg border-2 border-gray-200 bg-gray-50 p-3 text-gray-900 placeholder-gray-400 transition focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-400 ${errors.name ? "border-red-400" : ""}`}
           {...register("name", { required: "Name is required" })}
+          placeholder="Enter product name"
         />
         {errors.name && (
-          <span className="text-error text-xs mt-1 block">{errors.name.message}</span>
+          <span className="text-red-500 text-xs mt-1 block">{errors.name.message}</span>
         )}
       </div>
       {/* Description */}
       <div>
-        <label className="block text-sm font-semibold mb-1">Description</label>
+        <label className="block text-base font-semibold mb-2 text-gray-700">Description</label>
         <textarea
-          className={`textarea textarea-bordered w-full min-h-[96px] bg-white text-black border placeholder-gray-400 ${errors.description ? "textarea-error" : ""}`}
+          className={`w-full rounded-lg border-2 border-gray-200 bg-gray-50 p-3 min-h-[96px] text-gray-900 placeholder-gray-400 transition focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-400 ${errors.description ? "border-red-400" : ""}`}
           {...register("description", { required: "Description is required" })}
+          placeholder="Enter product description"
         />
         {errors.description && (
-          <span className="text-error text-xs mt-1 block">{errors.description.message}</span>
+          <span className="text-red-500 text-xs mt-1 block">{errors.description.message}</span>
         )}
       </div>
       {/* Images */}
       <div>
-        <label className="block text-sm font-semibold mb-2">Product Images</label>
+        <label className="block text-base font-semibold mb-2 text-gray-700">Product Images</label>
         <FileUpload onSuccess={handleUploadSuccess} />
         {watch("imageUrl")?.length > 0 && (
-          <div className="flex flex-wrap gap-3 mt-3">
+          <div className="flex flex-wrap gap-4 mt-3">
             {watch("imageUrl").map((url, idx) => (
               <div key={idx} className="relative group">
                 <Image
                   src={getFullImageUrl(url)}
                   alt="Uploaded"
-                  width={80}
-                  height={80}
-                  className="w-20 h-20 rounded-md object-cover border border-gray-200 shadow"
+                  width={90}
+                  height={90}
+                  className="w-24 h-24 rounded-lg object-cover border-2 border-gray-200 shadow-lg"
                 />
                 <button
                   type="button"
                   onClick={() => handleRemoveImage(idx)}
-                  className="absolute top-1 right-1 bg-red-600 text-white rounded-full p-1 opacity-80 hover:opacity-100 transition"
+                  className="absolute -top-2 -right-2 bg-red-600 text-white rounded-full p-1 shadow hover:bg-red-700 transition"
                   title="Remove image"
                 >
                   <Trash2 className="w-4 h-4" />
@@ -146,50 +156,50 @@ export default function AdminProductForm() {
         <input
           type="checkbox"
           id="isTopProduct"
-          className="checkbox"
+          className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
           {...register("isTopProduct")}
         />
-        <label htmlFor="isTopProduct" className="text-sm font-medium">
+        <label htmlFor="isTopProduct" className="text-base font-medium text-gray-700">
           Mark as Top Product
         </label>
       </div>
 
       {/* Variants */}
       <div>
-        <div className="flex  justify-between items-center mb-2">
-          <span className="font-semibold text-base">Variants</span>
+        <div className="flex flex-col sm:flex-row justify-between items-center mb-2 gap-2">
+          <span className="font-semibold text-lg text-gray-700">Variants</span>
           <button
             type="button"
-            className="btn btn-outline btn-sm"
+            className="flex items-center gap-1 px-3 py-1 rounded-lg border-2 border-blue-200 text-blue-700 font-semibold bg-blue-50 hover:bg-blue-100 transition"
             onClick={() => append({ type: "", price: 0 })}
           >
-            <Plus className="w-4 h-4 mr-1" /> Add Variant
+            <Plus className="w-4 h-4" /> Add Variant
           </button>
         </div>
         <div className="space-y-4">
           {fields.map((field, idx) => (
-            <div key={field.id} className="bg-sky-200 p-4 rounded-lg border flex flex-col md:flex-row gap-4 items-end">
-              <div className="flex-1">
-                <label className="block text-xs font-medium mb-1">Color/Type</label>
+            <div key={field.id} className="bg-blue-50 p-4 rounded-xl border-2 border-blue-100 flex flex-col md:flex-row gap-4 items-end shadow">
+              <div className="flex-1 w-full">
+                <label className="block text-sm font-medium mb-1 text-gray-700">Color/Type</label>
                 <input
                   type="text"
-                  className={`input input-bordered w-full ${errors.variants?.[idx]?.type ? "input-error" : ""}`}
+                  className={`w-full rounded-lg border-2 border-gray-200 bg-white p-2 text-gray-900 placeholder-gray-400 transition focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-400 ${errors.variants?.[idx]?.type ? "border-red-400" : ""}`}
                   {...register(`variants.${idx}.type`, { required: "Type is required" })}
                   placeholder="e.g. Black, 64GB, Large"
                 />
                 {errors.variants?.[idx]?.type && (
-                  <span className="text-error text-xs mt-1 block">
+                  <span className="text-red-500 text-xs mt-1 block">
                     {errors.variants[idx]?.type?.toString()}
                   </span>
                 )}
               </div>
-              <div className="flex-1">
-                <label className="block text-xs font-medium mb-1">Price ($)</label>
+              <div className="flex-1 w-full">
+                <label className="block text-sm font-medium mb-1 text-gray-700">Price (₹)</label>
                 <input
                   type="number"
                   step="0.01"
                   min="0.01"
-                  className={`input  input-bordered w-full ${errors.variants?.[idx]?.price ? "input-error" : ""}`}
+                  className={`w-full rounded-lg border-2 border-gray-200 bg-white p-2 text-gray-900 placeholder-gray-400 transition focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-400 ${errors.variants?.[idx]?.price ? "border-red-400" : ""}`}
                   {...register(`variants.${idx}.price`, {
                     valueAsNumber: true,
                     required: "Price is required",
@@ -198,14 +208,14 @@ export default function AdminProductForm() {
                   placeholder="0.00"
                 />
                 {errors.variants?.[idx]?.price && (
-                  <span className="text-error text-xs mt-1 block">
+                  <span className="text-red-500 text-xs mt-1 block">
                     {errors.variants[idx]?.price?.message}
                   </span>
                 )}
               </div>
               <button
                 type="button"
-                className="btn btn-error btn-sm self-center"
+                className="btn btn-error btn-sm self-center mt-2 md:mt-0 bg-red-500 text-white rounded-lg px-3 py-2 hover:bg-red-600 transition disabled:bg-gray-300"
                 onClick={() => remove(idx)}
                 disabled={fields.length === 1}
                 title="Remove variant"
@@ -219,14 +229,14 @@ export default function AdminProductForm() {
       {/* Submit */}
       <button
         type="submit"
-        className="btn btn-primary w-full bg-blue-800 text-white text-base font-bold py-2 mt-4"
+        className="w-full rounded-xl bg-gradient-to-br from-blue-700 to-blue-500 hover:from-blue-800 hover:to-blue-600 text-white text-lg font-bold py-3 mt-4 shadow-md transition disabled:bg-gray-400"
         disabled={loading}
       >
         {loading ? (
-          <>
-            <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+          <span className="flex justify-center items-center gap-2">
+            <Loader2 className="w-5 h-5 animate-spin" />
             Creating Product...
-          </>
+          </span>
         ) : (
           "Create Product"
         )}

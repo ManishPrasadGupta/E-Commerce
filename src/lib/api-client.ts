@@ -86,29 +86,41 @@ class ApiClient {
 
 
 
+
+
 //orders
-  async getUserOrders() {
-    return this.fetch<IOrder[]>("/orders/user");
+async getUserOrders() {
+  return this.fetch<IOrder[]>("/orders/user");
+}
+
+/**
+ * Creates an order and returns Cashfree session details.
+ * The backend must return: { orderId, amount, paymentSessionId, currency, dbOrderId }
+ */
+async createOrder(orderData: CreateOrderData) {
+  let sanitizedOrderData: CreateOrderData;
+  if ("productId" in orderData && orderData.productId) {
+    sanitizedOrderData = {
+      ...orderData,
+      productId: orderData.productId.toString(),
+    };
+  } else {
+    // It's the cart-based type, no sanitization needed
+    sanitizedOrderData = orderData;
   }
 
-  async createOrder(orderData: CreateOrderData) {
-    
-    let sanitizedOrderData: CreateOrderData;
-    if ("productId" in orderData && orderData.productId) {
-      sanitizedOrderData = {
-        ...orderData,
-        productId: orderData.productId.toString(),
-      };
-    } else {
-      // It's the cart-based type, no sanitization needed
-      sanitizedOrderData = orderData;
-    }
-  
-    return this.fetch<{ orderId: string; amount: number }>("/orders", {
-      method: "POST",
-      body: sanitizedOrderData,
-    });
-  }
+  // Updated return type for Cashfree integration
+  return this.fetch<{
+    orderId: string;
+    paymentSessionId: string;
+    amount: number;
+    currency: string;
+    dbOrderId: string;
+  }>("/orders", {
+    method: "POST",
+    body: sanitizedOrderData,
+  });
+}
 
 
 //Cart
@@ -118,9 +130,9 @@ class ApiClient {
 
   async addToCart(item: {
     productId: string;
+    variant: ColorVariant; // includes type and price!
     name: string;
     quantity: number;
-    variant: ColorVariant; // includes type and price!
     href?: string;
   }) {
     return this.fetch<ICartItem>("/cart", {
@@ -229,6 +241,27 @@ export async function createAds(ad: {
   return await res.json();
 }
 
+
+
+
+
+//chatbot
+export async function sendChatMessage(message: string) {
+
+  const res = await fetch("/api/agentic-ai", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ message }),
+  });
+  if (!res.ok) {
+    const errorData = await res.json();
+    throw new Error(errorData.error || "Failed to send message");
+  }
+
+  return res.json();
+}
 
 
 export const apiClient = new ApiClient();

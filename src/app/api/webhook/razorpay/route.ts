@@ -1,75 +1,75 @@
-import { NextRequest, NextResponse } from "next/server";
-import crypto from "crypto";
-import Order from "@/models/Order.model";
-import { dbConnect } from "@/lib/db";
-import nodemailer from "nodemailer"
+// import { NextRequest, NextResponse } from "next/server";
+// import crypto from "crypto";
+// import Order from "@/models/Order.model";
+// import { dbConnect } from "@/lib/db";
+// import nodemailer from "nodemailer"
 
-export async function POST(req: NextRequest) {
-  try {
-    const body = await req.text();
-    const signature = req.headers.get("x-razorpay-signature");
+// export async function POST(req: NextRequest) {
+//   try {
+//     const body = await req.text();
+//     const signature = req.headers.get("x-razorpay-signature");
 
-    const expectedSignature = crypto
-      .createHmac("sha256", process.env.RAZORPAY_WEBHOOK_SECRET!)
-      .update(body)
-      .digest("hex");
+//     const expectedSignature = crypto
+//       .createHmac("sha256", process.env.RAZORPAY_WEBHOOK_SECRET!)
+//       .update(body)
+//       .digest("hex");
 
-    if (signature !== expectedSignature) {
-      return NextResponse.json({ error: "Invalid signature" }, { status: 400 });
-    }
+//     if (signature !== expectedSignature) {
+//       return NextResponse.json({ error: "Invalid signature" }, { status: 400 });
+//     }
 
-    const event = JSON.parse(body);
-    await dbConnect();
+//     const event = JSON.parse(body);
+//     await dbConnect();
 
-    if (event.event === "payment.captured") {
-      const payment = event.payload.payment.entity;
+//     if (event.event === "payment.captured") {
+//       const payment = event.payload.payment.entity;
 
-      const order = await Order.findOneAndUpdate(
-        { razorpayOrderId: payment.order_id },
-        {
-          razorpayPaymentId: payment.id,
-          status: "completed",
-        }
-      ).populate([
-        { path: "userId", select: "email" },
-        { path: "productId", select: "name" },
-      ]);
+//       const order = await Order.findOneAndUpdate(
+//         { razorpayOrderId: payment.order_id },
+//         {
+//           razorpayPaymentId: payment.id,
+//           status: "completed",
+//         }
+//       ).populate([
+//         { path: "userId", select: "email" },
+//         { path: "productId", select: "name" },
+//       ]);
 
-      if (order) {
-        // Send email only after payment is confirmed
-        const transporter = nodemailer.createTransport({
-          host: "sandbox.smtp.mailtrap.io",
-          port: 2525,
-          auth: {
-            user: process.env.MAILTRAP_USER,
-            pass: process.env.MAILTRAP_PASS,
-          },
-        });
+//       if (order) {
+//         // Send email only after payment is confirmed
+//         const transporter = nodemailer.createTransport({
+//           host: "sandbox.smtp.mailtrap.io",
+//           port: 2525,
+//           auth: {
+//             user: process.env.MAILTRAP_USER,
+//             pass: process.env.MAILTRAP_PASS,
+//           },
+//         });
 
-        await transporter.sendMail({
-          from: '"ImageKit Shop" <shiwamElectronics@gmail.com>',
-          to: order.userId.email,
-          subject: "Payment Confirmation - Shiwam Electronics",
-          text: `
-Thank you for your purchase!
+//         await transporter.sendMail({
+//           from: '"ImageKit Shop" <shiwamElectronics@gmail.com>',
+//           to: order.userId.email,
+//           subject: "Payment Confirmation - Shiwam Electronics",
+//           text: `
+// Thank you for your purchase!
 
-Order Details:
-- Order ID: ${order._id.toString().slice(-6)}
-- Product: ${order.productId.name}
-- Version: ${order.variant.type}
-- License: ${order.variant.license}
-- Price: $${order.amount.toFixed(2)}
+// Order Details:
+// - Order ID: ${order._id.toString().slice(-6)}
+// - Product: ${order.productId.name}
+// - Version: ${order.variant.type}
+// - License: ${order.variant.license}
+// - Price: $${order.amount.toFixed(2)}
 
-Your oeder is now available in your orders page.
-Thank you for shopping with Shiwam Electronics!
-          `.trim(),
-        });
-      }
-    }
+// Your order is now available in your orders page.
+// Thank you for shopping with Shiwam Electronics!
+//           `.trim(),
+//         });
+//       }
+//     }
 
-    return NextResponse.json({ received: true });
-  } catch (error) {
-    console.error("Webhook error:", error);
-    return NextResponse.json({ error: "Webhook failed" }, { status: 500 });
-  }
-}
+//     return NextResponse.json({ received: true });
+//   } catch (error) {
+//     console.error("Webhook error:", error);
+//     return NextResponse.json({ error: "Webhook failed" }, { status: 500 });
+//   }
+// }

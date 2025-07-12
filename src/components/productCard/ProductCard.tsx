@@ -1,14 +1,14 @@
-
-
 import { IKImage } from "imagekitio-next";
 import Link from "next/link";
 import { IProduct } from "@/models/Product.model";
 import { Eye } from "lucide-react";
 import { useState } from "react";
 import { apiClient } from "@/lib/api-client";
+import { useToast } from "@/hooks/use-toast";
 
 export default function ProductCard({ product }: { product: IProduct }) {
   const [loading, setLoading] = useState(false);
+  const {toast} = useToast();
 
   if (!product || !product.variants || product.variants?.length === 0) {
     return (
@@ -18,8 +18,6 @@ export default function ProductCard({ product }: { product: IProduct }) {
     );
   }
 
-
-
   const productVariants = product.variants ?? [];
   const lowestPrice =
     productVariants.length > 0
@@ -28,16 +26,13 @@ export default function ProductCard({ product }: { product: IProduct }) {
           productVariants[0]?.price ?? "N/A"
         )
       : "N/A";
-
-
-
   const images = Array.isArray(product?.imageUrl) ? product.imageUrl : [product?.imageUrl];
-
-
-
   const updateCart = async () => {
     if (!product?._id || !product.variants?.[0]) {
-      alert("Product data is incomplete.");
+      toast({
+        title: "Error",
+        description: "Please refresh the page and try again.",
+      }); 
       return;
     }
     setLoading(true);
@@ -50,10 +45,16 @@ export default function ProductCard({ product }: { product: IProduct }) {
         href: `/products/${product?._id}`,
       };
       await apiClient.addToCart(item);
-      alert("Added to cart!");
+      toast({
+        title: "Success",
+        description: `${product.name} has been added to your cart.`,
+      });
     } catch (err) {
       console.error("Error adding to cart", err);
-      alert("Failed to add to cart.");
+      toast({
+        title: "Error",
+        description: "Failed to add item to cart. Please try again.",
+      });
     } finally {
       setLoading(false);
     }

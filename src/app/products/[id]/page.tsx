@@ -8,6 +8,7 @@ import { Loader2, AlertCircle, Image as ImageIcon } from "lucide-react";
 import { apiClient } from "@/lib/api-client";
 import { useCart } from "@/context/CartContext";
 
+
 export default function ProductPage() {
   const params = useParams();
   const router = useRouter();

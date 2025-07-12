@@ -4,16 +4,17 @@ import Link from "next/link";
 import { useSession, signOut } from "next-auth/react";
 import { Menu, ShoppingCart } from "lucide-react";
 import { FormEvent, useEffect, useState } from "react";
-import { useNotification } from "../Notification";
+// import { useNotification } from "../Notification";
 import CartSlideOver from "../Cart/CartSlideOver";
 import { XMarkIcon } from "@heroicons/react/24/outline";
 import { useSearch } from "@/context/SearchContext/SearchContext";
 import { usePathname, useRouter } from "next/navigation";
 import { PlaceholdersAndVanishInput } from "../ui/placeholders-and-vanish-input";
+import { toast } from "@/hooks/use-toast";
 
 export default function Header() {
   const { data: session } = useSession();
-  const { showNotification } = useNotification();
+  // const { showNotification } = useNotification();
   const [menuOpen, setMenuOpen] = useState(false);
   const [isCartOpen, setIsCartOpen] = useState(false);
 
@@ -30,9 +31,15 @@ export default function Header() {
   const handleSignOut = async () => {
     try {
       await signOut();
-      showNotification("Signed out successfully", "success");
+      toast({
+        title: "Success",
+        description: "Signed out successfully",
+      });
     } catch {
-      showNotification("Failed to sign out", "error");
+      toast({
+        title: "Error",
+        description: "Failed to sign out",
+      });
     }
   };
 
@@ -57,7 +64,12 @@ export default function Header() {
           href="/"
           className="flex items-center btn btn-ghost text-2xl gap-2 normal-case font-bold"
           prefetch={true}
-          onClick={() => showNotification("Welcome to Electech", "info")}
+          onClick={() => 
+            toast({
+              title: "Welcome",
+              description: "Explore our latest products!",
+            })
+          }
         >
           <div className="flex items-center justify-center w-12 h-12 rounded-full dark:bg-violet-600 bg-blue-200">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="currentColor" className="flex-shrink-0 w-7 h-7 rounded-full dark:text-gray-50 text-blue-700">
@@ -116,7 +128,12 @@ export default function Header() {
                     isActive("/admin") ? "border-b-2 border-blue-700 font-semibold" : ""
                   }`}
                   target="_blank"
-                  onClick={() => showNotification("Welcome to Admin Dashboard", "info")}
+                  onClick={() => 
+                    toast({
+                      title: "Admin Access",
+                      description: "You have access to the admin dashboard.",
+                    })
+                  }
                 >
                   Admin Dashboard
                 </Link>
@@ -149,7 +166,12 @@ export default function Header() {
                   className={`px-4 py-2 hover:bg-base-200 rounded transition-all duration-150 ${
                     isActive("/login") ? "border-b-2 border-blue-700 font-semibold" : ""
                   }`}
-                  onClick={() => showNotification("Please sign in to continue", "info")}
+                  onClick={() => 
+                    toast({
+                      title: "Login Required",
+                      description: "You need to log in to access this page.",
+                    })
+                  }
                 >
                   Login
                 </Link>
@@ -227,7 +249,10 @@ export default function Header() {
                       target="_blank"
                       onClick={() => {
                         setMenuOpen(false);
-                        showNotification("Welcome to Admin Dashboard", "info");
+                        toast({
+                          title: "Admin Access",
+                          description: "You have access to the admin dashboard.",
+                        });
                       }}
                     >
                       Admin Dashboard
@@ -267,7 +292,9 @@ export default function Header() {
                       }`}
                       onClick={() => {
                         setMenuOpen(false);
-                        showNotification("Please sign in to continue", "info");
+                        toast({
+                          title: "Login Required",
+                        });
                       }}
                     >
                       Login

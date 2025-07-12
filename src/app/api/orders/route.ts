@@ -1,15 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
-import Razorpay from "razorpay";
 import { dbConnect } from "@/lib/db";
 import Order from "@/models/Order.model";
-
-
-const razorpay = new Razorpay({
-  key_id: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID!,
-  key_secret: process.env.RAZORPAY_KEY_SECRET!,
-});
 
 export async function POST(req: NextRequest) {
   try {
@@ -19,6 +12,9 @@ export async function POST(req: NextRequest) {
     }
 
     const { productId, variant } = await req.json();
+
+    console.log("Creating order for productId:", productId, "variant:", variant);
+    
     if (!productId || !variant) {
       return NextResponse.json(
         { error: "Missing required fields" },
@@ -28,35 +24,68 @@ export async function POST(req: NextRequest) {
 
     await dbConnect();
 
-    // Create Razorpay order
-    const order = await razorpay.orders.create({
-      amount: Math.round(variant.price * 100),
-      currency: "USD",
-      receipt: `receipt_${Date.now()}`,
-      notes: {
-        productId: productId.toString(),
-        variant: variant._id.toString(),
-      },
-    });
+    // Create Cashfree order via API (sandbox)
+    const CASHFREE_APP_ID = process.env.CASHFREE_TEST_APP_ID!;
+    const CASHFREE_SECRET_KEY = process.env.CASHFREE_TEST_SECRET_KEY!;
+    const CASHFREE_API_URL = "https://sandbox.cashfree.com/pg/orders";
 
+    // Prepare order details
+    const orderId = `order_${Date.now()}`;
+    const orderAmount = variant.price;
+    const customerName = session.user.name || "Customer";
+    const customerEmail = session.user.email || "noemail@example.com";
+    // const customerPhone = session.user.phone || "9999999999"; // Adjust as needed
+
+    // Call Cashfree to create order
+    const cfRes = await fetch(CASHFREE_API_URL, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "x-client-id": CASHFREE_APP_ID,
+        "x-client-secret": CASHFREE_SECRET_KEY,
+      },
+      body: JSON.stringify({
+        order_id: orderId,
+        order_amount: orderAmount,
+        order_currency: "INR",
+        customer_details: {
+          customer_id: session.user._id,
+          customer_name: customerName,
+          customer_email: customerEmail,
+          // customer_phone: customerPhone,
+        },
+        order_meta: {
+          return_url: `${process.env.NEXT_PUBLIC_BASE_URL}/payment/verify?order_id={order_id}`,
+        },
+        order_note: "Order placed on Electech",
+      }),
+    });
+console.log("cashfree response", cfRes)
+    const data = await cfRes.json();
+    if (!cfRes.ok || !data.payment_session_id) {
+      return NextResponse.json({ error: "Failed to create Cashfree order", details: data }, { status: 500 });
+    }
+
+    // Save order in MongoDB
     const newOrder = await Order.create({
       userId: session.user._id,
       productId,
       variant,
-      razorpayOrderId: order?.id,
-      amount: variant?.price,
+      cashfreeOrderId: orderId,
+      amount: orderAmount,
       status: "pending",
-      razorpayPaymentId: null,
+      cashfreePaymentId: null,
     });
 
     return NextResponse.json({
-      orderId: order.id,
-      amount: order.amount,
-      currency: order.currency,
+      orderId: orderId,
+      paymentSessionId: data.payment_session_id,
       dbOrderId: newOrder._id,
+      amount: orderAmount,
+      currency: "INR",
     });
   } catch (error) {
-    console.error("Error creating order:", error);
+    console.error("Error creating Cashfree order:", error);
     return NextResponse.json(
       { error: "Failed to create order" },
       { status: 500 }

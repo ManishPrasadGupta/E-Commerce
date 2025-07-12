@@ -31,7 +31,7 @@ function AboutUs() {
   }, [isInView, controls]);
 
   return (
-    <div className="py-12">
+    <div className="py-12 ">
       <SeparatorHorizontal className="bg-gray-200 h-[2px] w-3/4 my-8 mx-auto" />
       <motion.div
         ref={ref}

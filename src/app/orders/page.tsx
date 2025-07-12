@@ -7,6 +7,7 @@ import { Loader2, Download } from "lucide-react";
 import { IKImage } from "imagekitio-next";
 import { apiClient } from "@/lib/api-client";
 import { IProduct } from "@/models/Product.model";
+import "@/app/styles/loader.css"
 
 export default function OrdersPage() {
   const [orders, setOrders] = useState<IOrder[]>([]);
@@ -31,7 +32,7 @@ export default function OrdersPage() {
   if (loading) {
     return (
       <div className="min-h-[70vh] flex justify-center items-center">
-        <Loader2 className="w-12 h-12 animate-spin text-primary" />
+        <Loader2 className="loader" />
       </div>
     );
   }
@@ -97,7 +98,6 @@ export default function OrdersPage() {
                         {order.status === "completed" && order.downloadUrl && (
                           <a
                             href={order.downloadUrl}
-                            target="_blank"
                             rel="noopener noreferrer"
                             className="btn btn-primary gap-2"
                             download={`order-${order._id?.toString().slice(-6)}.jpg`}

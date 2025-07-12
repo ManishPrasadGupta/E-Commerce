@@ -29,9 +29,9 @@ const AdminGridAdForm = () => {
         description: "",
         thumbnail: "",
       });
-    }catch (err: unknown) {
+    } catch (err: unknown) {
       if (err instanceof Error) {
-       setMessage(err.message);
+        setMessage(err.message);
       } else {
         setMessage("Failed to add ad.");
       }
@@ -43,50 +43,81 @@ const AdminGridAdForm = () => {
   return (
     <form
       onSubmit={handleSubmit}
-      className="space-y-4 p-4 border rounded max-w-md mx-auto bg-slate-400"
+      className="max-w-lg mx-auto mt-8 bg-slate-300 rounded-2xl shadow-2xl p-6 md:p-10 space-y-7"
     >
-      <h2 className="flex text-2xl font-bold text-blue-900 mb-2">Add Ads</h2>
+      <h2 className="text-3xl font-extrabold text-blue-900 mb-2 text-center tracking-tight">
+        Add Grid Ad
+      </h2>
       <div>
-        <label className="block font-semibold mb-1">Title:</label>
+        <label className="block font-semibold mb-1 text-gray-700">Title</label>
         <input
           type="text"
           name="title"
           value={form.title}
           onChange={handleChange}
           required
-          className="w-full border p-2 rounded"
+          placeholder="Enter ad title"
+          className="w-full rounded-lg border-2 border-gray-200 bg-gray-50 p-3 text-gray-900 placeholder-gray-400 transition focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-400"
         />
       </div>
       <div>
-        <label className="block font-semibold mb-1">Description:</label>
+        <label className="block font-semibold mb-1 text-gray-700">Description</label>
         <textarea
           name="description"
           value={form.description}
           onChange={handleChange}
           required
-          className="w-full border p-2 rounded"
-          rows={2}
+          placeholder="Short ad description"
+          className="w-full rounded-lg border-2 border-gray-200 bg-gray-50 p-3 text-gray-900 placeholder-gray-400 transition focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-400"
+          rows={3}
         />
       </div>
       <div>
-        <label className="block font-semibold mb-1">Thumbnail URL:</label>
+        <label className="block font-semibold mb-1 text-gray-700">Thumbnail URL</label>
         <input
           type="text"
           name="thumbnail"
           value={form.thumbnail}
           onChange={handleChange}
           required
-          className="w-full border p-2 rounded"
+          placeholder="https://your-image-url.com"
+          className="w-full rounded-lg border-2 border-gray-200 bg-gray-50 p-3 text-gray-900 placeholder-gray-400 transition focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-400"
         />
+        {form.thumbnail && (
+          <div className="flex justify-center mt-3">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={form.thumbnail}
+              alt="Thumbnail Preview"
+              className="h-24 w-24 object-cover rounded-lg border mt-2 shadow"
+              onError={e => {
+                (e.target as HTMLImageElement).src =
+                  "https://via.placeholder.com/96?text=No+Image";
+              }}
+            />
+          </div>
+        )}
       </div>
       <button
         type="submit"
         disabled={loading}
-        className="bg-blue-500 text-white px-4 py-2 rounded"
+        className={`w-full rounded-xl bg-gradient-to-br from-blue-700 to-blue-500 hover:from-blue-800 hover:to-blue-600 text-white text-lg font-bold py-3 shadow-md transition disabled:bg-gray-400 ${
+          loading ? "cursor-not-allowed opacity-80" : ""
+        }`}
       >
         {loading ? "Adding..." : "Add Ad"}
       </button>
-      {message && <div className="mt-2">{message}</div>}
+      {message && (
+        <div
+          className={`mt-2 text-center text-base font-medium ${
+            message.toLowerCase().includes("success")
+              ? "text-green-600"
+              : "text-red-600"
+          }`}
+        >
+          {message}
+        </div>
+      )}
     </form>
   );
 };
