@@ -5,7 +5,7 @@ import { createContext, useContext } from "react";
 
 type AuthContextType = {
   isLoggedIn: boolean;
-  user: any;
+  user: Record<string, unknown> | null;
 };
 
 const AuthContext = createContext<AuthContextType>({ isLoggedIn: false, user: null });

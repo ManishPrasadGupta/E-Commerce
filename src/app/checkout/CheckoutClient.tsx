@@ -13,14 +13,21 @@ import { useToast } from "@/hooks/use-toast";
 
 declare global {
   interface Window {
-    Cashfree?: any;
+    Cashfree?: {
+      initialiseDropin: (options: {
+        paymentSessionId: string;
+        redirectTarget: string;
+        onSuccess: (data: unknown) => void;
+        onFailure: (data: unknown) => void;
+      }) => void;
+    };
   }
 }
 
 export default function CheckoutPage() {
   const router = useRouter();
   const { toast } = useToast();
-  const { data: session, status } = useSession();
+  const { status } = useSession(); // removed 'session'
   const { cartItems, clearCart } = useCart();
 
   const [open, setOpen] = useState(false);
@@ -97,7 +104,7 @@ export default function CheckoutPage() {
           setBuyNowProduct(null);
           localStorage.removeItem("buyNowProduct");
         }
-      } catch (e) {
+      } catch {
         setBuyNowProduct(null);
         localStorage.removeItem("buyNowProduct");
       }
@@ -178,7 +185,8 @@ export default function CheckoutPage() {
         return;
       }
 
-      const { orderId, paymentSessionId, amount } = await apiClient.createOrder(payload);
+      // Remove unused orderId and amount
+      const { paymentSessionId } = await apiClient.createOrder(payload);
 
       if (paymentMethod === "cashfree") {
         if (!window.Cashfree) {
@@ -193,7 +201,7 @@ export default function CheckoutPage() {
         window.Cashfree.initialiseDropin({
           paymentSessionId,
           redirectTarget: "_self",
-          onSuccess: (data: any) => {
+          onSuccess: () => {
             clearCart();
             toast({
               title: "Success",
@@ -201,7 +209,7 @@ export default function CheckoutPage() {
             });
             router.push("/orders");
           },
-          onFailure: (data: any) => {
+          onFailure: () => {
             toast({
               title: "Error",
               description: "Payment failed. Please try again.",
@@ -327,9 +335,7 @@ export default function CheckoutPage() {
                   <div className="flex gap-2 mt-2 sm:mt-0">
                     <button
                       className="flex items-center gap-1 px-2 py-1 text-xs bg-yellow-100 hover:bg-yellow-200 text-yellow-800 rounded shadow-sm"
-                      onClick={e => {
-                        e.preventDefault();
-                        e.stopPropagation();
+                      onClick={() => {
                         setEditingAddress(address);
                         setOpen(true);
                       }}
@@ -340,9 +346,9 @@ export default function CheckoutPage() {
                     </button>
                     <button
                       className="flex items-center gap-1 px-2 py-1 text-xs bg-red-100 hover:bg-red-200 text-red-700 rounded shadow-sm"
-                      onClick={async e => {
-                        e.preventDefault();
-                        e.stopPropagation();
+                      onClick={async event => {
+                        event.preventDefault();
+                        event.stopPropagation();
                         if (window.confirm("Are you sure you want to delete this address?")) {
                           try {
                             await apiClient.deleteAddress(address);

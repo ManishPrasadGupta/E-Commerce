@@ -3,7 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import Providers from "@/components/Providers";
 import Header from "@/components/Navbar/Header";
-import ChatbotWidgets from "@/components/ChatBot/ChatbotWidgets";
+// import ChatbotWidgets from "@/components/ChatBot/ChatbotWidgets";
 import { Toaster } from "@/components/ui/toaster";
 import AppProviders from "@/components/AppProvider";
 
