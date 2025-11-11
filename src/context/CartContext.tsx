@@ -1,19 +1,19 @@
-'use client'
+"use client";
 
-import { useToast } from '@/hooks/use-toast';
-import { apiClient } from '@/lib/api-client';
-import { useSession } from 'next-auth/react';
-import { createContext, useContext, useEffect, useState } from 'react'
+import { useToast } from "@/hooks/use-toast";
+import { apiClient } from "@/lib/api-client";
+import { useSession } from "next-auth/react";
+import { createContext, useContext, useEffect, useState } from "react";
 
 export type CartItem = {
-  productId: string
-  name: string
-  quantity: number
+  productId: string;
+  name: string;
+  quantity: number;
   variant: {
-    type: string
-    price: number
-  }
-  href?: string
+    type: string;
+    price: number;
+  };
+  href?: string;
 };
 
 type CartContextType = {
@@ -21,16 +21,27 @@ type CartContextType = {
   loading: boolean;
   loadCart: () => Promise<void>;
   deleteItem: (productId: string, variantType: string) => Promise<void>;
-  updateItemQuantity: (productId: string, variantType: string, quantity: number) => Promise<void>;
-  addItem: (productId: string, variantType: string, quantity: number,  name: string, price: number, href?: string) => Promise<void>;
+  updateItemQuantity: (
+    productId: string,
+    variantType: string,
+    quantity: number
+  ) => Promise<void>;
+  addItem: (
+    productId: string,
+    variantType: string,
+    quantity: number,
+    name: string,
+    price: number,
+    href?: string
+  ) => Promise<void>;
   clearCart: () => Promise<void>;
 };
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
 export const CartProvider = ({ children }: { children: React.ReactNode }) => {
-  const [cartItems, setCartItems] = useState<CartItem[]>([])
-  const [loading, setLoading] = useState(false)
+  const [cartItems, setCartItems] = useState<CartItem[]>([]);
+  const [loading, setLoading] = useState(false);
   const { status } = useSession();
   const isLoggedIn = status === "authenticated";
   const { toast } = useToast();
@@ -39,10 +50,7 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
     if (isLoggedIn) {
       loadCart();
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isLoggedIn]);
-
-
 
   const loadCart = async () => {
     setLoading(true);
@@ -77,7 +85,8 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
       // Check if item already exists in cart
       setCartItems((prev) => {
         const idx = prev.findIndex(
-          (item) => item.productId === productId && item.variant.type === variantType
+          (item) =>
+            item.productId === productId && item.variant.type === variantType
         );
         if (idx !== -1) {
           // Item exists, update quantity
@@ -117,7 +126,11 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
     }
   };
 
-  const updateItemQuantity = async (productId: string, variantType: string, quantity: number) => {
+  const updateItemQuantity = async (
+    productId: string,
+    variantType: string,
+    quantity: number
+  ) => {
     setLoading(true);
     try {
       await apiClient.updateCartItemQuantity(productId, variantType, quantity);
@@ -144,13 +157,17 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
     setLoading(true);
     try {
       await apiClient.deleteCartItem(productId, variantType);
-      setCartItems((prev) => prev.filter((item) => !(item.productId === productId && item.variant.type === variantType)));
+      setCartItems((prev) =>
+        prev.filter(
+          (item) =>
+            !(item.productId === productId && item.variant.type === variantType)
+        )
+      );
       // alert("Item removed from cart!");
       toast({
         title: "Item removed",
         description: "The item has been removed from your cart.",
       });
-
     } catch (err) {
       console.error("Error removing item from cart", err);
       // alert("Failed to remove item from cart.");
@@ -166,7 +183,7 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
   const clearCart = async () => {
     setLoading(true);
     try {
-      await apiClient.clearCart(); 
+      await apiClient.clearCart();
       setCartItems([]);
     } catch (err) {
       console.error("Error clearing cart", err);
@@ -181,7 +198,17 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   return (
-    <CartContext.Provider value={{ cartItems, loading, loadCart, deleteItem, updateItemQuantity, addItem, clearCart }}>
+    <CartContext.Provider
+      value={{
+        cartItems,
+        loading,
+        loadCart,
+        deleteItem,
+        updateItemQuantity,
+        addItem,
+        clearCart,
+      }}
+    >
       {children}
     </CartContext.Provider>
   );

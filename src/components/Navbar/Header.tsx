@@ -10,6 +10,7 @@ import { useSearch } from "@/context/SearchContext/SearchContext";
 import { usePathname, useRouter } from "next/navigation";
 import { PlaceholdersAndVanishInput } from "../ui/placeholders-and-vanish-input";
 import { toast } from "@/hooks/use-toast";
+import { motion } from "framer-motion";
 
 export default function Header() {
   const { data: session } = useSession();
@@ -22,6 +23,8 @@ export default function Header() {
 
   // Hydration fix for current route
   const [mounted, setMounted] = useState(false);
+  const [searchValue, setSearchValue] = useState("");
+
   useEffect(() => {
     setMounted(true);
   }, []);
@@ -45,6 +48,12 @@ export default function Header() {
     setQuery(e.target.value);
   };
 
+  const handleSearchKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter") {
+      handleSearchSubmit(e as any);
+    }
+  };
+
   const handleSearchSubmit = (e: FormEvent) => {
     e.preventDefault();
     if (pathname !== "/productsgallery") {
@@ -55,54 +64,64 @@ export default function Header() {
   const isActive = (href: string) => mounted && pathname === href;
 
   return (
-    <header className="bg-slate-100/90 dark:bg-base-300/90 backdrop-blur sticky top-0 z-40 shadow">
-      <div className="mx-auto w-full flex items-center justify-between px-4 py-2 lg:py-3 max-w-7xl">
+    <header
+      className="sticky top-0 w-full z-40 bg-gradient-to-b from-blue-900/95 via-slate-900/90 to-blue-900/70
+      border-b border-blue-600/30 backdrop-blur shadow-lg"
+    >
+      <div className="max-w-7xl mx-auto flex items-center justify-between px-4 py-3 lg:py-4">
         {/* Logo */}
         <Link
           href="/"
-          className="flex items-center btn btn-ghost text-2xl gap-2 normal-case font-bold"
-          prefetch={true}
-          onClick={() => 
+          className="flex items-center gap-3 rounded-xl shadow-sm bg-gradient-to-r from-blue-700/80 to-cyan-500/60 py-2 px-3 hover:brightness-110 transition hover:scale-105"
+          onClick={() =>
             toast({
               title: "Welcome",
               description: "Explore our latest products!",
             })
           }
         >
-          <div className="flex items-center justify-center w-12 h-12 rounded-full dark:bg-violet-600 bg-blue-200">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="currentColor" className="flex-shrink-0 w-7 h-7 rounded-full dark:text-gray-50 text-blue-700">
+          <span className="flex items-center justify-center w-11 h-11 rounded-full bg-gradient-to-br from-blue-600 via-cyan-300 to-sky-500 shadow-inner">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 32 32"
+              fill="currentColor"
+              className="flex-shrink-0 w-6 h-6 text-white"
+            >
               <path d="M18.266 26.068l7.839-7.854 4.469 4.479c1.859 1.859 1.859 4.875 0 6.734l-1.104 1.104c-1.859 1.865-4.875 1.865-6.734 0zM30.563 2.531l-1.109-1.104c-1.859-1.859-4.875-1.859-6.734 0l-6.719 6.734-6.734-6.734c-1.859-1.859-4.875-1.859-6.734 0l-1.104 1.104c-1.859 1.859-1.859 4.875 0 6.734l6.734 6.734-6.734 6.734c-1.859 1.859-1.859 4.875 0 6.734l1.104 1.104c1.859 1.859 4.875 1.859 6.734 0l21.307-21.307c1.859-1.859 1.859-4.875 0-6.734z"></path>
             </svg>
-          </div>
-          <span className="hidden md:inline italic font-serif tracking-wide text-blue-700 drop-shadow">
+          </span>
+          <span className="hidden md:inline italic font-serif tracking-wide bg-gradient-to-r from-cyan-300 to-blue-400 text-transparent bg-clip-text text-2xl font-bold drop-shadow">
             Electech
           </span>
         </Link>
 
-        {/* Search */}
-        <div className="w-full max-w-xs px-2">
-          <PlaceholdersAndVanishInput
-            placeholders={[
-              "Search products...",
-              "Try 'iPhone'",
-              "Try 'Headphones'",
-              "Try 'EarPods'",
-            ]}
-            onChange={handleSearchChange}
-            onSubmit={handleSearchSubmit}
-          />
+        {/* Search - Responsive rounded glass */}
+        <div className="w-full max-w-sm px-3">
+          <form onSubmit={handleSearchSubmit}>
+            <PlaceholdersAndVanishInput
+              placeholders={[
+                "Search products...",
+                "Try 'iPhone'",
+                "Try 'Headphones'",
+                "Try 'EarPods'",
+              ]}
+              value={searchValue}
+              onChange={handleSearchChange}
+              onKeyDown={handleSearchKeyDown}
+            />
+          </form>
         </div>
 
-        
-
-        {/* Desktop Nav */}
+        {/* Desktop Nav - pill menu */}
         <nav className="hidden lg:flex">
-          <ul className="flex items-center gap-2">
+          <ul className="flex items-center gap-1">
             <li>
               <Link
                 href="/"
-                className={`px-4 py-2 hover:bg-base-200 rounded transition-all duration-150 ${
-                  isActive("/") ? "border-b-2 border-blue-700 font-semibold" : ""
+                className={`px-5 py-2 rounded-full font-medium transition duration-150 hover:bg-blue-800/60 ${
+                  isActive("/")
+                    ? "bg-blue-700/80 text-cyan-200 shadow-md"
+                    : "bg-slate-800/60 text-white"
                 }`}
               >
                 Home
@@ -111,8 +130,10 @@ export default function Header() {
             <li>
               <Link
                 href="/productsgallery"
-                className={`px-4 py-2 hover:bg-base-200 rounded transition-all duration-150 ${
-                  isActive("/productsgallery") ? "border-b-2 border-blue-700 font-semibold" : ""
+                className={`px-5 py-2 rounded-full font-medium transition duration-150 hover:bg-blue-800/60 ${
+                  isActive("/productsgallery")
+                    ? "bg-blue-700/80 text-cyan-200 shadow-md"
+                    : "bg-slate-800/60 text-white"
                 }`}
               >
                 All Products
@@ -122,11 +143,13 @@ export default function Header() {
               <li>
                 <Link
                   href="/admin"
-                  className={`px-4 py-2 hover:bg-base-200 rounded transition-all duration-150 ${
-                    isActive("/admin") ? "border-b-2 border-blue-700 font-semibold" : ""
+                  className={`px-5 py-2 rounded-full font-medium transition duration-150 hover:bg-blue-800/60 ${
+                    isActive("/admin")
+                      ? "bg-blue-700/80 text-cyan-200 shadow-md"
+                      : "bg-slate-800/60 text-white"
                   }`}
                   target="_blank"
-                  onClick={() => 
+                  onClick={() =>
                     toast({
                       title: "Admin Access",
                       description: "You have access to the admin dashboard.",
@@ -140,8 +163,10 @@ export default function Header() {
             <li>
               <Link
                 href="/orders"
-                className={`px-4 py-2 hover:bg-base-200 rounded transition-all duration-150 ${
-                  isActive("/orders") ? "border-b-2 border-blue-700 font-semibold" : ""
+                className={`px-5 py-2 rounded-full font-medium transition duration-150 hover:bg-blue-800/60 ${
+                  isActive("/orders")
+                    ? "bg-blue-700/80 text-cyan-200 shadow-md"
+                    : "bg-slate-800/60 text-white"
                 }`}
                 target="_blank"
               >
@@ -152,7 +177,7 @@ export default function Header() {
               <li>
                 <button
                   onClick={handleSignOut}
-                  className="px-4 py-2 text-error hover:bg-base-200 w-full text-left rounded"
+                  className="px-5 py-2 rounded-full bg-gradient-to-r from-red-500 to-red-700 text-white font-medium hover:brightness-90 shadow-md transition"
                 >
                   Sign Out
                 </button>
@@ -161,10 +186,11 @@ export default function Header() {
               <li>
                 <Link
                   href="/login"
-                  className={`px-4 py-2 hover:bg-base-200 rounded transition-all duration-150 ${
-                    isActive("/login") ? "border-b-2 border-blue-700 font-semibold" : ""
+                  className={`px-5 py-2 rounded-full font-medium transition duration-150 hover:bg-blue-800/60 ${
+                    isActive("/login")
+                      ? "bg-blue-700/80 text-cyan-200 shadow-md"
+                      : "bg-slate-800/60 text-white"
                   }`}
-
                 >
                   Login
                 </Link>
@@ -173,22 +199,22 @@ export default function Header() {
           </ul>
         </nav>
 
-{/* Cart Icon */}
+        {/* Cart Icon */}
         <button
           onClick={() => setIsCartOpen(true)}
-          className="btn btn-ghost btn-circle relative mr-2"
+          className="relative mx-2 rounded-full bg-gradient-to-br from-blue-700 via-cyan-500 to-sky-500 shadow-lg p-2 hover:brightness-110 hover:scale-110 transition"
           aria-label="View cart"
         >
-          <ShoppingCart className="w-6 h-6 text-blue-700" />
+          <ShoppingCart className="w-6 h-6 text-white" />
         </button>
 
         {/* Hamburger menu (Mobile) */}
         <button
-          className="btn btn-ghost btn-circle lg:hidden"
+          className="rounded-full bg-slate-800/80 p-2 shadow-lg lg:hidden"
           onClick={() => setMenuOpen(!menuOpen)}
           aria-label="Open menu"
         >
-          <Menu className="w-6 h-6" />
+          <Menu className="w-7 h-7 text-cyan-300" />
         </button>
 
         {/* Cart Slide Over */}
@@ -196,25 +222,33 @@ export default function Header() {
 
         {/* --- Mobile Nav Overlay --- */}
         {menuOpen && (
-          <div className="fixed inset-0 z-50 bg-black/30" onClick={() => setMenuOpen(false)}>
-            <div
-              className="absolute top-0 right-0 w-72 h-full p-4 rounded-l-xl shadow-lg
-                  bg-white dark:bg-base-100/95 border-l border-gray-200 dark:border-base-300 transition-all"
-              onClick={e => e.stopPropagation()}
+          <div
+            className="fixed inset-0 z-50 bg-black/60 backdrop-blur"
+            onClick={() => setMenuOpen(false)}
+          >
+            <motion.div
+              initial={{ x: 320, opacity: 0 }}
+              animate={{ x: 0, opacity: 1 }}
+              exit={{ x: 320, opacity: 0 }}
+              transition={{ duration: 0.26, ease: "easeOut" }}
+              className="absolute top-0 right-0 w-72 h-full p-5 rounded-l-2xl shadow-2xl bg-gradient-to-b from-blue-900/95 via-slate-900/90 to-blue-900/80 border-l border-blue-600/20 transition-all z-10"
+              onClick={(e) => e.stopPropagation()}
             >
               <button
-                className="absolute top-2 right-2"
+                className="absolute top-3 right-4 bg-slate-800/50 rounded-full p-2"
                 onClick={() => setMenuOpen(false)}
                 aria-label="Close menu"
               >
-                <XMarkIcon className="w-7 h-7 text-gray-700" />
+                <XMarkIcon className="w-7 h-7 text-white" />
               </button>
-              <ul className="flex flex-col gap-2 mt-10 bg-white">
+              <ul className="flex flex-col gap-3 mt-10">
                 <li>
                   <Link
                     href="/"
-                    className={`px-4 py-2 hover:bg-base-200 block rounded transition-all duration-150 ${
-                      isActive("/") ? "border-b-2 border-blue-700 font-semibold" : ""
+                    className={`px-4 py-2 rounded-full font-medium transition duration-150 hover:bg-blue-800/60 ${
+                      isActive("/")
+                        ? "bg-blue-700/80 text-cyan-200 shadow-md"
+                        : "bg-slate-800/70 text-white"
                     }`}
                     onClick={() => setMenuOpen(false)}
                   >
@@ -224,8 +258,10 @@ export default function Header() {
                 <li>
                   <Link
                     href="/productsgallery"
-                    className={`px-4 py-2 hover:bg-base-200 block rounded transition-all duration-150 ${
-                      isActive("/productsgallery") ? "border-b-2 border-blue-700 font-semibold" : ""
+                    className={`px-4 py-2 rounded-full font-medium transition duration-150 hover:bg-blue-800/60 ${
+                      isActive("/productsgallery")
+                        ? "bg-blue-700/80 text-cyan-200 shadow-md"
+                        : "bg-slate-800/70 text-white"
                     }`}
                     onClick={() => setMenuOpen(false)}
                   >
@@ -236,15 +272,18 @@ export default function Header() {
                   <li>
                     <Link
                       href="/admin"
-                      className={`px-4 py-2 hover:bg-base-200 block rounded transition-all duration-150 ${
-                        isActive("/admin") ? "border-b-2 border-blue-700 font-semibold" : ""
+                      className={`px-4 py-2 rounded-full font-medium transition duration-150 hover:bg-blue-800/60 ${
+                        isActive("/admin")
+                          ? "bg-blue-700/80 text-cyan-200 shadow-md"
+                          : "bg-slate-800/70 text-white"
                       }`}
                       target="_blank"
                       onClick={() => {
                         setMenuOpen(false);
                         toast({
                           title: "Admin Access",
-                          description: "You have access to the admin dashboard.",
+                          description:
+                            "You have access to the admin dashboard.",
                         });
                       }}
                     >
@@ -255,10 +294,12 @@ export default function Header() {
                 <li>
                   <Link
                     href="/orders"
-                    className={`px-4 py-2 hover:bg-base-200 block rounded transition-all duration-150 ${
-                      isActive("/orders") ? "border-b-2 border-blue-700 font-semibold" : ""
+                    className={`px-4 py-2 rounded-full font-medium transition duration-150 hover:bg-blue-800/60 ${
+                      isActive("/orders")
+                        ? "bg-blue-700/80 text-cyan-200 shadow-md"
+                        : "bg-slate-800/70 text-white"
                     }`}
-                    target="_blank"
+                    // target="_blank"
                     onClick={() => setMenuOpen(false)}
                   >
                     My Orders
@@ -271,7 +312,7 @@ export default function Header() {
                         handleSignOut();
                         setMenuOpen(false);
                       }}
-                      className="px-4 py-2 text-error hover:bg-base-200 w-full text-left rounded"
+                      className="px-4 py-2 rounded-full bg-gradient-to-r from-red-500 to-red-700 text-white font-medium hover:brightness-90 shadow-md transition"
                     >
                       Sign Out
                     </button>
@@ -280,14 +321,14 @@ export default function Header() {
                   <li>
                     <Link
                       href="/login"
-                      className={`px-4 py-2 hover:bg-base-200 block rounded transition-all duration-150 ${
-                        isActive("/login") ? "border-b-2 border-blue-700 font-semibold" : ""
+                      className={`px-4 py-2 rounded-full font-medium transition duration-150 hover:bg-blue-800/60 ${
+                        isActive("/login")
+                          ? "bg-blue-700/80 text-cyan-200 shadow-md"
+                          : "bg-slate-800/70 text-white"
                       }`}
                       onClick={() => {
                         setMenuOpen(false);
-                        toast({
-                          title: "Login Required",
-                        });
+                        toast({ title: "Login Required" });
                       }}
                     >
                       Login
@@ -300,14 +341,14 @@ export default function Header() {
                       setIsCartOpen(true);
                       setMenuOpen(false);
                     }}
-                    className="flex items-center gap-2 px-4 py-2 bg-gray-800 text-white rounded hover:bg-gray-700"
+                    className="flex items-center gap-2 px-4 py-2 rounded-full bg-blue-700 text-white font-medium hover:bg-blue-800 shadow transition"
                   >
                     <ShoppingCart className="w-5 h-5" />
                     <span>Cart</span>
                   </button>
                 </li>
               </ul>
-            </div>
+            </motion.div>
           </div>
         )}
       </div>

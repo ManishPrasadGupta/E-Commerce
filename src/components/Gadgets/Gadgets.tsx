@@ -1,6 +1,7 @@
 "use client";
 
 import Carousel from "@/components/ui/carousel";
+
 export default function Gadgets() {
   const slideData = [
     {
@@ -24,12 +25,26 @@ export default function Gadgets() {
       src: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT5X3wgLd1eYw01aAy-6lSdFT_bFrQvKzG0MA&s",
     },
   ];
+
   return (
-    <div className="relative overflow-hidden w-full h-full py-20">
-      <h1 className="text-center text-4xl md:text-5xl font-extrabold pt-8 pb-6 text-gray-800 tracking-tight">
-        Gadgets
-      </h1>
-      <Carousel slides={slideData} />
-    </div>
+    <section className="relative w-full min-h-screen flex flex-col items-center justify-center bg-gradient-to-tr from-slate-900 via-black to-slate-800">
+      {/* Decorative glass blob */}
+      <div
+        aria-hidden
+        className="absolute top-0 left-0 w-full h-56 bg-gradient-to-tr from-cyan-400/20 via-sky-400/10 to-transparent blur-3xl opacity-70 -z-10"
+      />
+      <div className="relative w-full max-w-5xl mx-auto">
+        <h1 className="text-center text-4xl md:text-5xl font-extrabold tracking-tight bg-gradient-to-r from-blue-400 via-cyan-300 to-sky-700 bg-clip-text text-transparent pt-14 pb-4 drop-shadow">
+          Gadgets
+        </h1>
+        <p className="text-center text-lg mb-10 font-medium text-slate-400 px-4">
+          Explore top tech—phones, headphones, accessories, and speakers,
+          handpicked for you.
+        </p>
+        <div className="px-2 md:px-0 pt-2">
+          <Carousel slides={slideData} />
+        </div>
+      </div>
+    </section>
   );
 }

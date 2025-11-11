@@ -1,5 +1,3 @@
-"use client";
-
 import { AnimatePresence, motion } from "motion/react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { cn } from "@/lib/utils";
@@ -11,38 +9,36 @@ type PixelData = {
   color: string;
 };
 
-
-
 export function PlaceholdersAndVanishInput({
   placeholders,
   onChange,
-  onSubmit,
+  value,
+  onKeyDown,
 }: {
   placeholders: string[];
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  onSubmit: (e: React.FormEvent<HTMLFormElement>) => void;
+  value: string;
+  onKeyDown?: (e: React.KeyboardEvent<HTMLInputElement>) => void;
 }) {
   const [currentPlaceholder, setCurrentPlaceholder] = useState(0);
 
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
-  
+
   const startAnimation = useCallback(() => {
     intervalRef.current = setInterval(() => {
       setCurrentPlaceholder((prev) => (prev + 1) % placeholders.length);
     }, 3000);
   }, [placeholders.length]);
 
-
   const handleVisibilityChange = useCallback(() => {
     if (document.visibilityState !== "visible" && intervalRef.current) {
-      clearInterval(intervalRef.current); // Clear the interval when the tab is not visible
+      clearInterval(intervalRef.current);
       intervalRef.current = null;
     } else if (document.visibilityState === "visible") {
-      startAnimation(); // Restart the interval when the tab becomes visible
+      startAnimation();
     }
   }, [startAnimation]);
 
-  
   useEffect(() => {
     startAnimation();
     document.addEventListener("visibilitychange", handleVisibilityChange);
@@ -58,7 +54,6 @@ export function PlaceholdersAndVanishInput({
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const newDataRef = useRef<PixelData[]>([]);
   const inputRef = useRef<HTMLInputElement>(null);
-  const [value, setValue] = useState("");
   const [animating, setAnimating] = useState(false);
 
   const draw = useCallback(() => {
@@ -95,7 +90,9 @@ export function PlaceholdersAndVanishInput({
             x: n,
             y: t,
             r: pixelData[e],
-            color: `rgba(${pixelData[e]}, ${pixelData[e + 1]}, ${pixelData[e + 2]}, ${pixelData[e + 3] / 255})`,
+            color: `rgba(${pixelData[e]}, ${pixelData[e + 1]}, ${
+              pixelData[e + 2]
+            }, ${pixelData[e + 3] / 255})`,
           });
         }
       }
@@ -113,6 +110,8 @@ export function PlaceholdersAndVanishInput({
     draw();
   }, [value, draw]);
 
+  // animation logic can be moved to parent if you want submit to clear input
+  // here, just animate when used
   const animate = (start: number) => {
     const animateFrame = (pos: number = 0) => {
       requestAnimationFrame(() => {
@@ -150,7 +149,6 @@ export function PlaceholdersAndVanishInput({
         if (newDataRef.current.length > 0) {
           animateFrame(pos - 8);
         } else {
-          setValue("");
           setAnimating(false);
         }
       });
@@ -159,52 +157,36 @@ export function PlaceholdersAndVanishInput({
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (onKeyDown) onKeyDown(e);
     if (e.key === "Enter" && !animating) {
-      vanishAndSubmit();
+      if (inputRef.current?.value) {
+        setAnimating(true);
+        draw();
+        const maxX = newDataRef.current.reduce(
+          (prev, current) => (current.x > prev ? current.x : prev),
+          0
+        );
+        animate(maxX);
+      }
     }
   };
 
-  const vanishAndSubmit = () => {
-    setAnimating(true);
-    draw();
-
-    const value = inputRef.current?.value || "";
-    if (value && inputRef.current) {
-      const maxX = newDataRef.current.reduce(
-        (prev, current) => (current.x > prev ? current.x : prev),
-        0
-      );
-      animate(maxX);
-    }
-  };
-
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    vanishAndSubmit();
-    if(onSubmit) onSubmit(e);
-  };
   return (
-    <form
+    <div
       className={cn(
         "w-full relative max-w-xl mx-auto bg-white dark:bg-zinc-800 h-12 rounded-full overflow-hidden shadow-[0px_2px_3px_-1px_rgba(0,0,0,0.1),_0px_1px_0px_0px_rgba(25,28,33,0.02),_0px_0px_0px_1px_rgba(25,28,33,0.08)] transition duration-200",
         value && "bg-gray-50"
       )}
-      onSubmit={handleSubmit}
     >
       <canvas
         className={cn(
-          "absolute pointer-events-none  text-base transform scale-50 top-[20%] left-2 sm:left-8 origin-top-left filter invert dark:invert-0 pr-20",
+          "absolute pointer-events-none text-base transform scale-50 top-[20%] left-2 sm:left-8 origin-top-left filter invert dark:invert-0 pr-20",
           !animating ? "opacity-0" : "opacity-100"
         )}
         ref={canvasRef}
       />
       <input
-        onChange={(e) => {
-          if (!animating) {
-            setValue(e.target.value);
-            if(onChange) onChange(e);
-          }
-        }}
+        onChange={onChange}
         onKeyDown={handleKeyDown}
         ref={inputRef}
         value={value}
@@ -280,6 +262,6 @@ export function PlaceholdersAndVanishInput({
           )}
         </AnimatePresence>
       </div>
-    </form>
+    </div>
   );
 }

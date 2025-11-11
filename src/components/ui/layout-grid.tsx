@@ -36,13 +36,13 @@ export const LayoutGrid = ({ cards }: { cards: Card[] }) => {
   let touchEndX = 0;
 
   const handleCardClick = (idx: number) => {
-    if (isTouchDevice()) {
-      setFlippedIndex(flippedIndex === idx ? null : idx);
-    }
+    setFlippedIndex(flippedIndex === idx ? null : idx);
   };
 
-  const goToPrev = () => setSliderIndex((prev) => (prev === 0 ? cards.length - 1 : prev - 1));
-  const goToNext = () => setSliderIndex((prev) => (prev === cards.length - 1 ? 0 : prev + 1));
+  const goToPrev = () =>
+    setSliderIndex((prev) => (prev === 0 ? cards.length - 1 : prev - 1));
+  const goToNext = () =>
+    setSliderIndex((prev) => (prev === cards.length - 1 ? 0 : prev + 1));
 
   const handleTouchStart = (e: React.TouchEvent) => {
     touchStartX = e.changedTouches[0].screenX;
@@ -69,7 +69,7 @@ export const LayoutGrid = ({ cards }: { cards: Card[] }) => {
           >
             {cards.map((card) => (
               <div
-               className="w-full max-w-sm flex-shrink-0 flex flex-col items-center p-6 mx-auto"
+                className="w-full max-w-sm flex-shrink-0 flex flex-col items-center p-6 mx-auto"
                 key={card.id}
               >
                 <Image
@@ -80,7 +80,6 @@ export const LayoutGrid = ({ cards }: { cards: Card[] }) => {
                   height={192}
                   priority
                 />
-
                 <div className="text-center text-black">{card.content}</div>
               </div>
             ))}
@@ -106,7 +105,9 @@ export const LayoutGrid = ({ cards }: { cards: Card[] }) => {
           {cards.map((_, i) => (
             <button
               key={i}
-              className={`h-2 w-2 rounded-full ${i === sliderIndex ? "bg-blue-600" : "bg-gray-400"}`}
+              className={`h-2 w-2 rounded-full ${
+                i === sliderIndex ? "bg-blue-600" : "bg-gray-400"
+              }`}
               onClick={() => setSliderIndex(i)}
               aria-label={`Go to slide ${i + 1}`}
             />
@@ -118,18 +119,15 @@ export const LayoutGrid = ({ cards }: { cards: Card[] }) => {
 
   // --- DESKTOP GRID WITH FLIP ---
   return (
-    <div className="w-full h-full p-10 grid grid-cols-1 md:grid-cols-3 max-w-7xl mx-auto gap-4 relative">
+    <div className="w-full h-full p-10 grid grid-cols-[repeat(auto-fit,minmax(20rem,1fr))] justify-items-center max-w-7xl mx-auto gap-4 relative">
       {cards.map((card, i) => (
         <div key={i} className="flip-container max-w-sm w-full mx-auto">
           <div
-            className={cn(
-              "flip-card",
-              isTouchDevice() && flippedIndex === i && "flipped"
-            )}
+            className={cn("flip-card", flippedIndex === i && "flipped")}
             onClick={() => handleCardClick(i)}
           >
             {/* Front */}
-            <div className="flip-front bg-pink rounded-xl h-full w-full flex flex-col justify-center items-center">
+            <div className="flip-front bg-pink rounded-xl h-full w-full relative flex flex-col justify-center items-center">
               <ImageComponent card={card} />
             </div>
             {/* Back */}
@@ -195,13 +193,3 @@ const SelectedCard = ({ selected }: { selected: Card | null }) => {
     </div>
   );
 };
-
-function isTouchDevice() {
-  if (typeof window === "undefined") return false;
-  return (
-    "ontouchstart" in window ||
-    navigator.maxTouchPoints > 0 ||
-    // @ts-expect-error: msMaxTouchPoints is for IE/Edge support
-    navigator.msMaxTouchPoints > 0
-  );
-}

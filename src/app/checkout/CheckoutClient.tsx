@@ -1,10 +1,19 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useState, Fragment } from "react";
 import { apiClient, CreateOrderData } from "@/lib/api-client";
 import { useSession } from "next-auth/react";
-import { Loader2, RefreshCcw, Plus, Edit, Trash2 } from "lucide-react";
+import {
+  Loader2,
+  RefreshCcw,
+  Plus,
+  Edit,
+  Trash2,
+  CheckCircle,
+  ShieldCheck,
+} from "lucide-react";
+import { Dialog, Transition } from "@headlessui/react";
 import AddressForm from "@/components/Address/addressForm";
 import { IAddress } from "@/models/User.model";
 import { useCart } from "@/context/CartContext";
@@ -13,47 +22,63 @@ import { useToast } from "@/hooks/use-toast";
 
 declare global {
   interface Window {
-    Cashfree?: {
-      initialiseDropin: (options: {
-        paymentSessionId: string;
-        redirectTarget: string;
-        onSuccess: (data: unknown) => void;
-        onFailure: (data: unknown) => void;
-      }) => void;
-    };
+    Cashfree?: any;
   }
 }
+
+// Skeleton component for address loading state
+const AddressSkeleton = () => (
+  <div className="space-y-4">
+    {[...Array(2)].map((_, i) => (
+      <div key={i} className="animate-pulse rounded-xl border bg-white p-4">
+        <div className="h-4 w-1/2 rounded bg-gray-200"></div>
+        <div className="mt-3 h-3 w-3/4 rounded bg-gray-200"></div>
+        <div className="mt-2 h-3 w-2/3 rounded bg-gray-200"></div>
+      </div>
+    ))}
+  </div>
+);
 
 export default function CheckoutPage() {
   const router = useRouter();
   const { toast } = useToast();
-  const { status } = useSession(); // removed 'session'
+  const { status } = useSession();
   const { cartItems, clearCart } = useCart();
 
-  const [open, setOpen] = useState(false);
+  const [isAddressModalOpen, setAddressModalOpen] = useState(false);
   const [addresses, setAddresses] = useState<IAddress[]>([]);
   const [paymentMethod, setPaymentMethod] = useState("cashfree");
   const [loading, setLoading] = useState(true);
   const [placingOrder, setPlacingOrder] = useState(false);
   const [fetchingAddress, setFetchingAddress] = useState(true);
-  const [selectedAddressId, setSelectedAddressId] = useState<string | undefined>();
+  const [selectedAddressId, setSelectedAddressId] = useState<
+    string | undefined
+  >();
   const [editingAddress, setEditingAddress] = useState<IAddress | null>(null);
   const [buyNowProduct, setBuyNowProduct] = useState<{
     productId: string;
     variant: ColorVariant;
     quantity: number;
+    name: string;
   } | null>(null);
 
-  const subtotal = cartItems.reduce((sum, item) => sum + item.variant.price * item.quantity, 0);
+  const subtotal = cartItems.reduce(
+    (sum, item) => sum + item.variant.price * item.quantity,
+    0
+  );
+  const total = buyNowProduct
+    ? buyNowProduct.variant.price * buyNowProduct.quantity
+    : subtotal;
 
   // Load Cashfree SDK
   useEffect(() => {
-    if (!window.Cashfree) {
-      const script = document.createElement("script");
-      script.src = "https://sdk.cashfree.com/js/v3/cashfree.js";
-      script.async = true;
-      document.body.appendChild(script);
-    }
+    const script = document.createElement("script");
+    script.src = "https://sdk.cashfree.com/js/v3/cashfree.js";
+    script.async = true;
+    document.body.appendChild(script);
+    return () => {
+      document.body.removeChild(script);
+    };
   }, []);
 
   // Fetch addresses
@@ -61,148 +86,81 @@ export default function CheckoutPage() {
     setFetchingAddress(true);
     try {
       const res = await apiClient.getAddresses();
-      if (res.success && Array.isArray(res.addresses)) {
-        setAddresses(res.addresses);
-      } else {
-        setAddresses([]);
+      const userAddresses =
+        res.success && Array.isArray(res.addresses) ? res.addresses : [];
+      setAddresses(userAddresses);
+      if (userAddresses.length > 0 && !selectedAddressId) {
+        setSelectedAddressId(userAddresses[0]._id?.toString());
       }
     } catch (err) {
       console.error("Failed to fetch addresses", err);
-      setAddresses([]);
+    } finally {
+      setFetchingAddress(false);
     }
-    setFetchingAddress(false);
   };
 
   useEffect(() => {
     if (status === "authenticated") {
       fetchAddresses();
       setLoading(false);
-    }
-  }, [status]);
-
-  useEffect(() => {
-    if (addresses.length && !selectedAddressId) {
-      setSelectedAddressId(addresses[0]._id?.toString());
-    }
-  }, [addresses, selectedAddressId]);
-
-  useEffect(() => {
-    if (status === "unauthenticated") {
+    } else if (status === "unauthenticated") {
       router.replace("/login");
     }
   }, [status, router]);
 
-  // Guard Against Broken localStorage
+  // Handle "Buy Now" product from localStorage
   useEffect(() => {
     const data = localStorage.getItem("buyNowProduct");
     if (data) {
       try {
-        const parsed = JSON.parse(data);
-        if (parsed.productId && parsed.variant) {
-          setBuyNowProduct(parsed);
-        } else {
-          setBuyNowProduct(null);
-          localStorage.removeItem("buyNowProduct");
-        }
+        setBuyNowProduct(JSON.parse(data));
       } catch {
-        setBuyNowProduct(null);
         localStorage.removeItem("buyNowProduct");
       }
     }
   }, []);
 
-  const handleAddressSuccess = async () => {
-    try {
-      const res = await apiClient.getAddresses();
-      setAddresses(res.success && Array.isArray(res.addresses) ? res.addresses : []);
-      setOpen(false);
-      setEditingAddress(null);
-      toast({
-        title: "Success",
-        description: "Address saved successfully!",
-      });
-    } catch {
-      toast({
-        title: "Error",
-        description: "Failed to fetch addresses!",
-      });
-    }
+  const handleAddressSuccess = () => {
+    fetchAddresses();
+    setAddressModalOpen(false);
+    setEditingAddress(null);
+    toast({ title: "Success", description: "Address saved successfully!" });
   };
 
-  // Place order for all items in cart
   const handlePlaceOrder = async () => {
-    if (!addresses.length) {
+    if (!selectedAddressId) {
       toast({
         title: "Error",
-        description: "Please enter your address",
-      });
-      return;
-    }
-
-    if (!cartItems.length && !buyNowProduct) {
-      toast({
-        title: "Error",
-        description: "Your cart is empty",
+        description: "Please select a shipping address.",
       });
       return;
     }
     setPlacingOrder(true);
+
     try {
-      const selectedAddress = addresses.find(addr => addr._id?.toString() === selectedAddressId);
-      if (!selectedAddress) {
-        toast({
-          title: "Error",
-          description: "Please select a valid address",
-        });
-        setPlacingOrder(false);
-        return;
-      }
+      const selectedAddress = addresses.find(
+        (addr) => addr._id?.toString() === selectedAddressId
+      );
+      if (!selectedAddress) throw new Error("Selected address not found.");
 
-      let payload: CreateOrderData;
-      if (
-        buyNowProduct &&
-        buyNowProduct.productId &&
-        buyNowProduct.variant
-      ) {
-        payload = {
-          productId: buyNowProduct.productId,
-          variant: buyNowProduct.variant,
-          address: selectedAddress,
-          paymentMethod,
-        };
-      } else if (cartItems.length) {
-        payload = {
-          items: cartItems,
-          address: selectedAddress,
-          paymentMethod,
-        };
-      } else {
-        toast({
-          title: "Error",
-          description: "No items to order",
-        });
-        setPlacingOrder(false);
-        return;
-      }
+      const payload: CreateOrderData = buyNowProduct
+        ? {
+            productId: buyNowProduct.productId,
+            variant: buyNowProduct.variant,
+            address: selectedAddress,
+            paymentMethod,
+          }
+        : { items: cartItems, address: selectedAddress, paymentMethod };
 
-      // Remove unused orderId and amount
       const { paymentSessionId } = await apiClient.createOrder(payload);
 
-      if (paymentMethod === "cashfree") {
-        if (!window.Cashfree) {
-          toast({
-            title: "Error",
-            description: "Cashfree SDK not loaded. Please try again later.",
-          });
-          setPlacingOrder(false);
-          return;
-        }
-
+      if (paymentMethod === "cashfree" && window.Cashfree) {
         window.Cashfree.initialiseDropin({
           paymentSessionId,
           redirectTarget: "_self",
           onSuccess: () => {
             clearCart();
+            localStorage.removeItem("buyNowProduct");
             toast({
               title: "Success",
               description: "Payment successful! Your order has been placed.",
@@ -217,8 +175,9 @@ export default function CheckoutPage() {
           },
         });
       } else {
-        // Cash on Delivery
+        // COD
         clearCart();
+        localStorage.removeItem("buyNowProduct");
         toast({
           title: "Success",
           description: "Order placed successfully! You will pay on delivery.",
@@ -226,266 +185,277 @@ export default function CheckoutPage() {
         router.push("/orders");
       }
     } catch (err: unknown) {
-      const errorMessage =
-        err instanceof Error ? err.message : "Unknown error occurred";
       toast({
         title: "Error",
-        description: `Order failed: ${errorMessage}`,
+        description: `Order failed: ${
+          err instanceof Error ? err.message : "Unknown error"
+        }`,
       });
+    } finally {
+      setPlacingOrder(false);
     }
-    setPlacingOrder(false);
   };
 
-  if (status === "loading" || loading) {
+  if (loading) {
     return (
-      <div className="min-h-[70vh] flex justify-center items-center bg-gradient-to-br from-blue-50 to-blue-100">
-        <Loader2 className="w-12 h-12 animate-spin text-blue-600" />
-      </div>
-    );
-  }
-
-  if (!cartItems.length && !buyNowProduct) {
-    return (
-      <div className="alert alert-error max-w-md mx-auto my-8 shadow-lg rounded-lg bg-red-50 border border-red-200 text-center p-6">
-        <span className="text-lg font-semibold text-red-700">Your cart is empty</span>
+      <div className="flex min-h-[70vh] items-center justify-center bg-gray-50">
+        <Loader2 className="h-12 w-12 animate-spin text-blue-600" />
       </div>
     );
   }
 
   return (
-    <div className="container mx-auto px-2 py-8 max-w-xl">
-      {/* Checkout Title */}
-      <div className="flex justify-center mb-8">
-        <div className="flex items-center gap-3">
-          <div className="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center shadow">
-            <svg className="w-7 h-7 text-blue-700" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 3"></path>
-              <circle cx="12" cy="12" r="10"></circle>
-            </svg>
-          </div>
-          <h1 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-gray-800 tracking-tight">Checkout</h1>
-        </div>
-      </div>
+    <div className="min-h-screen bg-gray-50 px-4 py-12">
+      <div className="mx-auto max-w-6xl">
+        <h1 className="mb-2 text-center text-4xl font-extrabold tracking-tight text-blue-900">
+          Secure Checkout
+        </h1>
+        <p className="mb-10 text-center text-gray-500">
+          Complete your purchase in just a few steps.
+        </p>
 
-      {/* Address Section */}
-      <section className="mb-8">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-2">
-          <h2 className="text-lg font-semibold text-gray-800">Shipping Address</h2>
-          <div className="flex items-center gap-2">
-            <button
-              className="flex items-center gap-1 px-3 py-2 bg-blue-600 text-white rounded-lg font-semibold shadow hover:bg-blue-700 transition"
-              onClick={() => {
-                setEditingAddress(null);
-                setOpen(true);
-              }}
-              aria-label="Add new address"
-              title="Add Address"
-            >
-              <Plus className="w-4 h-4" />
-              <span className="hidden xs:inline">Add Address</span>
-            </button>
-            <button
-              className="flex items-center gap-1 px-3 py-2 bg-gray-100 text-gray-700 rounded-lg font-medium hover:bg-gray-200 transition"
-              onClick={fetchAddresses}
-              disabled={fetchingAddress}
-              title="Fetch Latest Addresses"
-              aria-label="Refresh address list"
-            >
-              <RefreshCcw className={`w-4 h-4 ${fetchingAddress ? 'animate-spin' : ''}`} />
-              <span className="sr-only">Refresh addresses</span>
-            </button>
-          </div>
-        </div>
-        {addresses.length > 0 ? (
-          <fieldset className="space-y-3">
-            <legend className="sr-only">Select Shipping Address</legend>
-            {addresses.map((address) => {
-              const isSelected = selectedAddressId === address._id?.toString();
-              return (
-                <label
-                  key={address._id?.toString()}
-                  htmlFor={`address-${address._id}`}
-                  tabIndex={0}
-                  className={`p-3 sm:p-4 rounded-xl border flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4 cursor-pointer transition
-                  ${isSelected ? 'border-blue-600 bg-blue-50 shadow-md' : 'border-gray-300 hover:border-blue-400'}
-                `}
-                  onClick={() => setSelectedAddressId(address._id?.toString())}
-                  onKeyDown={e => {
-                    if (e.key === "Enter" || e.key === " ") setSelectedAddressId(address._id?.toString());
-                  }}
-                  aria-pressed={isSelected}
-                >
-                  <input
-                    id={`address-${address._id}`}
-                    type="radio"
-                    name="shippingAddress"
-                    value={address._id?.toString()}
-                    checked={isSelected}
-                    onChange={() => setSelectedAddressId(address._id?.toString())}
-                    className="accent-blue-600 mt-1"
-                    aria-label={`Select address for ${address.firstName} ${address.lastName}`}
-                    tabIndex={-1}
-                  />
-                  <div className="flex-1 text-sm">
-                    <div className="font-medium text-gray-800">{address.firstName} {address.lastName}</div>
-                    <div className="text-gray-700">{address.house}, {address.area}</div>
-                    <div className="text-gray-700">{address.city}, {address.state} - {address.pincode}</div>
-                    <div className="text-xs text-gray-500">Mobile: {address.mobileNumber}</div>
-                  </div>
-                  <div className="flex gap-2 mt-2 sm:mt-0">
-                    <button
-                      className="flex items-center gap-1 px-2 py-1 text-xs bg-yellow-100 hover:bg-yellow-200 text-yellow-800 rounded shadow-sm"
-                      onClick={() => {
-                        setEditingAddress(address);
-                        setOpen(true);
-                      }}
-                      aria-label="Edit address"
-                    >
-                      <Edit className="w-3 h-3" />
-                      Edit
-                    </button>
-                    <button
-                      className="flex items-center gap-1 px-2 py-1 text-xs bg-red-100 hover:bg-red-200 text-red-700 rounded shadow-sm"
-                      onClick={async event => {
-                        event.preventDefault();
-                        event.stopPropagation();
-                        if (window.confirm("Are you sure you want to delete this address?")) {
-                          try {
-                            await apiClient.deleteAddress(address);
-                            fetchAddresses();
-                            toast({
-                              title: "Success",
-                              description: "Address deleted successfully!",
-                            });
-                          } catch {
-                            toast({
-                              title: "Error",
-                              description: "Failed to delete address!",
-                            });
-                          }
-                        }
-                      }}
-                      aria-label="Delete address"
-                    >
-                      <Trash2 className="w-3 h-3" />
-                      Delete
-                    </button>
-                  </div>
-                </label>
-              );
-            })}
-          </fieldset>
-        ) : (
-          <div className="text-gray-500 italic mt-2">No addresses saved yet. Please add one.</div>
-        )}
-      </section>
-
-      {/* Address Modal */}
-      {open && (
-        <>
-          {/* Overlay */}
-          <div
-            className="fixed inset-0 bg-black bg-opacity-40 z-40 transition-opacity"
-            onClick={() => {
-              setOpen(false);
-              setEditingAddress(null);
-            }}
-            aria-label="Close address modal"
-          />
-          {/* Modal */}
-          <div className="fixed inset-0 flex items-center justify-center z-50">
-            <div className="bg-white rounded-lg shadow-lg p-4 sm:p-6 w-full max-w-md mx-2 max-h-[90vh] overflow-y-auto relative animate-fadeIn">
-              <button
-                className="absolute top-2 right-2 text-gray-400 hover:text-gray-700"
-                onClick={() => {
-                  setOpen(false);
-                  setEditingAddress(null);
-                }}
-                aria-label="Close"
-              >
-                &#10005;
-              </button>
-              <AddressForm
-                onSuccess={handleAddressSuccess}
-                initialData={editingAddress || undefined}
-              />
-            </div>
-          </div>
-        </>
-      )}
-
-      {/* Payment Section */}
-      <section className="mb-8">
-        <label className="block font-semibold mb-2 text-gray-800" htmlFor="payment-method">Payment Method</label>
-        <select
-          id="payment-method"
-          className="w-full rounded-lg px-4 py-2 border border-gray-300 focus:ring-2 focus:ring-blue-400 focus:border-blue-400 transition text-gray-700"
-          value={paymentMethod}
-          onChange={e => setPaymentMethod(e.target.value)}
-        >
-          <option value="cashfree">Online Payment (Cashfree)</option>
-          <option value="cod">Cash on Delivery</option>
-        </select>
-      </section>
-
-      {/* Order Summary */}
-      <section className="mb-8">
-        <h2 className="font-semibold text-lg mb-2 text-gray-800">Order Summary</h2>
-        <div className="bg-blue-50 rounded-xl p-3 sm:p-4 space-y-2 shadow">
-          {buyNowProduct ? (
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center">
-              <div>
-                <span className="font-medium text-gray-800">Product</span>
-                <span className="text-sm text-neutral-500 ml-1">({buyNowProduct.variant.type})</span>
-                <span className="text-xs text-gray-400 ml-2">x {buyNowProduct.quantity}</span>
-              </div>
-              <span className="font-bold text-md text-blue-700 mt-2 sm:mt-0">
-                ₹{buyNowProduct.variant.price * buyNowProduct.quantity}
-              </span>
-            </div>
-          ) : (
-            cartItems.map((item) => (
-              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center" key={item.productId + item.variant.type}>
-                <div>
-                  <span className="font-medium text-gray-800">{item.name}</span>
-                  <span className="text-sm text-neutral-500 ml-1">({item.variant.type})</span>
-                  <span className="text-xs text-gray-400 ml-2">x {item.quantity}</span>
+        <div className="grid grid-cols-1 gap-x-12 gap-y-10 lg:grid-cols-3">
+          {/* Left Column: Address and Payment */}
+          <div className="space-y-10 lg:col-span-2">
+            {/* Address Section */}
+            <div className="rounded-2xl border bg-white p-6 shadow-lg">
+              <div className="flex items-center justify-between">
+                <h2 className="text-xl font-bold text-gray-800">
+                  Shipping Address
+                </h2>
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => {
+                      setEditingAddress(null);
+                      setAddressModalOpen(true);
+                    }}
+                    className="flex items-center gap-1.5 rounded-lg bg-blue-600 px-3 py-2 text-sm font-semibold text-white shadow transition hover:bg-blue-700"
+                  >
+                    <Plus className="h-4 w-4" /> Add
+                  </button>
+                  <button
+                    onClick={fetchAddresses}
+                    disabled={fetchingAddress}
+                    className="rounded-lg p-2 text-gray-500 transition hover:bg-gray-100 disabled:animate-spin"
+                  >
+                    <RefreshCcw className="h-5 w-5" />
+                  </button>
                 </div>
-                <span className="font-bold text-md text-blue-700 mt-2 sm:mt-0">₹{item.variant.price * item.quantity}</span>
               </div>
-            ))
-          )}
-          <div className="flex justify-between items-center pt-2 border-t font-bold text-xl text-blue-800 mt-2">
-            <span>Total</span>
-            <span>
-              ₹
-              {buyNowProduct
-                ? buyNowProduct.variant.price * buyNowProduct.quantity
-                : subtotal}
-            </span>
+              <div className="mt-6 space-y-4">
+                {fetchingAddress ? (
+                  <AddressSkeleton />
+                ) : addresses.length > 0 ? (
+                  addresses.map((address) => (
+                    <label
+                      key={address._id?.toString()}
+                      className={`relative flex cursor-pointer rounded-xl border p-4 shadow-sm transition focus-within:ring-2 focus-within:ring-blue-500 ${
+                        selectedAddressId === address._id?.toString()
+                          ? "border-blue-600 ring-2 ring-blue-500"
+                          : "border-gray-200"
+                      }`}
+                    >
+                      <input
+                        type="radio"
+                        name="address"
+                        value={address._id?.toString()}
+                        checked={selectedAddressId === address._id?.toString()}
+                        onChange={() =>
+                          setSelectedAddressId(address._id?.toString())
+                        }
+                        className="sr-only"
+                      />
+                      {selectedAddressId === address._id?.toString() && (
+                        <CheckCircle className="absolute right-3 top-3 h-5 w-5 text-blue-600" />
+                      )}
+                      <div className="flex-1 text-sm">
+                        <span className="font-bold text-gray-900">
+                          {address.firstName} {address.lastName}
+                        </span>
+                        <p className="text-gray-600">
+                          {address.house}, {address.area}
+                        </p>
+                        <p className="text-gray-600">
+                          {address.city}, {address.state} - {address.pincode}
+                        </p>
+                        <p className="mt-1 text-gray-500">
+                          Mobile: {address.mobileNumber}
+                        </p>
+                      </div>
+                      <div className="flex flex-col gap-2">
+                        <button
+                          onClick={(e) => {
+                            e.preventDefault();
+                            setEditingAddress(address);
+                            setAddressModalOpen(true);
+                          }}
+                          className="flex items-center gap-1 rounded bg-yellow-100 px-2 py-1 text-xs font-medium text-yellow-800 transition hover:bg-yellow-200"
+                        >
+                          <Edit className="h-3 w-3" /> Edit
+                        </button>
+                        <button
+                          onClick={async (e) => {
+                            e.preventDefault();
+                            if (window.confirm("Delete this address?")) {
+                              await apiClient.deleteAddress(address);
+                              fetchAddresses();
+                              toast({
+                                title: "Success",
+                                description: "Address deleted.",
+                              });
+                            }
+                          }}
+                          className="flex items-center gap-1 rounded bg-red-100 px-2 py-1 text-xs font-medium text-red-700 transition hover:bg-red-200"
+                        >
+                          <Trash2 className="h-3 w-3" /> Delete
+                        </button>
+                      </div>
+                    </label>
+                  ))
+                ) : (
+                  <p className="py-4 text-center text-gray-500">
+                    No addresses found. Please add one to continue.
+                  </p>
+                )}
+              </div>
+            </div>
+
+            {/* Payment Method Section */}
+            <div className="rounded-2xl border bg-white p-6 shadow-lg">
+              <h2 className="text-xl font-bold text-gray-800">
+                Payment Method
+              </h2>
+              <div className="mt-4">
+                <select
+                  value={paymentMethod}
+                  onChange={(e) => setPaymentMethod(e.target.value)}
+                  className="w-full rounded-lg border-gray-300 p-3 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                >
+                  <option value="cashfree">
+                    Online Payment (Cards, UPI, etc.)
+                  </option>
+                  <option value="cod">Cash on Delivery</option>
+                </select>
+                <div className="mt-4 flex items-center justify-center gap-2 rounded-lg bg-green-50 p-3 text-sm text-green-700">
+                  <ShieldCheck className="h-5 w-5" />
+                  <span>All transactions are secure and encrypted.</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Right Column: Order Summary */}
+          <div className="lg:col-span-1">
+            <div className="sticky top-28 rounded-2xl border bg-white/70 p-6 shadow-2xl backdrop-blur-lg">
+              <h2 className="mb-4 text-2xl font-bold text-gray-800">
+                Order Summary
+              </h2>
+              <div className="space-y-3">
+                {buyNowProduct ? (
+                  <div className="flex justify-between text-gray-700">
+                    <span className="max-w-[70%] truncate">
+                      {buyNowProduct.name} x{buyNowProduct.quantity}
+                    </span>{" "}
+                    <span>
+                      ₹
+                      {(
+                        buyNowProduct.variant.price * buyNowProduct.quantity
+                      ).toFixed(2)}
+                    </span>
+                  </div>
+                ) : (
+                  cartItems.map((item) => (
+                    <div
+                      key={item.productId}
+                      className="flex justify-between text-gray-700"
+                    >
+                      <span className="max-w-[70%] truncate">
+                        {item.name} x{item.quantity}
+                      </span>{" "}
+                      <span>
+                        ₹{(item.variant.price * item.quantity).toFixed(2)}
+                      </span>
+                    </div>
+                  ))
+                )}
+              </div>
+              <div className="my-4 border-t border-dashed"></div>
+              <div className="flex justify-between font-medium text-gray-600">
+                <span>Shipping</span>{" "}
+                <span className="text-green-600">FREE</span>
+              </div>
+              <div className="my-4 border-t"></div>
+              <div className="flex justify-between text-xl font-extrabold text-blue-900">
+                <span>Total</span> <span>₹{total.toFixed(2)}</span>
+              </div>
+
+              <button
+                onClick={handlePlaceOrder}
+                disabled={placingOrder}
+                className="mt-6 flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-br from-blue-600 to-indigo-600 px-6 py-3.5 text-lg font-bold text-white shadow-lg transition hover:scale-105 hover:shadow-indigo-400/50 disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                {placingOrder ? (
+                  <>
+                    <Loader2 className="h-6 w-6 animate-spin" /> Placing
+                    Order...
+                  </>
+                ) : (
+                  `Place Order (₹${total.toFixed(2)})`
+                )}
+              </button>
+            </div>
           </div>
         </div>
-      </section>
 
-      {/* Place Order Button */}
-      <button
-        className={`block w-full py-3 rounded-xl text-white font-bold text-lg transition shadow-lg
-          ${placingOrder ? "bg-gray-400 cursor-not-allowed" : "bg-gradient-to-br from-blue-700 to-blue-500 hover:from-blue-800 hover:to-blue-600"}
-        `}
-        type="button"
-        onClick={handlePlaceOrder}
-        disabled={placingOrder || (!cartItems.length && !buyNowProduct)}
-        aria-busy={placingOrder}
-      >
-        {placingOrder ? (
-          <span className="flex justify-center items-center gap-2">
-            <Loader2 className="w-5 h-5 animate-spin" />
-            Placing Order...
-          </span>
-        ) : (
-          "Place Order"
-        )}
-      </button>
+        {/* Address Form Modal */}
+        <Transition appear show={isAddressModalOpen} as={Fragment}>
+          <Dialog
+            as="div"
+            className="relative z-50"
+            onClose={() => setAddressModalOpen(false)}
+          >
+            <Transition.Child
+              as={Fragment}
+              enter="ease-out duration-300"
+              enterFrom="opacity-0"
+              enterTo="opacity-100"
+              leave="ease-in duration-200"
+              leaveFrom="opacity-100"
+              leaveTo="opacity-0"
+            >
+              <div className="fixed inset-0 bg-black/30" />
+            </Transition.Child>
+            <div className="fixed inset-0 overflow-y-auto">
+              <div className="flex min-h-full items-center justify-center p-4 text-center">
+                <Transition.Child
+                  as={Fragment}
+                  enter="ease-out duration-300"
+                  enterFrom="opacity-0 scale-95"
+                  enterTo="opacity-100 scale-100"
+                  leave="ease-in duration-200"
+                  leaveFrom="opacity-100 scale-100"
+                  leaveTo="opacity-0 scale-95"
+                >
+                  <Dialog.Panel className="w-full max-w-md transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all">
+                    <Dialog.Title
+                      as="h3"
+                      className="text-lg font-bold leading-6 text-gray-900"
+                    >
+                      {editingAddress ? "Edit Address" : "Add a New Address"}
+                    </Dialog.Title>
+                    <div className="mt-4">
+                      <AddressForm
+                        onSuccess={handleAddressSuccess}
+                        initialData={editingAddress || undefined}
+                      />
+                    </div>
+                  </Dialog.Panel>
+                </Transition.Child>
+              </div>
+            </div>
+          </Dialog>
+        </Transition>
+      </div>
     </div>
   );
 }
