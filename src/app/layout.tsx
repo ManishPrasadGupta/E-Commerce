@@ -2,11 +2,10 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import Providers from "@/components/Providers";
-import Header from "@/components/Navbar/Header";
-import { Toaster } from "@/components/ui/toaster";
 import AppProviders from "@/components/AppProvider";
 import "@radix-ui/themes/styles.css";
-import { Theme } from "@radix-ui/themes"; // <-- Add this import
+import { Theme } from "@radix-ui/themes";
+import LoaderShell from "@/components/loader/loaderShell";
 
 const geistSans = Geist({ variable: "--font-geist-sans", subsets: ["latin"] });
 const geistMono = Geist_Mono({
@@ -27,17 +26,13 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        {/* Radix Theme wrapper here */}
         <Theme appearance="dark" accentColor="blue">
           <Providers>
             <AppProviders>
-              <Header />
-              <main>{children}</main>
-              <Toaster />
+              <LoaderShell>{children}</LoaderShell>
             </AppProviders>
           </Providers>
         </Theme>
-        {/* <ChatbotWidgets /> */}
       </body>
     </html>
   );

@@ -1,6 +1,4 @@
 "use client";
-
-import Link from "next/link";
 import { useSession, signOut } from "next-auth/react";
 import { Menu, ShoppingCart } from "lucide-react";
 import { FormEvent, useEffect, useState } from "react";
@@ -12,6 +10,7 @@ import { PlaceholdersAndVanishInput } from "../ui/placeholders-and-vanish-input"
 import { toast } from "@/hooks/use-toast";
 import { motion, AnimatePresence } from "framer-motion";
 import { useCart } from "@/context/CartContext";
+import CustomLink from "../loader/customLink";
 
 export default function Header() {
   const { data: session } = useSession();
@@ -24,7 +23,7 @@ export default function Header() {
 
   const [mounted, setMounted] = useState(false);
   const [searchValue, setSearchValue] = useState("");
-  const { refetchCart } = useCart();
+  const { refetchCart, cartItems } = useCart();
 
   useEffect(() => {
     setMounted(true);
@@ -74,6 +73,10 @@ export default function Header() {
   };
 
   const isActive = (href: string) => mounted && pathname === href;
+  const totalCartItems = cartItems.reduce(
+    (total, item) => total + item.quantity,
+    0
+  );
 
   return (
     <>
@@ -82,9 +85,8 @@ export default function Header() {
       border-b border-blue-600/30 backdrop-blur shadow-lg"
       >
         <div className="max-w-7xl mx-auto flex items-center justify-between px-4 py-3 lg:py-4 gap-4">
-          {/* Left Side: Logo */}
           <div className="flex-shrink-0">
-            <Link
+            <CustomLink
               href="/"
               className="flex items-center gap-3 rounded-xl shadow-sm bg-gradient-to-r from-blue-700/80 to-cyan-500/60 py-2 px-3 hover:brightness-110 transition hover:scale-105"
               onClick={() =>
@@ -107,10 +109,9 @@ export default function Header() {
               <span className="hidden md:inline italic font-serif tracking-wide bg-gradient-to-r from-cyan-300 to-blue-400 text-transparent bg-clip-text text-2xl font-bold drop-shadow">
                 Electech
               </span>
-            </Link>
+            </CustomLink>
           </div>
 
-          {/* Center: Search Bar */}
           <div className="flex-1 flex justify-center px-4 lg:px-6">
             <div className="w-full max-w-md">
               <form onSubmit={handleSearchSubmit}>
@@ -129,12 +130,11 @@ export default function Header() {
             </div>
           </div>
 
-          {/* Right Side: Nav and Actions */}
           <div className="flex items-center justify-end flex-shrink-0">
             <nav className="hidden lg:flex items-center">
               <ul className="flex items-center gap-1">
                 <li>
-                  <Link
+                  <CustomLink
                     href="/"
                     className={`px-4 py-2 rounded-full font-medium transition ${
                       isActive("/")
@@ -143,10 +143,10 @@ export default function Header() {
                     }`}
                   >
                     Home
-                  </Link>
+                  </CustomLink>
                 </li>
                 <li>
-                  <Link
+                  <CustomLink
                     href="/productsgallery"
                     className={`px-4 py-2 rounded-full font-medium transition ${
                       isActive("/productsgallery")
@@ -155,11 +155,11 @@ export default function Header() {
                     }`}
                   >
                     All Products
-                  </Link>
+                  </CustomLink>
                 </li>
                 {session?.user?.role === "admin" && (
                   <li>
-                    <Link
+                    <CustomLink
                       href="/admin"
                       target="_blank"
                       className={`px-4 py-2 rounded-full font-medium transition ${
@@ -169,11 +169,11 @@ export default function Header() {
                       }`}
                     >
                       Admin
-                    </Link>
+                    </CustomLink>
                   </li>
                 )}
                 <li>
-                  <Link
+                  <CustomLink
                     href="/orders"
                     className={`px-4 py-2 rounded-full font-medium transition ${
                       isActive("/orders")
@@ -182,7 +182,7 @@ export default function Header() {
                     }`}
                   >
                     My Orders
-                  </Link>
+                  </CustomLink>
                 </li>
               </ul>
             </nav>
@@ -199,7 +199,7 @@ export default function Header() {
                 </div>
               ) : (
                 <div className="hidden lg:block">
-                  <Link
+                  <CustomLink
                     href="/login"
                     className={`px-4 py-2 rounded-full font-medium transition ${
                       isActive("/login")
@@ -208,7 +208,7 @@ export default function Header() {
                     }`}
                   >
                     Login
-                  </Link>
+                  </CustomLink>
                 </div>
               )}
 
@@ -218,6 +218,11 @@ export default function Header() {
                 aria-label="View cart"
               >
                 <ShoppingCart className="w-5 h-5 text-white" />
+                {totalCartItems > 0 && (
+                  <span className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-xs font-bold text-white">
+                    {totalCartItems}
+                  </span>
+                )}
               </button>
 
               <button
@@ -232,10 +237,8 @@ export default function Header() {
         </div>
       </header>
 
-      {/* Cart Slide Over */}
       <CartSlideOver open={isCartOpen} setOpen={setIsCartOpen} />
 
-      {/* --- Mobile Nav Overlay --- */}
       <AnimatePresence>
         {menuOpen && (
           <motion.div
@@ -267,7 +270,7 @@ export default function Header() {
               <nav>
                 <ul className="flex flex-col gap-2 text-lg">
                   <li>
-                    <Link
+                    <CustomLink
                       href="/"
                       className={`block px-4 py-3 rounded-lg font-medium transition-colors ${
                         isActive("/")
@@ -277,10 +280,10 @@ export default function Header() {
                       onClick={() => setMenuOpen(false)}
                     >
                       Home
-                    </Link>
+                    </CustomLink>
                   </li>
                   <li>
-                    <Link
+                    <CustomLink
                       href="/productsgallery"
                       className={`block px-4 py-3 rounded-lg font-medium transition-colors ${
                         isActive("/productsgallery")
@@ -290,22 +293,22 @@ export default function Header() {
                       onClick={() => setMenuOpen(false)}
                     >
                       All Products
-                    </Link>
+                    </CustomLink>
                   </li>
                   {session?.user?.role === "admin" && (
                     <li>
-                      <Link
+                      <CustomLink
                         href="/admin"
                         target="_blank"
                         className="block px-4 py-3 rounded-lg font-medium text-slate-300 hover:bg-slate-800 hover:text-white transition-colors"
                         onClick={() => setMenuOpen(false)}
                       >
                         Admin Dashboard
-                      </Link>
+                      </CustomLink>
                     </li>
                   )}
                   <li>
-                    <Link
+                    <CustomLink
                       href="/orders"
                       className={`block px-4 py-3 rounded-lg font-medium transition-colors ${
                         isActive("/orders")
@@ -315,7 +318,7 @@ export default function Header() {
                       onClick={() => setMenuOpen(false)}
                     >
                       My Orders
-                    </Link>
+                    </CustomLink>
                   </li>
                 </ul>
               </nav>
@@ -332,17 +335,19 @@ export default function Header() {
                     Sign Out
                   </button>
                 ) : (
-                  <Link
-                    href="/login"
-                    className={`block w-full text-center px-4 py-3 rounded-lg font-medium text-lg transition-colors ${
-                      isActive("/login")
-                        ? "bg-blue-600 text-white"
-                        : "bg-slate-800 text-slate-200 hover:bg-slate-700"
-                    }`}
-                    onClick={() => setMenuOpen(false)}
-                  >
-                    Login
-                  </Link>
+                  <li>
+                    <CustomLink
+                      href="/login"
+                      className={`block w-full text-center px-4 py-3 rounded-lg font-medium text-lg transition-colors ${
+                        isActive("/login")
+                          ? "bg-blue-600 text-white"
+                          : "bg-slate-800 text-slate-200 hover:bg-slate-700"
+                      }`}
+                      onClick={() => setMenuOpen(false)}
+                    >
+                      Login
+                    </CustomLink>
+                  </li>
                 )}
               </div>
             </motion.div>

@@ -8,8 +8,8 @@ import {
   DialogTitle,
 } from "@headlessui/react";
 import { XMarkIcon } from "@heroicons/react/24/outline";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
+import CustomLink from "../loader/customLink";
 
 export default function CartSlideOver({
   open,
@@ -54,14 +54,14 @@ export default function CartSlideOver({
                 <span className="text-slate-400 text-lg mb-2">
                   Your cart is empty.
                 </span>
-                <Link href="/productsgallery" passHref>
+                <CustomLink href="/productsgallery" passHref>
                   <button
                     onClick={() => setOpen(false)}
                     className="bg-indigo-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-indigo-700 transition shadow"
                   >
                     Browse Products
                   </button>
-                </Link>
+                </CustomLink>
               </div>
             ) : (
               <ul className="-my-6 divide-y divide-gray-200">
@@ -171,26 +171,26 @@ export default function CartSlideOver({
               >
                 Checkout
               </button>
-              <Link href="/cart" passHref>
+              <CustomLink href="/cart" passHref>
                 <button
                   className="w-full flex items-center justify-center rounded-xl bg-indigo-600 px-6 py-3 text-base font-bold text-white hover:bg-indigo-700 transition shadow"
                   onClick={() => setOpen(false)}
                 >
                   View Full Cart
                 </button>
-              </Link>
+              </CustomLink>
             </div>
             <div className="mt-4 text-center text-sm text-slate-500">
               <span>
                 or{" "}
-                <Link href="/productsgallery" passHref>
+                <CustomLink href="/productsgallery" passHref>
                   <button
                     onClick={() => setOpen(false)}
                     className="font-semibold text-blue-600 hover:text-indigo-500 transition underline"
                   >
                     Continue Shopping &rarr;
                   </button>
-                </Link>
+                </CustomLink>
               </span>
             </div>
           </div>
