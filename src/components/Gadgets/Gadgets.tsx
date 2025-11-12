@@ -27,7 +27,8 @@ export default function Gadgets() {
   ];
 
   return (
-    <section className="relative w-full min-h-screen flex flex-col items-center justify-center bg-gradient-to-tr from-slate-900 via-black to-slate-800">
+    // The fix is adding `overflow-x-hidden` to this section element
+    <section className="relative w-full min-h-screen flex flex-col items-center justify-center bg-gradient-to-tr from-slate-900 via-black to-slate-800 overflow-x-hidden">
       {/* Decorative glass blob */}
       <div
         aria-hidden

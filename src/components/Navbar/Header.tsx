@@ -10,7 +10,7 @@ import { useSearch } from "@/context/SearchContext/SearchContext";
 import { usePathname, useRouter } from "next/navigation";
 import { PlaceholdersAndVanishInput } from "../ui/placeholders-and-vanish-input";
 import { toast } from "@/hooks/use-toast";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 
 export default function Header() {
   const { data: session } = useSession();
@@ -69,267 +69,279 @@ export default function Header() {
   const isActive = (href: string) => mounted && pathname === href;
 
   return (
-    <header
-      className="sticky top-0 w-full z-40 bg-gradient-to-b from-blue-900/95 via-slate-900/90 to-blue-900/70
+    <>
+      <header
+        className="sticky top-0 w-full z-40 bg-gradient-to-b from-blue-900/95 via-slate-900/90 to-blue-900/70
       border-b border-blue-600/30 backdrop-blur shadow-lg"
-    >
-      <div className="max-w-7xl mx-auto flex items-center justify-between px-4 py-3 lg:py-4 gap-4">
-        {/* Left Side: Logo */}
-        <div className="flex-shrink-0">
-          <Link
-            href="/"
-            className="flex items-center gap-3 rounded-xl shadow-sm bg-gradient-to-r from-blue-700/80 to-cyan-500/60 py-2 px-3 hover:brightness-110 transition hover:scale-105"
-            onClick={() =>
-              toast({
-                title: "Welcome",
-                description: "Explore our latest products!",
-              })
-            }
-          >
-            <span className="flex items-center justify-center w-11 h-11 rounded-full bg-gradient-to-br from-blue-600 via-cyan-300 to-sky-500 shadow-inner">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 32 32"
-                fill="currentColor"
-                className="flex-shrink-0 w-6 h-6 text-white"
-              >
-                <path d="M18.266 26.068l7.839-7.854 4.469 4.479c1.859 1.859 1.859 4.875 0 6.734l-1.104 1.104c-1.859 1.865-4.875 1.865-6.734 0zM30.563 2.531l-1.109-1.104c-1.859-1.859-4.875-1.859-6.734 0l-6.719 6.734-6.734-6.734c-1.859-1.859-4.875-1.859-6.734 0l-1.104 1.104c-1.859 1.859-1.859 4.875 0 6.734l6.734 6.734-6.734 6.734c-1.859 1.859-1.859 4.875 0 6.734l1.104 1.104c1.859 1.859 4.875 1.859 6.734 0l21.307-21.307c1.859-1.859 1.859-4.875 0-6.734z"></path>
-              </svg>
-            </span>
-            <span className="hidden md:inline italic font-serif tracking-wide bg-gradient-to-r from-cyan-300 to-blue-400 text-transparent bg-clip-text text-2xl font-bold drop-shadow">
-              Electech
-            </span>
-          </Link>
-        </div>
-
-        {/* Center: Search Bar */}
-        <div className="flex-1 flex justify-center px-4 lg:px-6">
-          <div className="w-full max-w-md">
-            <form onSubmit={handleSearchSubmit}>
-              <PlaceholdersAndVanishInput
-                placeholders={[
-                  "Search products...",
-                  "Try 'iPhone'",
-                  "Try 'Headphones'",
-                  "Try 'EarPods'",
-                ]}
-                value={searchValue}
-                onChange={handleSearchChange}
-                onKeyDown={handleSearchKeyDown}
-              />
-            </form>
+      >
+        <div className="max-w-7xl mx-auto flex items-center justify-between px-4 py-3 lg:py-4 gap-4">
+          {/* Left Side: Logo */}
+          <div className="flex-shrink-0">
+            <Link
+              href="/"
+              className="flex items-center gap-3 rounded-xl shadow-sm bg-gradient-to-r from-blue-700/80 to-cyan-500/60 py-2 px-3 hover:brightness-110 transition hover:scale-105"
+              onClick={() =>
+                toast({
+                  title: "Welcome",
+                  description: "Explore our latest products!",
+                })
+              }
+            >
+              <span className="flex items-center justify-center w-11 h-11 rounded-full bg-gradient-to-br from-blue-600 via-cyan-300 to-sky-500 shadow-inner">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 32 32"
+                  fill="currentColor"
+                  className="flex-shrink-0 w-6 h-6 text-white"
+                >
+                  <path d="M18.266 26.068l7.839-7.854 4.469 4.479c1.859 1.859 1.859 4.875 0 6.734l-1.104 1.104c-1.859 1.865-4.875 1.865-6.734 0zM30.563 2.531l-1.109-1.104c-1.859-1.859-4.875-1.859-6.734 0l-6.719 6.734-6.734-6.734c-1.859-1.859-4.875-1.859-6.734 0l-1.104 1.104c-1.859 1.859-1.859 4.875 0 6.734l6.734 6.734-6.734 6.734c-1.859 1.859-1.859 4.875 0 6.734l1.104 1.104c1.859 1.859 4.875 1.859 6.734 0l21.307-21.307c1.859-1.859 1.859-4.875 0-6.734z"></path>
+                </svg>
+              </span>
+              <span className="hidden md:inline italic font-serif tracking-wide bg-gradient-to-r from-cyan-300 to-blue-400 text-transparent bg-clip-text text-2xl font-bold drop-shadow">
+                Electech
+              </span>
+            </Link>
           </div>
-        </div>
 
-        {/* Right Side: Nav and Actions */}
-        <div className="flex items-center justify-end flex-shrink-0">
-          <nav className="hidden lg:flex items-center">
-            <ul className="flex items-center gap-1">
-              <li>
-                <Link
-                  href="/"
-                  className={`px-4 py-2 rounded-full font-medium transition ${
-                    isActive("/")
-                      ? "bg-blue-700/80 text-cyan-200 shadow-md"
-                      : "text-white hover:bg-blue-800/60"
-                  }`}
-                >
-                  Home
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/productsgallery"
-                  className={`px-4 py-2 rounded-full font-medium transition ${
-                    isActive("/productsgallery")
-                      ? "bg-blue-700/80 text-cyan-200 shadow-md"
-                      : "text-white hover:bg-blue-800/60"
-                  }`}
-                >
-                  All Products
-                </Link>
-              </li>
-              {session?.user?.role === "admin" && (
+          {/* Center: Search Bar */}
+          <div className="flex-1 flex justify-center px-4 lg:px-6">
+            <div className="w-full max-w-md">
+              <form onSubmit={handleSearchSubmit}>
+                <PlaceholdersAndVanishInput
+                  placeholders={[
+                    "Search products...",
+                    "Try 'iPhone'",
+                    "Try 'Headphones'",
+                    "Try 'EarPods'",
+                  ]}
+                  value={searchValue}
+                  onChange={handleSearchChange}
+                  onKeyDown={handleSearchKeyDown}
+                />
+              </form>
+            </div>
+          </div>
+
+          {/* Right Side: Nav and Actions */}
+          <div className="flex items-center justify-end flex-shrink-0">
+            <nav className="hidden lg:flex items-center">
+              <ul className="flex items-center gap-1">
                 <li>
                   <Link
-                    href="/admin"
-                    target="_blank"
+                    href="/"
                     className={`px-4 py-2 rounded-full font-medium transition ${
-                      isActive("/admin")
+                      isActive("/")
                         ? "bg-blue-700/80 text-cyan-200 shadow-md"
                         : "text-white hover:bg-blue-800/60"
                     }`}
                   >
-                    Admin
+                    Home
                   </Link>
                 </li>
+                <li>
+                  <Link
+                    href="/productsgallery"
+                    className={`px-4 py-2 rounded-full font-medium transition ${
+                      isActive("/productsgallery")
+                        ? "bg-blue-700/80 text-cyan-200 shadow-md"
+                        : "text-white hover:bg-blue-800/60"
+                    }`}
+                  >
+                    All Products
+                  </Link>
+                </li>
+                {session?.user?.role === "admin" && (
+                  <li>
+                    <Link
+                      href="/admin"
+                      target="_blank"
+                      className={`px-4 py-2 rounded-full font-medium transition ${
+                        isActive("/admin")
+                          ? "bg-blue-700/80 text-cyan-200 shadow-md"
+                          : "text-white hover:bg-blue-800/60"
+                      }`}
+                    >
+                      Admin
+                    </Link>
+                  </li>
+                )}
+                <li>
+                  <Link
+                    href="/orders"
+                    className={`px-4 py-2 rounded-full font-medium transition ${
+                      isActive("/orders")
+                        ? "bg-blue-700/80 text-cyan-200 shadow-md"
+                        : "text-white hover:bg-blue-800/60"
+                    }`}
+                  >
+                    My Orders
+                  </Link>
+                </li>
+              </ul>
+            </nav>
+
+            <div className="flex items-center gap-2 ml-2">
+              {session ? (
+                <div className="hidden lg:block">
+                  <button
+                    onClick={handleSignOut}
+                    className="px-4 py-2 rounded-full bg-gradient-to-r from-red-500 to-red-700 text-white font-medium hover:brightness-90 shadow-md transition"
+                  >
+                    Sign Out
+                  </button>
+                </div>
+              ) : (
+                <div className="hidden lg:block">
+                  <Link
+                    href="/login"
+                    className={`px-4 py-2 rounded-full font-medium transition ${
+                      isActive("/login")
+                        ? "bg-blue-700/80 text-cyan-200 shadow-md"
+                        : "text-white hover:bg-blue-800/60"
+                    }`}
+                  >
+                    Login
+                  </Link>
+                </div>
               )}
-              <li>
-                <Link
-                  href="/orders"
-                  className={`px-4 py-2 rounded-full font-medium transition ${
-                    isActive("/orders")
-                      ? "bg-blue-700/80 text-cyan-200 shadow-md"
-                      : "text-white hover:bg-blue-800/60"
-                  }`}
-                >
-                  My Orders
-                </Link>
-              </li>
-            </ul>
-          </nav>
 
-          <div className="flex items-center gap-2 ml-2">
-            {session ? (
-              <div className="hidden lg:block">
-                <button
-                  onClick={handleSignOut}
-                  className="px-4 py-2 rounded-full bg-gradient-to-r from-red-500 to-red-700 text-white font-medium hover:brightness-90 shadow-md transition"
-                >
-                  Sign Out
-                </button>
-              </div>
-            ) : (
-              <div className="hidden lg:block">
-                <Link
-                  href="/login"
-                  className={`px-4 py-2 rounded-full font-medium transition ${
-                    isActive("/login")
-                      ? "bg-blue-700/80 text-cyan-200 shadow-md"
-                      : "text-white hover:bg-blue-800/60"
-                  }`}
-                >
-                  Login
-                </Link>
-              </div>
-            )}
+              <button
+                onClick={() => setIsCartOpen(true)}
+                className="relative rounded-full bg-gradient-to-br from-blue-700 via-cyan-500 to-sky-500 shadow-lg p-2.5 hover:brightness-110 hover:scale-110 transition"
+                aria-label="View cart"
+              >
+                <ShoppingCart className="w-5 h-5 text-white" />
+              </button>
 
-            <button
-              onClick={() => setIsCartOpen(true)}
-              className="relative rounded-full bg-gradient-to-br from-blue-700 via-cyan-500 to-sky-500 shadow-lg p-2.5 hover:brightness-110 hover:scale-110 transition"
-              aria-label="View cart"
-            >
-              <ShoppingCart className="w-5 h-5 text-white" />
-            </button>
-
-            <button
-              className="rounded-full bg-slate-800/80 p-2 shadow-lg lg:hidden"
-              onClick={() => setMenuOpen(true)}
-              aria-label="Open menu"
-            >
-              <Menu className="w-7 h-7 text-cyan-300" />
-            </button>
+              <button
+                className="rounded-full bg-slate-800/80 p-2 shadow-lg lg:hidden"
+                onClick={() => setMenuOpen(true)}
+                aria-label="Open menu"
+              >
+                <Menu className="w-7 h-7 text-cyan-300" />
+              </button>
+            </div>
           </div>
         </div>
-      </div>
+      </header>
 
       {/* Cart Slide Over */}
       <CartSlideOver open={isCartOpen} setOpen={setIsCartOpen} />
 
       {/* --- Mobile Nav Overlay --- */}
-      {menuOpen && (
-        <div
-          className="fixed inset-0 z-50 bg-black/60 backdrop-blur"
-          onClick={() => setMenuOpen(false)}
-        >
+      <AnimatePresence>
+        {menuOpen && (
           <motion.div
-            initial={{ x: 320, opacity: 0 }}
-            animate={{ x: 0, opacity: 1 }}
-            exit={{ x: 320, opacity: 0 }}
-            transition={{ duration: 0.26, ease: "easeOut" }}
-            className="absolute top-0 right-0 w-72 h-full p-5 rounded-l-2xl shadow-2xl bg-gradient-to-b from-blue-900/95 via-slate-900/90 to-blue-900/80 border-l border-blue-600/20"
-            onClick={(e) => e.stopPropagation()}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm"
+            onClick={() => setMenuOpen(false)}
           >
-            <button
-              className="absolute top-3 right-4 bg-slate-800/50 rounded-full p-2"
-              onClick={() => setMenuOpen(false)}
-              aria-label="Close menu"
+            <motion.div
+              initial={{ x: "100%" }}
+              animate={{ x: 0 }}
+              exit={{ x: "100%" }}
+              transition={{ duration: 0.3, ease: "easeInOut" }}
+              className="absolute top-0 right-0 w-full max-w-xs h-full p-6 bg-slate-900/95 border-l border-blue-800/20 shadow-2xl"
+              onClick={(e) => e.stopPropagation()}
             >
-              <XMarkIcon className="w-7 h-7 text-white" />
-            </button>
-            <ul className="flex flex-col gap-3 mt-12">
-              <li>
-                <Link
-                  href="/"
-                  className={`block px-4 py-2 rounded-full font-medium transition ${
-                    isActive("/")
-                      ? "bg-blue-700/80 text-cyan-200"
-                      : "bg-slate-800/70 text-white"
-                  }`}
+              <div className="flex justify-between items-center mb-8">
+                <span className="text-xl font-bold text-white">Menu</span>
+                <button
+                  className="rounded-full bg-slate-800/50 p-2.5"
                   onClick={() => setMenuOpen(false)}
+                  aria-label="Close menu"
                 >
-                  Home
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/productsgallery"
-                  className={`block px-4 py-2 rounded-full font-medium transition ${
-                    isActive("/productsgallery")
-                      ? "bg-blue-700/80 text-cyan-200"
-                      : "bg-slate-800/70 text-white"
-                  }`}
-                  onClick={() => setMenuOpen(false)}
-                >
-                  All Products
-                </Link>
-              </li>
-              {session?.user?.role === "admin" && (
-                <li>
-                  <Link
-                    href="/admin"
-                    target="_blank"
-                    className="block px-4 py-2 rounded-full font-medium bg-slate-800/70 text-white"
-                    onClick={() => setMenuOpen(false)}
-                  >
-                    Admin Dashboard
-                  </Link>
-                </li>
-              )}
-              <li>
-                <Link
-                  href="/orders"
-                  className={`block px-4 py-2 rounded-full font-medium transition ${
-                    isActive("/orders")
-                      ? "bg-blue-700/80 text-cyan-200"
-                      : "bg-slate-800/70 text-white"
-                  }`}
-                  onClick={() => setMenuOpen(false)}
-                >
-                  My Orders
-                </Link>
-              </li>
-              {session ? (
-                <li>
+                  <XMarkIcon className="w-6 h-6 text-cyan-300" />
+                </button>
+              </div>
+
+              <nav>
+                <ul className="flex flex-col gap-2 text-lg">
+                  <li>
+                    <Link
+                      href="/"
+                      className={`block px-4 py-3 rounded-lg font-medium transition-colors ${
+                        isActive("/")
+                          ? "bg-blue-600 text-white"
+                          : "text-slate-300 hover:bg-slate-800 hover:text-white"
+                      }`}
+                      onClick={() => setMenuOpen(false)}
+                    >
+                      Home
+                    </Link>
+                  </li>
+                  <li>
+                    <Link
+                      href="/productsgallery"
+                      className={`block px-4 py-3 rounded-lg font-medium transition-colors ${
+                        isActive("/productsgallery")
+                          ? "bg-blue-600 text-white"
+                          : "text-slate-300 hover:bg-slate-800 hover:text-white"
+                      }`}
+                      onClick={() => setMenuOpen(false)}
+                    >
+                      All Products
+                    </Link>
+                  </li>
+                  {session?.user?.role === "admin" && (
+                    <li>
+                      <Link
+                        href="/admin"
+                        target="_blank"
+                        className="block px-4 py-3 rounded-lg font-medium text-slate-300 hover:bg-slate-800 hover:text-white transition-colors"
+                        onClick={() => setMenuOpen(false)}
+                      >
+                        Admin Dashboard
+                      </Link>
+                    </li>
+                  )}
+                  <li>
+                    <Link
+                      href="/orders"
+                      className={`block px-4 py-3 rounded-lg font-medium transition-colors ${
+                        isActive("/orders")
+                          ? "bg-blue-600 text-white"
+                          : "text-slate-300 hover:bg-slate-800 hover:text-white"
+                      }`}
+                      onClick={() => setMenuOpen(false)}
+                    >
+                      My Orders
+                    </Link>
+                  </li>
+                </ul>
+              </nav>
+
+              <div className="mt-8 pt-6 border-t border-slate-700/50">
+                {session ? (
                   <button
                     onClick={() => {
                       handleSignOut();
                       setMenuOpen(false);
                     }}
-                    className="w-full text-left px-4 py-2 rounded-full bg-red-600 text-white font-medium"
+                    className="w-full text-center px-4 py-3 rounded-lg bg-red-600 text-white font-medium text-lg hover:bg-red-700 transition-colors"
                   >
                     Sign Out
                   </button>
-                </li>
-              ) : (
-                <li>
+                ) : (
                   <Link
                     href="/login"
-                    className={`block px-4 py-2 rounded-full font-medium transition ${
+                    className={`block w-full text-center px-4 py-3 rounded-lg font-medium text-lg transition-colors ${
                       isActive("/login")
-                        ? "bg-blue-700/80 text-cyan-200"
-                        : "bg-slate-800/70 text-white"
+                        ? "bg-blue-600 text-white"
+                        : "bg-slate-800 text-slate-200 hover:bg-slate-700"
                     }`}
                     onClick={() => setMenuOpen(false)}
                   >
                     Login
                   </Link>
-                </li>
-              )}
-            </ul>
+                )}
+              </div>
+            </motion.div>
           </motion.div>
-        </div>
-      )}
-    </header>
+        )}
+      </AnimatePresence>
+    </>
   );
 }
