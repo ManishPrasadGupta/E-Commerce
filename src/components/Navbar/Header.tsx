@@ -45,20 +45,27 @@ export default function Header() {
   };
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchValue(e.target.value);
     setQuery(e.target.value);
+  };
+
+  // The core search logic, callable from multiple event handlers
+  const triggerSearch = () => {
+    if (pathname !== "/productsgallery") {
+      router.push("/productsgallery");
+    }
   };
 
   const handleSearchKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter") {
-      handleSearchSubmit(e as any);
+      e.preventDefault(); // Prevent form submission if it's inside a form
+      triggerSearch();
     }
   };
 
   const handleSearchSubmit = (e: FormEvent) => {
     e.preventDefault();
-    if (pathname !== "/productsgallery") {
-      router.push("/productsgallery");
-    }
+    triggerSearch();
   };
 
   const isActive = (href: string) => mounted && pathname === href;
@@ -168,7 +175,7 @@ export default function Header() {
                     ? "bg-blue-700/80 text-cyan-200 shadow-md"
                     : "bg-slate-800/60 text-white"
                 }`}
-                target="_blank"
+                // target="_blank"
               >
                 My Orders
               </Link>

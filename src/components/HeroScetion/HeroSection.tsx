@@ -63,7 +63,7 @@ function HeroSection() {
           initial={shouldReduceMotion ? undefined : "hidden"}
           animate={shouldReduceMotion ? undefined : "show"}
           variants={containerVariants}
-          className="relative z-10 h-full w-full flex flex-col items-center justify-center px-4 text-center"
+          className="relative z-50 h-full w-full flex flex-col items-center justify-center px-4 text-center"
         >
           <motion.h1
             id="hero-heading"
@@ -79,22 +79,39 @@ function HeroSection() {
             <TypewriterEffectSmooth words={words} />
           </motion.div>
 
-          {/* <motion.div variants={ctaVariants} className="mt-6">
+          {/* New Animated Button */}
+          <motion.div variants={ctaVariants} className="mt-8">
             <Link
               href="/productsgallery"
-              className="animated-button"
+              className="group relative inline-flex items-center gap-2 px-7 py-3 rounded-xl font-semibold text-sm text-slate-100
+              bg-gradient-to-r from-cyan-500 via-sky-600 to-blue-700 shadow-lg shadow-sky-900/40
+              hover:shadow-xl hover:shadow-sky-800/50 hover:brightness-110
+              focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300
+              transition-all"
               aria-label="Start shopping now"
             >
-              <span className="circle"></span>
-              <span className="text">Start Shopping</span>
-              <svg className="arr-1" viewBox="0 0 19 19" aria-hidden="true">
-                <path d="M13.29 9.29l-4.88-4.88a1 1 0 0 0-1.41 1.41L10.17 9H3a1 1 0 1 0 0 2h7.17l-3.17 3.17a1 1 0 1 0 1.41 1.41l4.88-4.88a1 1 0 0 0 0-1.41z"></path>
+              <span className="relative z-10">Start Shopping</span>
+              <svg
+                className="w-4 h-4 transition-transform group-hover:translate-x-1"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth={2}
+                viewBox="0 0 24 24"
+                aria-hidden="true"
+              >
+                {/* Using a right arrow path */}
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M14 5l7 7m0 0l-7 7m7-7H3"
+                />
               </svg>
-              <svg className="arr-2" viewBox="0 0 19 19" aria-hidden="true">
-                <path d="M13.29 9.29l-4.88-4.88a1 1 0 0 0-1.41 1.41L10.17 9H3a1 1 0 1 0 0 2h7.17l-3.17 3.17a1 1 0 1 0 1.41 1.41l4.88-4.88a1 1 0 0 0 0-1.41z"></path>
-              </svg>
+              <span
+                aria-hidden="true"
+                className="absolute inset-0 rounded-xl bg-gradient-to-r from-white/10 to-transparent opacity-0 group-hover:opacity-100 transition"
+              />
             </Link>
-          </motion.div> */}
+          </motion.div>
         </motion.div>
       </ImagesSlider>
     </section>

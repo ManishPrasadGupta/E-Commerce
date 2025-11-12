@@ -2,7 +2,7 @@
 
 import { IKImage } from "imagekitio-next";
 import Link from "next/link";
-import { IProduct } from "@/models/Product.model";
+import { IProduct, ColorVariant } from "@/models/Product.model"; // Import ColorVariant
 import { Eye, ShoppingCart } from "lucide-react";
 import { useState } from "react";
 import { apiClient } from "@/lib/api-client";
@@ -15,7 +15,7 @@ interface ProductCardProps {
     productId: string;
     name: string;
     quantity: number;
-    variant: any;
+    variant: ColorVariant; // Replaced 'any' with 'ColorVariant'
     href: string;
   }) => void;
   requireAuthForDetail?: boolean;

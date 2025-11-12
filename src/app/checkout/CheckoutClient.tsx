@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useEffect, useState, Fragment } from "react";
+import { useEffect, useState, Fragment, useCallback } from "react";
 import { apiClient, CreateOrderData } from "@/lib/api-client";
 import { useSession } from "next-auth/react";
 import {
@@ -20,9 +20,21 @@ import { useCart } from "@/context/CartContext";
 import { ColorVariant } from "@/models/Product.model";
 import { useToast } from "@/hooks/use-toast";
 
+// Define a specific type for the Cashfree object
+interface CashfreeOptions {
+  paymentSessionId: string;
+  redirectTarget: string;
+  onSuccess: (data: unknown) => void;
+  onFailure: (data: unknown) => void;
+}
+
+interface Cashfree {
+  initialiseDropin: (options: CashfreeOptions) => void;
+}
+
 declare global {
   interface Window {
-    Cashfree?: any;
+    Cashfree?: Cashfree;
   }
 }
 
@@ -82,7 +94,7 @@ export default function CheckoutPage() {
   }, []);
 
   // Fetch addresses
-  const fetchAddresses = async () => {
+  const fetchAddresses = useCallback(async () => {
     setFetchingAddress(true);
     try {
       const res = await apiClient.getAddresses();
@@ -97,7 +109,7 @@ export default function CheckoutPage() {
     } finally {
       setFetchingAddress(false);
     }
-  };
+  }, [selectedAddressId]);
 
   useEffect(() => {
     if (status === "authenticated") {
@@ -106,7 +118,7 @@ export default function CheckoutPage() {
     } else if (status === "unauthenticated") {
       router.replace("/login");
     }
-  }, [status, router]);
+  }, [status, router, fetchAddresses]);
 
   // Handle "Buy Now" product from localStorage
   useEffect(() => {

@@ -15,8 +15,8 @@ export const TypewriterEffectSmooth = ({
   }[];
   className?: string;
   cursorClassName?: string;
-  typingSpeed?: number; 
-  pauseSpeed?: number; 
+  typingSpeed?: number;
+  pauseSpeed?: number;
 }) => {
   const [currentWord, setCurrentWord] = useState(0);
   const [currentChar, setCurrentChar] = useState(0);
@@ -50,11 +50,16 @@ export const TypewriterEffectSmooth = ({
   const display = words[currentWord].text.slice(0, currentChar);
 
   return (
-    <div className={cn("flex justify-center items-center w-full my-4 px-2 max-w-full", className)}>
+    <div
+      className={cn(
+        "flex justify-center items-center w-full my-4 px-2 max-w-full",
+        className
+      )}
+    >
       <span
         className={cn(
-          "text-white", 
-          "text-base sm:text-lg md:text-xl font-semibold w-full text-center break-words whitespace-normal transition-all duration-300",
+          "text-orange-900",
+          "text-2xl sm:text-lg md:text-xl font-semibold w-full text-center break-words whitespace-normal transition-all duration-300",
           words[currentWord].className
         )}
         style={{ letterSpacing: "0.05em" }}

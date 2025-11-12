@@ -22,8 +22,7 @@ const CartItemSkeleton = () => (
 );
 
 export default function CartPage() {
-  const { cartItems, loading, loadCart, deleteItem, updateItemQuantity } =
-    useCart();
+  const { cartItems, loading, deleteItem, updateItemQuantity } = useCart();
   const subtotal = cartItems.reduce(
     (total, item) => total + item.variant.price * item.quantity,
     0
@@ -52,7 +51,7 @@ export default function CartPage() {
                   Your cart is empty.
                 </p>
                 <p className="mt-2 text-gray-400">
-                  Looks like you haven't added anything yet.
+                  Looks like you haven&apos;t added anything yet.
                 </p>
                 <Link
                   href="/productsgallery"
