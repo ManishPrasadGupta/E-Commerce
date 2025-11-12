@@ -3,7 +3,14 @@
 import { useToast } from "@/hooks/use-toast";
 import { apiClient } from "@/lib/api-client";
 import { useSession } from "next-auth/react";
-import { createContext, useContext, useEffect, useState } from "react";
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+  useCallback,
+  ReactNode,
+} from "react";
 
 export type CartItem = {
   productId: string;
@@ -19,7 +26,7 @@ export type CartItem = {
 type CartContextType = {
   cartItems: CartItem[];
   loading: boolean;
-  loadCart: () => Promise<void>;
+  refetchCart: () => Promise<void>;
   deleteItem: (productId: string, variantType: string) => Promise<void>;
   updateItemQuantity: (
     productId: string,
@@ -39,30 +46,41 @@ type CartContextType = {
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
-export const CartProvider = ({ children }: { children: React.ReactNode }) => {
+export const CartProvider = ({ children }: { children: ReactNode }) => {
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
-  const [loading, setLoading] = useState(false);
-  const { status } = useSession();
-  const isLoggedIn = status === "authenticated";
+  const [loading, setLoading] = useState(true); // Start with loading true
+  const { data: session, status } = useSession();
   const { toast } = useToast();
 
-  useEffect(() => {
-    if (isLoggedIn) {
-      loadCart();
-    }
-  }, [isLoggedIn]);
-
-  const loadCart = async () => {
-    setLoading(true);
-    try {
-      const data = await apiClient.fetchCart();
-      setCartItems(data || []);
-    } catch (err) {
-      console.error("Error fetching cart", err);
-    } finally {
+  // Renamed from loadCart to refetchCart for clarity
+  const refetchCart = useCallback(async () => {
+    // Only fetch if the user is authenticated
+    if (status === "authenticated") {
+      setLoading(true);
+      try {
+        const data = await apiClient.fetchCart();
+        setCartItems(data || []);
+      } catch (err) {
+        console.error("Error fetching cart", err);
+        toast({
+          title: "Error",
+          description: "Could not load your cart.",
+          variant: "destructive",
+        });
+      } finally {
+        setLoading(false);
+      }
+    } else {
+      // If not authenticated, ensure cart is empty and stop loading
+      setCartItems([]);
       setLoading(false);
     }
-  };
+  }, [status, toast]);
+
+  // Initial load when session status changes
+  useEffect(() => {
+    refetchCart();
+  }, [refetchCart]);
 
   const addItem = async (
     productId: string,
@@ -81,47 +99,20 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
         variant: { type: variantType, price },
         href,
       });
-
-      // Check if item already exists in cart
-      setCartItems((prev) => {
-        const idx = prev.findIndex(
-          (item) =>
-            item.productId === productId && item.variant.type === variantType
-        );
-        if (idx !== -1) {
-          // Item exists, update quantity
-          const updated = [...prev];
-          updated[idx] = {
-            ...updated[idx],
-            quantity: updated[idx].quantity + quantity,
-          };
-          return updated;
-        } else {
-          // New item
-          return [
-            ...prev,
-            {
-              productId,
-              name,
-              quantity,
-              variant: { type: variantType, price },
-              href,
-            },
-          ];
-        }
-      });
+      // Always refetch from the server to get the single source of truth
+      await refetchCart();
       toast({
         title: "Item added to cart",
         description: `${name} has been added to your cart.`,
       });
     } catch (err) {
       console.error("Error adding item to cart", err);
-      // alert("Failed to add item to cart.");
       toast({
         title: "Error",
         description: "Failed to add item to cart.",
+        variant: "destructive",
       });
-    } finally {
+      // Ensure loading is false on error
       setLoading(false);
     }
   };
@@ -134,21 +125,15 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
     setLoading(true);
     try {
       await apiClient.updateCartItemQuantity(productId, variantType, quantity);
-      setCartItems((prev) =>
-        prev.map((item) =>
-          item.productId === productId && item.variant.type === variantType
-            ? { ...item, quantity }
-            : item
-        )
-      );
+      // Refetch to get the updated state from the server
+      await refetchCart();
     } catch (err) {
       console.error("Error updating cart item quantity", err);
-      // alert("Failed to update item quantity.");
       toast({
         title: "Error",
         description: "Failed to update item quantity.",
+        variant: "destructive",
       });
-    } finally {
       setLoading(false);
     }
   };
@@ -157,25 +142,19 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
     setLoading(true);
     try {
       await apiClient.deleteCartItem(productId, variantType);
-      setCartItems((prev) =>
-        prev.filter(
-          (item) =>
-            !(item.productId === productId && item.variant.type === variantType)
-        )
-      );
-      // alert("Item removed from cart!");
+
+      await refetchCart();
       toast({
         title: "Item removed",
         description: "The item has been removed from your cart.",
       });
     } catch (err) {
       console.error("Error removing item from cart", err);
-      // alert("Failed to remove item from cart.");
       toast({
         title: "Error",
         description: "Failed to remove item from cart.",
+        variant: "destructive",
       });
-    } finally {
       setLoading(false);
     }
   };
@@ -184,13 +163,14 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
     setLoading(true);
     try {
       await apiClient.clearCart();
+      // Cart is empty, no need to refetch
       setCartItems([]);
     } catch (err) {
       console.error("Error clearing cart", err);
-      // alert("Failed to clear cart.");
       toast({
         title: "Error",
         description: "Failed to clear cart.",
+        variant: "destructive",
       });
     } finally {
       setLoading(false);
@@ -202,7 +182,7 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
       value={{
         cartItems,
         loading,
-        loadCart,
+        refetchCart,
         deleteItem,
         updateItemQuantity,
         addItem,

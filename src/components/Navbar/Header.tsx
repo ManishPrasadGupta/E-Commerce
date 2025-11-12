@@ -11,6 +11,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { PlaceholdersAndVanishInput } from "../ui/placeholders-and-vanish-input";
 import { toast } from "@/hooks/use-toast";
 import { motion, AnimatePresence } from "framer-motion";
+import { useCart } from "@/context/CartContext";
 
 export default function Header() {
   const { data: session } = useSession();
@@ -23,10 +24,16 @@ export default function Header() {
 
   const [mounted, setMounted] = useState(false);
   const [searchValue, setSearchValue] = useState("");
+  const { refetchCart, cartItems } = useCart();
 
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  const handleCartIconClick = async () => {
+    await refetchCart();
+    setIsCartOpen(true);
+  };
 
   const handleSignOut = async () => {
     try {
@@ -206,7 +213,7 @@ export default function Header() {
               )}
 
               <button
-                onClick={() => setIsCartOpen(true)}
+                onClick={handleCartIconClick}
                 className="relative rounded-full bg-gradient-to-br from-blue-700 via-cyan-500 to-sky-500 shadow-lg p-2.5 hover:brightness-110 hover:scale-110 transition"
                 aria-label="View cart"
               >

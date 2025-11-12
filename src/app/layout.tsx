@@ -31,10 +31,8 @@ export default function RootLayout({
         <Theme appearance="dark" accentColor="blue">
           <Providers>
             <AppProviders>
-              <main>
-                <Header />
-                {children}
-              </main>
+              <Header />
+              <main>{children}</main>
               <Toaster />
             </AppProviders>
           </Providers>
