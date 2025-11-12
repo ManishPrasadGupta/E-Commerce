@@ -21,10 +21,11 @@ const statusClasses = {
 export default function OrdersPage() {
   const [orders, setOrders] = useState<IOrder[]>([]);
   const [loading, setLoading] = useState(true);
-  const { data: session } = useSession();
+  const { data: session, status } = useSession();
 
   useEffect(() => {
     const fetchOrders = async () => {
+      setLoading(true);
       try {
         const data = await apiClient.getUserOrders();
         setOrders(data);
@@ -34,8 +35,14 @@ export default function OrdersPage() {
         setLoading(false);
       }
     };
-    if (session) fetchOrders();
-  }, [session]);
+
+    if (status === "authenticated") {
+      fetchOrders();
+    } else if (status !== "loading") {
+      // If unauthenticated or any other status, stop loading.
+      setLoading(false);
+    }
+  }, [status]);
 
   return (
     <div className="max-w-5xl mx-auto px-4 py-10">
@@ -52,7 +59,9 @@ export default function OrdersPage() {
                 <span className="text-3xl">🛒</span>
                 <span>No orders found</span>
                 <span className="text-base text-slate-400">
-                  Start shopping and your orders will show here.
+                  {session
+                    ? "Start shopping and your orders will show here."
+                    : "Please log in to see your orders."}
                 </span>
               </div>
             </div>
