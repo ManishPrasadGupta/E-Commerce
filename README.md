@@ -1,10 +1,34 @@
-# E-Commerce Platform (TypeScript)
+<div align="center">
 
-A modular, extensible, and scalable E-Commerce application built with TypeScript.  
-This README is a comprehensive template to document and evolve the project.  
-Replace placeholder sections (marked with ✅ or TODO) as implementation progresses.
+  <!-- TODO: Add a project logo or banner here -->
+  <img src="https://i.pinimg.com/236x/9e/f1/40/9ef14013f432d33857858ad485a05c98.jpg" alt="Project Banner" />
+
+  <h1>E-Commerce Platform (TypeScript)</h1>
+
+  <p>
+    A modular, extensible, and scalable E-Commerce application built with TypeScript and Next.js.
+  </p>
+
+  <!-- GitHub Badges -->
+  <p>
+    <a href="https://github.com/ManishPrasadGupta/E-Commerce/actions"><img src="https://img.shields.io/github/actions/workflow/status/ManishPrasadGupta/E-Commerce/ci.yml?branch=main&style=for-the-badge" alt="Build Status"></a>
+    <a href="#"><img src="https://img.shields.io/badge/coverage-0%25-red?style=for-the-badge" alt="Code Coverage"></a>
+    <a href="https://github.com/ManishPrasadGupta/E-Commerce/blob/main/LICENSE"><img src="https://img.shields.io/github/license/ManishPrasadGupta/E-Commerce?style=for-the-badge" alt="License"></a>
+    <a href="#"><img src="https://img.shields.io/badge/version-0.1.0-blue?style=for-the-badge" alt="Version"></a>
+    <a href="https://www.typescriptlang.org/"><img src="https://img.shields.io/badge/Built%20with-TypeScript-blue.svg?style=for-the-badge" alt="Built with TypeScript"></a>
+  </p>
+
+</div>
 
 ---
+
+A modular, extensible, and scalable E-Commerce application built with TypeScript.
+This README is a comprehensive template to document and evolve the project.
+Replace placeholder sections (marked with ✅ or TODO) as implementation progresses.
+
+## Credentials
+- Email - maaannn197@gmail.com
+- password - 12121212
 
 ## Table of Contents
 - [Project Vision](#project-vision)
@@ -16,17 +40,11 @@ Replace placeholder sections (marked with ✅ or TODO) as implementation progres
 - [API Design (Example)](#api-design-example)
 - [State & Caching Strategy](#state--caching-strategy)
 - [Security & Compliance](#security--compliance)
-- [Performance Considerations](#performance-considerations)
 - [Environment Variables](#environment-variables)
 - [Installation & Setup](#installation--setup)
 - [Scripts](#scripts)
 - [Development Workflow](#development-workflow)
 - [Testing Strategy](#testing-strategy)
-- [Logging & Monitoring](#logging--monitoring)
-- [Deployment Guide](#deployment-guide)
-- [Roadmap](#roadmap)
-- [Contributing](#contributing)
-- [FAQ](#faq)
 - [License](#license)
 - [Contact](#contact)
 
@@ -41,414 +59,280 @@ Provide a clean, type-safe foundation for building a full-featured E-Commerce pl
 - Order management
 - Analytics-friendly event flow
 
-> Goal: Optimize for clarity, scalability, and future integrations (e.g., microservices, message queue, search engine, ML recommendations).
+> **Goal:** Optimize for clarity, scalability, and future integrations (e.g., microservices, message queues, search engines, ML recommendations).
 
 ---
 
 ## Key Features
-Current / Planned:
-| Feature | Status | Notes |
-| ------- | ------ | ----- |
-| Product CRUD | TODO | Add categories, tags, variants |
-| Inventory Tracking | TODO | Real-time stock decrement |
-| User Accounts / Auth | TODO | JWT / OAuth2 / Session (decide) |
-| Cart Service | TODO | Persistent & anonymous carts |
-| Checkout Flow | TODO | Address + shipping + payment |
-| Payment Gateway Integration | TODO | Stripe first; pluggable adapter |
-| Order Lifecycle | TODO | Status: pending → paid → fulfilled |
-| Discount / Coupon Engine | TODO | Stackable rules |
-| Admin Dashboard | TODO | Role-based |
-| Event Emitters | TODO | For analytics pipelines |
-| Cache Layer | TODO | Redis recommended |
-| Search | TODO | Elastic / Meilisearch (future) |
+| Feature                  | Status | Notes                             |
+| ------------------------ | :----: | --------------------------------- |
+| Product CRUD             |   📝   | Add categories, tags, variants    |
+| Inventory Tracking       |   📝   | Real-time stock decrement         |
+| User Accounts / Auth     |   📝   | `next-auth` for authentication    |
+| Cart Service             |   📝   | Persistent & anonymous carts      |
+| Checkout Flow            |   📝   | Address + shipping + payment      |
+| Payment Gateway          |   📝   | Stripe first; pluggable adapter   |
+| Order Lifecycle          |   📝   | Status: pending → paid → fulfilled |
+| Discount / Coupon Engine |   📝   | Stackable rules                   |
+| Admin Dashboard          |   📝   | Role-based access control         |
+| Event Emitters           |   📝   | For analytics & worker pipelines  |
+| Cache Layer              |   📝   | Redis recommended                 |
+| Search                   |   📝   | Elastic / Meilisearch (future)    |
+
+*Status Key: 📝 Planned, 🚧 In Progress, ✅ Complete*
 
 ---
 
 ## Tech Stack
-| Layer | Choice (Proposed) | Rationale |
-| ----- | ----------------- | --------- |
-| Language | TypeScript | Type safety & maintainability |
-| Runtime | Node.js (>=18) | Native ESM + performance |
-| Framework (API) | Express / Fastify (TBD) | Fastify preferred for perf |
-| ORM | Prisma / TypeORM | Prisma recommended |
-| Database | PostgreSQL | Relational consistency |
-| Caching | Redis | Session + hot product cache |
-| Message Queue (Future) | RabbitMQ / Kafka | Event pipeline |
-| Auth | JWT + Refresh | Standard pattern |
-| Testing | Jest / Vitest | TS-friendly |
-| Linting | ESLint + Prettier | Consistency |
-| Containerization | Docker | Deployment portability |
-| CI/CD | GitHub Actions | Automation |
-| Logging | Pino / Winston | Structured JSON |
-| Env Mgmt | dotenv / cross-env | Simplicity |
+| Layer                  | Choice (Used)           | Rationale                                   |
+| ---------------------- | ----------------------- | ------------------------------------------- |
+| **Language**           | TypeScript              | Type safety, maintainability, modern features |
+| **Runtime**            | Node.js                 | Native ESM support & excellent performance  |
+| **Framework**          | Next.js                 | Full-stack framework for React              |
+| **ORM**                | Mongoose                | Elegant MongoDB object modeling for Node.js |
+| **Database**           | MongoDB                 | Flexible, scalable NoSQL database           |
+| **Authentication**     | NextAuth.js             | Authentication for Next.js applications     |
+| **UI Components**      | Radix UI, Headless UI   | Accessible, unstyled UI primitives          |
+| **Styling**            | Tailwind CSS            | A utility-first CSS framework               |
+| **Linting**            | ESLint                  | Enforces consistent code style              |
+| **Containerization**   | Docker                  | Reproducible environments & easy deployment |
+| **CI/CD**              | GitHub Actions          | Integrated automation and workflows         |
 
 ---
 
 ## Architecture Overview
-Layered Structure (clean architecture inspired):
-- Presentation: Routes / Controllers
-- Application: Services / Use-cases
-- Domain: Entities / Value Objects / Business Rules
-- Infrastructure: DB, Cache, Queue, External APIs
-- Cross-Cutting: Auth, Validation, Logging, Config
+This project aims for a **Layered Architecture** (inspired by Clean Architecture) to ensure separation of concerns and testability.
 
-Event Flow Example:
-Client → API Gateway → Service Layer → Domain Logic → Repository → DB  
-                                   ↘ Event Dispatcher → Queue → Worker / Analytics
+- **Presentation Layer:** Handles HTTP requests and responses (Controllers/Routes). Knows nothing about business logic.
+- **Application Layer:** Orchestrates use cases and business flows (Services).
+- **Domain Layer:** Contains core business logic, entities, and rules. The heart of the application.
+- **Infrastructure Layer:** Implements external concerns like databases, caches, and API clients.
+- **Cross-Cutting:** Concerns like auth, validation, logging, and configuration that apply across layers.
 
-> Consider adopting Dependency Injection to decouple domain from infrastructure.
+**Event Flow Example:**
+`Client → API Gateway → Controller → Service → Domain Logic → Repository → DB`
+                                                             `↘ Event Dispatcher → Queue → Worker / Analytics`
+
+> Dependency Injection will be used to invert control, allowing the Domain Layer to remain independent of infrastructure details.
 
 ---
 
 ## Directory Structure (Planned)
 
+```sh
+# Root project structure
+.
+├── prisma/               # Prisma schema and migrations
+├── src/                  # Main source code
+│   ├── app/              # Application and Domain layers
+│   │   ├── modules/      # Feature modules (products, orders, etc.)
+│   │   │   └── products/
+│   │   │       ├── product.controller.ts # Presentation: Handles HTTP
+│   │   │       ├── product.service.ts    # Application: Business use cases
+│   │   │       ├── product.repository.ts # Infrastructure: Data access abstraction
+│   │   │       ├── product.entity.ts     # Domain: Core business object
+│   │   │       └── product.routes.ts     # Presentation: API route definitions
+│   │   ├── core/         # Cross-cutting concerns (errors, middleware)
+│   │   └── main.ts       # Application entry point
+│   ├── config/           # Environment and configuration files
+│   └── infra/            # Infrastructure implementations (DB, cache, etc.)
+├── tests/                # Automated tests (unit, integration)
+├── .env.example          # Example environment variables
+├── .eslintrc.js          # ESLint configuration
+├── docker-compose.yml    # Docker services for development
+├── Dockerfile            # Production container definition
+└── package.json
 ```
-/src
-  /config
-  /app
-    /modules
-      /products
-        product.controller.ts
-        product.service.ts
-        product.repository.ts
-        product.entity.ts
-        product.mapper.ts
-        product.routes.ts
-      /users
-      /orders
-      /cart
-      /auth
-    /core
-      errors/
-      middleware/
-      utils/
-      events/
-  /infra
-    db/
-    cache/
-    queue/
-    http/
-  /tests
-  /scripts
-prisma/ (if using Prisma)
-Dockerfile
-docker-compose.yml
-```
-
-> Adjust once actual file skeleton exists.
 
 ---
 
 ## Data Model (Example Draft)
 
+A simplified Mermaid diagram showing the core relationships.
+
 ```mermaid
 erDiagram
-  User ||--o{ Order : places
-  User ||--o{ Cart : owns
-  Cart ||--o{ CartItem : contains
-  Product ||--o{ CartItem : referenced
-  Product ||--o{ OrderItem : included
-  Order ||--o{ OrderItem : contains
-  Order ||--o{ Payment : has
-  Product ||--o{ InventoryLedger : tracked
+    User ||--o{ Order : places
+    User ||--o{ Cart : owns
+    Cart ||--|{ CartItem : "contains"
+    Product ||--o{ CartItem : "references"
+    Product ||--o{ OrderItem : "included in"
+    Order ||--|{ OrderItem : "contains"
+    Order ||--o{ Payment : "has one"
 
-  User {
-    uuid id
-    string email
-    string passwordHash
-    string role
-    datetime createdAt
-  }
-  Product {
-    uuid id
-    string name
-    string slug
-    text description
-    decimal price
-    int stock
-    json metadata
-  }
-  Order {
-    uuid id
-    uuid userId
-    string status
-    decimal subtotal
-    decimal tax
-    decimal total
-  }
+    User {
+        uuid id PK
+        string email
+        string passwordHash
+        string role
+        datetime createdAt
+    }
+    Product {
+        uuid id PK
+        string name
+        string slug
+        text description
+        decimal price
+        int stock
+        json metadata
+    }
+    Order {
+        uuid id PK
+        uuid userId FK
+        string status
+        decimal total
+        datetime createdAt
+    }
 ```
 
 ---
 
 ## API Design (Example)
 
-| Method | Endpoint | Purpose | Auth | Status |
-| ------ | -------- | ------- | ---- | ------ |
-| GET | /api/v1/products | List products | Public | TODO |
-| GET | /api/v1/products/:id | Product details | Public | TODO |
-| POST | /api/v1/products | Create product | Admin | TODO |
-| POST | /api/v1/cart/items | Add to cart | User/Anon | TODO |
-| POST | /api/v1/orders | Create order | User | TODO |
-| POST | /api/v1/auth/login | Login | Public | TODO |
+| Method | Endpoint              | Purpose           | Auth      | Status |
+| ------ | --------------------- | ----------------- | --------- | :----: |
+| GET    | `/api/v1/products`      | List products     | Public    |   📝   |
+| GET    | `/api/v1/products/:id`  | Product details   | Public    |   📝   |
+| POST   | `/api/v1/products`      | Create product    | Admin     |   📝   |
+| POST   | `/api/v1/cart/items`    | Add item to cart  | User/Anon |   📝   |
+| POST   | `/api/v1/orders`        | Create new order  | User      |   📝   |
+| POST   | `/api/v1/auth/login`    | User login        | Public    |   📝   |
 
-Error Response Convention:
-```
+**Error Response Convention:**
+```json
 {
   "error": {
     "code": "RESOURCE_NOT_FOUND",
-    "message": "Product not found",
-    "details": {}
+    "message": "Product with ID 'xyz' not found."
   },
-  "requestId": "uuid"
+  "requestId": "a-unique-request-id"
 }
 ```
 
 ---
 
 ## State & Caching Strategy
-| What | Layer | TTL | Invalidation |
-| ---- | ----- | --- | ------------ |
-| Product list | Redis | 60s | On product update |
-| Cart session | Redis | 7 days | On checkout |
-| Auth tokens | Stateless (JWT) | 15m + refresh | Rotate on renewal |
-| Inventory hot counts | Redis | 10s | Sync worker pushes to DB |
+| What                 | Layer           | TTL      | Invalidation         |
+| -------------------- | --------------- | -------- | -------------------- |
+| Product list/details | App memory      | TBD      | On product update    |
+| User Cart            | DB / Session    | 7 days   | On checkout          |
+| Auth Tokens          | Stateless (JWT) | 15m + refresh | N/A (stateless)      |
+| Inventory Counts     | DB (real-time)  | N/A      | On order             |
 
 ---
 
 ## Security & Compliance
-- Input validation: zod / class-validator
-- Rate limiting: Redis-backed sliding window
-- Passwords: Argon2id
-- Secrets: Environment variables (DO NOT commit)
-- HTTPS: Enforced at proxy/load balancer
-- Audit trails: Emit domain events
-- Sensitive logging scrubbing: email, tokens, PII
-- CSRF: Not required for pure API + token auth
-- GDPR (future): Data export/delete endpoints
-
----
-
-## Performance Considerations
-- Use pagination & cursor-based listing
-- Async event publishing for non-critical tasks (emails, analytics)
-- Batch DB writes for inventory adjustments
-- Avoid N+1 queries via ORM relations or dataloader pattern
-- Compression & caching headers at edge
+- **Input Validation:** Use `react-hook-form` for robust schema validation on the client.
+- **Rate Limiting:** Implement at the infrastructure level (e.g., Nginx, Vercel).
+- **Password Hashing:** Use `bcryptjs` for strong password security.
+- **Secret Management:** Load secrets from environment variables; never commit them.
+- **HTTPS:** Enforce at the proxy/load balancer level in production.
+- **Audit Trails:** Emit domain events for all state-changing operations.
+- **PII Scrubbing:** Ensure logs automatically redact sensitive data (emails, tokens, etc.).
+- **CSRF:** Handled by Next.js and modern auth patterns.
 
 ---
 
 ## Environment Variables
-Create a `.env` file based on `.env.example`:
+Create a `.env` file from the `.env.example` template:
 
-```
+```ini
+# Application
 NODE_ENV=development
 PORT=3000
-DATABASE_URL=postgres://user:pass@localhost:5432/ecommerce
-REDIS_URL=redis://localhost:6379
-JWT_SECRET=replace_me
-JWT_EXPIRES_IN=15m
-REFRESH_TOKEN_EXPIRES_IN=7d
-STRIPE_SECRET_KEY=sk_test_xxx (future)
+
+# Database
+DATABASE_URL="mongodb://user:pass@localhost:27017/ecommerce"
+
+# Authentication
+NEXTAUTH_URL=http://localhost:3000
+NEXTAUTH_SECRET="a_very_strong_and_long_secret_key"
+
+# Logging
 LOG_LEVEL=info
 ```
 
-> Never commit real secrets.
+> **Warning:** Never commit your actual `.env` file to version control.
 
 ---
 
 ## Installation & Setup
 
-1. Clone
-   ```
-   git clone https://github.com/ManishPrasadGupta/E-Commerce.git
-   cd E-Commerce
-   ```
-2. Install
-   ```
-   npm install
-   ```
-3. Setup DB (example with Docker)
-   ```
-   docker compose up -d db redis
-   ```
-4. Generate Client (if Prisma)
-   ```
-   npx prisma generate
-   ```
-5. Run Migrations
-   ```
-   npx prisma migrate dev
-   ```
-6. Start Dev
-   ```
-   npm run dev
-   ```
+1.  **Clone the repository:**
+    ```sh
+    git clone https://github.com/ManishPrasadGupta/E-Commerce.git
+    cd E-Commerce
+    ```
+2.  **Install dependencies:**
+    ```sh
+    npm install
+    ```
+3.  **Set up environment:**
+    ```sh
+    cp .env.example .env
+    # Then, edit .env with your local credentials
+    ```
+4.  **Start development services (DB & Cache):**
+    ```sh
+    docker compose up -d
+    ```
+5.  **Run the development server:**
+    ```sh
+    npm run dev
+    ```
+    Your server should now be running at `http://localhost:3000`.
 
 ---
 
 ## Scripts
 
-| Script | Description |
-| ------ | ----------- |
-| npm run dev | Start dev server (ts-node / nodemon) |
-| npm run build | Compile TypeScript |
-| npm run start | Run compiled dist |
-| npm run lint | Lint codebase |
-| npm run test | Run unit tests |
-| npm run test:watch | Watch mode |
-| npm run format | Prettier formatting |
-| npm run migrate | DB migrations (if ORM supports) |
-
-(Adjust based on actual `package.json` once available.)
+| Script        | Description                                  |
+| ------------- | -------------------------------------------- |
+| `npm run dev`   | Start the dev server with hot-reloading (Turbopack). |
+| `npm run build` | Compile and build the app for production.    |
+| `npm run start` | Run the compiled production-ready server.    |
+| `npm run lint`  | Lint the codebase for errors and style.      |
+| `npm run test`  | Runs the test script (currently empty).      |
 
 ---
 
 ## Development Workflow
-1. Create branch: `feature/<short-description>`
-2. Write/update tests
-3. Run lint & tests locally
-4. Open PR following template (add system design notes if needed)
-5. Pass CI checks
-6. Squash merge with semantic commit title
 
-Commit Message Convention (recommended):
-```
-feat(products): add product variant model
-fix(cart): correct subtotal calculation when removing last item
-refactor(auth): isolate token service
-```
+1.  Create a branch from `main`: `git checkout -b feature/my-new-feature`
+2.  Write/update tests alongside your code.
+3.  Ensure all lint checks pass locally.
+4.  Open a Pull Request (PR) against the `main` branch.
+5.  Wait for CI checks to pass and for a peer review.
+6.  Merge using a "Squash and Merge" with a semantic commit message.
+
+> **Commit Message Convention:** We follow the Conventional Commits specification.
+>
+> ```
+> feat(products): add support for product variants
+>
+> This commit introduces a new data model for product variants, allowing
+> products to have different options like size and color. The API now
+> includes a new endpoint to fetch variants for a given product.
+> ```
 
 ---
 
 ## Testing Strategy
-| Layer | Type | Tool |
-| ----- | ---- | ---- |
-| Unit | Pure functions/services | Jest/Vitest |
-| Integration | API + DB | Supertest |
-| Contract (future) | External services | Pact |
-| Load (future) | Performance test | k6 / Artillery |
-| Security (future) | Basic scan | npm audit / Snyk |
-
-Test Example (Pseudo):
-```
-describe('ProductService', () => {
-  it('creates a product with slug', async () => {
-    // arrange
-    // act
-    // assert
-  });
-});
-```
+| Layer       | Type                  | Tool        | Location      |
+| ----------- | --------------------- | ----------- | ------------- |
+| **Unit**      | Components, utils     | `TBD`       | `src/**/*.test.ts` |
+| **Integration** | API routes + DB       | `TBD`       | `tests/integration` |
+| **E2E**       | User flows (TBD)        | `Playwright`| `tests/e2e`       |
 
 ---
 
-## Logging & Monitoring
-- Logger: Structured JSON (Pino)
-- Log levels: trace, debug, info, warn, error
-- Correlation IDs: Inject via middleware
-- Metrics: /metrics (Prometheus) (future)
-- Dashboard: Grafana (future)
-
-Log Event Shape:
-```
-{
-  "timestamp": "...",
-  "level": "info",
-  "msg": "Order created",
-  "orderId": "uuid",
-  "userId": "uuid",
-  "requestId": "uuid"
-}
-```
-
----
-
-## Deployment Guide
-Stages:
-1. Build: `npm run build`
-2. Containerize:
-   ```
-   docker build -t ecommerce-app:latest .
-   ```
-3. Run:
-   ```
-   docker run -p 3000:3000 --env-file .env ecommerce-app:latest
-   ```
-4. Migrate DB (if needed):
-   ```
-   docker exec <container> npx prisma migrate deploy
-   ```
-5. Scale horizontally: Use stateless API + shared Redis + DB
-
-Cloud Options:
-- Fly.io / Render (simple)
-- AWS ECS / EKS (scalable)
-- Railway / Supabase (managed DB)
-
----
-
-## Roadmap
-| Milestone | Description | ETA | Status |
-| --------- | ----------- | --- | ------ |
-| M1 | Core product + user model | TBD | Planned |
-| M2 | Cart + basic checkout | TBD | Planned |
-| M3 | Order + payment integration | TBD | Planned |
-| M4 | Admin panel (basic) | TBD | Planned |
-| M5 | Caching & perf optimizations | TBD | Planned |
-| M6 | Search & indexing | TBD | Planned |
-| M7 | Event-driven architecture | TBD | Planned |
-
----
-
-## Contributing
-1. Fork the repository
-2. Create feature branch
-3. Follow coding standards
-4. Include/update tests
-5. Submit PR with description + screenshots (if UI-related)
-6. Request review
-
-Coding Guidelines:
-- Prefer composition over inheritance
-- Keep controllers thin; business logic in services
-- Use DTOs for external input/output shaping
-- Avoid leaking ORM-specific types into domain layer
-
----
-
-## FAQ
-Q: Why TypeScript?  
-A: Type safety reduces runtime errors and improves refactoring confidence.
-
-Q: Will this support multi-vendor / marketplace?  
-A: Future extension; design modular services to allow vendor scoping.
-
-Q: Where are the real files?  
-A: This README is a scaffold. Populate once modules are implemented.
+## License
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ---
 
 ## Contact
-Author: [Manish Prasad Gupta](https://github.com/ManishPrasadGupta)  
-Project URL: (Private Repo)  
+Author: [Manish Prasad Gupta](https://github.com/ManishPrasadGupta)
 Homepage: [Portfolio](https://se.manish.social)
 
----
-
-## Next Steps (Action Checklist)
-- [ ] Confirm selected API framework (Express vs Fastify)
-- [ ] Initialize `package.json` and tsconfig
-- [ ] Define common error classes
-- [ ] Set up Prisma schema (if chosen)
-- [ ] Implement logging middleware
-- [ ] Add auth module foundation
-- [ ] Write first integration test
-- [ ] Add CI (GitHub Actions)
-- [ ] Add OpenAPI spec (Swagger)
-- [ ] Add README badges (build, lint, coverage)
-
----
-
-> Feel free to request a trimmed or auto-populated version once the repository structure is committed.
-
-Happy Building! 🚀
+Feel free to reach out with any questions or feedback!
