@@ -13,8 +13,7 @@ export default function ProductGrid({
     return (
       <div className="text-center py-24">
         <div className="flex flex-col items-center gap-3">
-          {/* Radix Icon or emoji */}
-          <span className="text-4xl">😢</span>
+          {/* add redix ui card here */}
           <span className="text-xl font-semibold text-slate-600">
             No products found.
           </span>
