@@ -49,7 +49,7 @@ const CartContext = createContext<CartContextType | undefined>(undefined);
 export const CartProvider = ({ children }: { children: ReactNode }) => {
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [loading, setLoading] = useState(true); // Start with loading true
-  const { data: session, status } = useSession();
+  const { status } = useSession();
   const { toast } = useToast();
 
   // Renamed from loadCart to refetchCart for clarity

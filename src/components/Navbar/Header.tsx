@@ -24,7 +24,7 @@ export default function Header() {
 
   const [mounted, setMounted] = useState(false);
   const [searchValue, setSearchValue] = useState("");
-  const { refetchCart, cartItems } = useCart();
+  const { refetchCart } = useCart();
 
   useEffect(() => {
     setMounted(true);
