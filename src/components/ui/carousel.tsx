@@ -1,7 +1,7 @@
 "use client";
 import { IconArrowNarrowRight } from "@tabler/icons-react";
 import Image from "next/image";
-import { useState, useRef, useId, useEffect } from "react";
+import { useState, useRef } from "react";
 
 interface SlideData {
   title: string;
@@ -121,7 +121,7 @@ export default function Carousel({ slides }: CarouselProps) {
     setCurrent((prev) => (prev < slides.length - 1 ? prev + 1 : 0));
   };
 
-  const id = useId();
+  // const id = useId();
 
   return (
     <div className="relative w-full h-[70vmin] flex flex-col items-center justify-center">
