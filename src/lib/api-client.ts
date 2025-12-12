@@ -4,15 +4,12 @@ import { IProduct, ColorVariant } from "@/models/Product.model";
 import { Types } from "mongoose";
 import { IAddress } from "@/models/User.model";
 
-
 export type ProductFormData = Omit<IProduct, "_id">;
-
 
 export interface UpdateAddressData {
   userId: string;
   address: Omit<IAddress, "_id">;
 }
-
 
 export type CreateOrderData =
   | {
@@ -25,17 +22,16 @@ export type CreateOrderData =
       items: ICartItem[];
       address: IAddress;
       paymentMethod: string;
-  };
+    };
 
 type FetchOptions = {
   method?: "GET" | "POST" | "PUT" | "DELETE";
-  body?: unknown,
+  body?: unknown;
   headers?: Record<string, string>;
 };
 
 // in the below T means Template which means anything can come up here also do some research on this.
 class ApiClient {
-
   private async fetch<T>(
     endpoint: string,
     options: FetchOptions = {}
@@ -47,83 +43,87 @@ class ApiClient {
       ...headers,
     };
 
-    const response = await fetch(`/api/${endpoint}`, {
+    const isServer = typeof window === "undefined";
+
+    // build URL depending on environment
+    const baseUrl = isServer
+      ? process.env.NEXT_PUBLIC_BASE_URL // SSR uses absolute URL
+      : ""; // CSR uses relative URL
+
+    // ensure clean URL: remove duplicate slashes
+    const cleanEndpoint = endpoint.replace(/^\/+/, ""); // remove starting slash
+    const finalUrl = `${baseUrl}/api/${cleanEndpoint}`;
+
+    const response = await fetch(finalUrl, {
       method,
       headers: defaultHeaders,
       body: body ? JSON.stringify(body) : undefined,
+      cache: "no-store",
     });
 
     if (!response.ok) {
       throw new Error(await response.text());
     }
     return response.json();
-  }        
+  }
 
-
-
-//Products
+  //Products
   async getProducts() {
-    const response = await this.fetch<{ products: IProduct[] }>("/products"); // Expect an object with `products` key
+    const response = await this.fetch<{ products: IProduct[] }>("products"); // Expect an object with `products` key
     return response.products; // Extract and return only the array
   }
-  
+
   async getTopProducts() {
-    const response = await this.fetch<IProduct[]>("/products/top-products"); // Corrected route
+    const response = await this.fetch<IProduct[]>("products/top-products"); // Corrected route
     return response; // Directly return the array
   }
-  
 
   async getProduct(id: string) {
-    return this.fetch<IProduct>(`/products/${id}`);
+    return this.fetch<IProduct>(`products/${id}`);
   }
 
   async createProduct(productData: ProductFormData) {
     return this.fetch<IProduct>("/products", {
       method: "POST",
-      body: productData
+      body: productData,
     });
   }
 
-
-
-
-
-//orders
-async getUserOrders() {
-  return this.fetch<IOrder[]>("/orders/user");
-}
-
-/**
- * Creates an order and returns Cashfree session details.
- * The backend must return: { orderId, amount, paymentSessionId, currency, dbOrderId }
- */
-async createOrder(orderData: CreateOrderData) {
-  let sanitizedOrderData: CreateOrderData;
-  if ("productId" in orderData && orderData.productId) {
-    sanitizedOrderData = {
-      ...orderData,
-      productId: orderData.productId.toString(),
-    };
-  } else {
-    // It's the cart-based type, no sanitization needed
-    sanitizedOrderData = orderData;
+  //orders
+  async getUserOrders() {
+    return this.fetch<IOrder[]>("/orders/user");
   }
 
-  // Updated return type for Cashfree integration
-  return this.fetch<{
-    orderId: string;
-    paymentSessionId: string;
-    amount: number;
-    currency: string;
-    dbOrderId: string;
-  }>("/orders", {
-    method: "POST",
-    body: sanitizedOrderData,
-  });
-}
+  /**
+   * Creates an order and returns Cashfree session details.
+   * The backend must return: { orderId, amount, paymentSessionId, currency, dbOrderId }
+   */
+  async createOrder(orderData: CreateOrderData) {
+    let sanitizedOrderData: CreateOrderData;
+    if ("productId" in orderData && orderData.productId) {
+      sanitizedOrderData = {
+        ...orderData,
+        productId: orderData.productId.toString(),
+      };
+    } else {
+      // It's the cart-based type, no sanitization needed
+      sanitizedOrderData = orderData;
+    }
 
+    // Updated return type for Cashfree integration
+    return this.fetch<{
+      orderId: string;
+      paymentSessionId: string;
+      amount: number;
+      currency: string;
+      dbOrderId: string;
+    }>("/orders", {
+      method: "POST",
+      body: sanitizedOrderData,
+    });
+  }
 
-//Cart
+  //Cart
   async getCartItems() {
     return this.fetch<ICartItem[]>("/cart");
   }
@@ -140,16 +140,19 @@ async createOrder(orderData: CreateOrderData) {
       body: { items: [item] }, // always send { items: [item] }
     });
   }
-  
+
   async fetchCart() {
     const res = await fetch("/api/cart", { method: "GET" });
     if (!res.ok) throw new Error("Failed to fetch cart");
     const data = await res.json();
     return data || [];
-  } 
+  }
 
-
-  async updateCartItemQuantity(productId: string, variantType: string, quantity: number) {
+  async updateCartItemQuantity(
+    productId: string,
+    variantType: string,
+    quantity: number
+  ) {
     const res = await fetch("/api/cart", {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
@@ -163,20 +166,17 @@ async createOrder(orderData: CreateOrderData) {
     const res = await fetch("/api/cart", {
       method: "DELETE",
       body: JSON.stringify({ productId, variantType }),
-      headers: { "Content-Type": "application/json" }
+      headers: { "Content-Type": "application/json" },
     });
     if (!res.ok) throw new Error(await res.text());
     return true;
   }
-
 
   async clearCart() {
     return this.fetch<void>("/cart/clear", {
       method: "DELETE",
     });
   }
-
-
 
   //address
   async saveAddress(address: IAddress) {
@@ -199,10 +199,10 @@ async createOrder(orderData: CreateOrderData) {
   async updateAddress(address: IAddress) {
     const res = await fetch(`/api/address/${address._id}`, {
       method: "PUT",
-      headers: {"content-type": "application/json"},
-      body: JSON.stringify({address})
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ address }),
     });
-    if(!res.ok) throw new Error(await res.text());
+    if (!res.ok) throw new Error(await res.text());
     return res.json();
   }
 
@@ -215,11 +215,10 @@ async createOrder(orderData: CreateOrderData) {
   }
 }
 
-
 // GridAds
 export async function getAds() {
-  const res = await fetch("/api/grid-ads",  { method: "GET" });
-  if(!res.ok) throw new Error("Failed to fetch grid ads");
+  const res = await fetch("/api/grid-ads", { method: "GET" });
+  if (!res.ok) throw new Error("Failed to fetch grid ads");
   return res.json();
 }
 
@@ -232,22 +231,17 @@ export async function createAds(ad: {
     method: "POST",
     headers: { "content-type": "applcation/json" },
     body: JSON.stringify(ad),
-  })
+  });
 
-  if(!res.ok) {
+  if (!res.ok) {
     const data = await res.json();
     throw new Error(data.error || "Failed to create ad");
   }
   return await res.json();
 }
 
-
-
-
-
 //chatbot
 export async function sendChatMessage(message: string) {
-
   const res = await fetch("/api/agentic-ai", {
     method: "POST",
     headers: {
@@ -262,6 +256,5 @@ export async function sendChatMessage(message: string) {
 
   return res.json();
 }
-
 
 export const apiClient = new ApiClient();

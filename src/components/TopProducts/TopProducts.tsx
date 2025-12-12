@@ -30,7 +30,6 @@ const containerVariants = {
   hidden: {},
   show: (i: number) => ({
     transition: {
-      // Stagger children only when not using reduced motion
       staggerChildren: i === 0 ? 0.12 : 0,
     },
   }),
@@ -45,34 +44,34 @@ const containerVariants = {
 //   },
 // };
 
-export default function TopProducts() {
-  const [products, setProducts] = useState<IProduct[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+export default function TopProducts({ products }: { products: IProduct[] }) {
+  // const [products, setProducts] = useState<IProduct[]>([]);
+  // const [loading, setLoading] = useState(true);
+  // const [error, setError] = useState<string | null>(null);
   const shouldReduceMotion = useReducedMotion();
 
-  const fetchTopProducts = async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const fetchedProducts: IProduct[] = await apiClient.getTopProducts();
-      if (!fetchedProducts || fetchedProducts.length === 0) {
-        setError("No top products available right now.");
-        setProducts([]);
-        return;
-      }
-      setProducts(fetchedProducts);
-    } catch (err) {
-      console.error("Error fetching top products:", err);
-      setError("Failed to fetch top products. Please check your connection.");
-    } finally {
-      setLoading(false);
-    }
-  };
+  // const fetchTopProducts = async () => {
+  //   setLoading(true);
+  //   setError(null);
+  //   try {
+  //     const fetchedProducts: IProduct[] = await apiClient.getTopProducts();
+  //     if (!fetchedProducts || fetchedProducts.length === 0) {
+  //       setError("No top products available right now.");
+  //       setProducts([]);
+  //       return;
+  //     }
+  //     setProducts(fetchedProducts);
+  //   } catch (err) {
+  //     console.error("Error fetching top products:", err);
+  //     setError("Failed to fetch top products. Please check your connection.");
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
 
-  useEffect(() => {
-    fetchTopProducts();
-  }, []);
+  // useEffect(() => {
+  //   fetchTopProducts();
+  // }, []);
 
   return (
     <motion.section
@@ -105,7 +104,7 @@ export default function TopProducts() {
             performance, reliability, and design excellence.
           </p>
         </header>
-
+        {/* 
         {loading && (
           <div
             className="grid gap-6 md:gap-8 lg:gap-10 max-w-screen-xl mx-auto grid-cols-[repeat(auto-fit,minmax(18rem,1fr))]justify-items-center justify-center px-2"
@@ -116,9 +115,9 @@ export default function TopProducts() {
               <SkeletonCard key={idx} />
             ))}
           </div>
-        )}
+        )} */}
 
-        {!loading && error && (
+        {/* {!loading && error && (
           <div className="flex flex-col items-center justify-center min-h-[320px]">
             <div className="bg-gradient-to-br from-red-500/10 to-red-900/10 border border-red-500/30 rounded-2xl p-8 backdrop-blur-md shadow-lg max-w-md w-full text-center">
               <h2 className="text-red-400 font-semibold text-lg mb-2">
@@ -146,26 +145,26 @@ export default function TopProducts() {
               </button>
             </div>
           </div>
-        )}
+        )} */}
 
-        {!loading && !error && products.length > 0 && (
-          <motion.div
-            variants={containerVariants}
-            custom={shouldReduceMotion ? 1 : 0}
-            initial="hidden"
-            animate="show"
-            className="grid p-2 sm:p-4
+        {/* {!loading && !error && products.length > 0 && ( */}
+        <motion.div
+          variants={containerVariants}
+          custom={shouldReduceMotion ? 1 : 0}
+          initial="hidden"
+          animate="show"
+          className="grid p-2 sm:p-4
     max-w-screen-xl mx-auto
     grid-cols-[repeat(auto-fit,minmax(18rem,1fr))]
     justify-items-center
     justify-center
     gap-5 sm:gap-6 md:gap-8 lg:gap-10"
-          >
-            {products.map((product) => (
-              <ProductCard key={product._id?.toString()} product={product} />
-            ))}
-          </motion.div>
-        )}
+        >
+          {products.map((product) => (
+            <ProductCard key={product._id?.toString()} product={product} />
+          ))}
+        </motion.div>
+        {/* )} */}
 
         <div className="flex justify-center mt-12">
           <Link
